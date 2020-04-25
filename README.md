@@ -1,32 +1,42 @@
 <a href="https://bluzelle.com/"><img src='https://raw.githubusercontent.com/bluzelle/api/master/source/images/Bluzelle%20-%20Logo%20-%20Big%20-%20Colour.png' alt="Bluzelle" style="width: 100%"/></a>
 
-Java library that can be used to access the Bluzelle database service.
+# Getting started
 
-# Installation
+Ensure you have java 8 or heigher.
 
-Get the latest stable version by doing the following:
+Get the package from github:
 ```
-git clone https://github.com/aqoleg/bluzelle
+git clone https://github.com/aqoleg/blzjava
 ```
-This will create a directory named *bluzelle* and download the library code to it.
-
 Or [download](https://github.com/aqoleg/blzjava/releases/download/1.0.0/blzjava.jar) jar file and add classpath.
 
-For in-place use, create import:
-```
+Use:
+```java
 import space.aqoleg.bluzelle.*;
-```
-You can then use the various functions described below.
 
-# Getting Started
+public class Main {
+    public static void main(String[] args) {
+        Bluzelle bluzelle = Bluzelle.getInstance(
+            "address",
+            "mnemonic",
+            "endpoint",
+            "uuid",
+            "chainId"
+        );
 
-In general, you must initialize bluzelle before calling any other functions. Do the following (using your own configuration parameters as applicable) to initialize:
-```
-Bluzelle bluzelle = Bluzelle.getInstance(address, mnemonic, uuid, endpoint, chainId);
-```
-This performs some initial checks, retrieves your account information, and returns an object through which you can call the rest of the API functions.
+        GasInfo gasInfo = new GasInfo(0, 0, 300);
+        LeaseInfo leaseInfo = new LeaseInfo(1, 0, 0, 0);
 
-You may now use the functions described below to perform database operations, as well as retrieve account and status information.
+        bluzelle.create("key", "value", gasInfo, leaseInfo);
+        bluzelle.update("key", "new value", gasInfo, leaseInfo);
+        System.out.println(bluzelle.read("key", false));
+        bluzelle.delete("key", gasInfo);
+        System.out.println(bluzelle.has("key"));
+    }
+}
+```
+
+You can find javadocs for all public functions and some [examples](https://github.com/aqoleg/blzjava/tree/master/samples).
 
 # API documentation
 
