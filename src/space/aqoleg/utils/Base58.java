@@ -1,8 +1,6 @@
 // base58 decoder and encoder
 package space.aqoleg.utils;
 
-import space.aqoleg.exception.UtilException;
-
 import java.math.BigInteger;
 
 public class Base58 {
@@ -42,7 +40,7 @@ public class Base58 {
      * @param string base58 String to be decoded
      * @return a byte array containing decoded string
      * @throws NullPointerException if string == null
-     * @throws UtilException        if string contain non-base58 symbols
+     * @throws ParseException       if string contains non-base58 symbols
      */
     public static byte[] decode(String string) {
         if (string.isEmpty()) {
@@ -59,7 +57,7 @@ public class Base58 {
                     x = x.add(base.multiply(BigInteger.valueOf(j)));
                     break;
                 } else if (j == 57) {
-                    throw new UtilException("unaccepted symbol '" + c + "'");
+                    throw new ParseException("unaccepted symbol '" + c + "'");
                 }
             }
             base = base.multiply(Base58.base);

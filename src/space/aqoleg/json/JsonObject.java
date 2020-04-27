@@ -1,8 +1,19 @@
-// canonical json
 // integer and boolean always represents as string
+// usage:
+//    JsonObject jsonObject = JsonObject.parse(jsonString);
+//    JsonObject jsonObject = new JsonObject();
+//    jsonObject.put(keyString, valueString);
+//    jsonObject.put(keyString, jsonArray);
+//    jsonObject.put(keyString, jsonObject);
+//    jsonObject.put(keyString, null);
+//    jsonObject.put(keyString, 5); // any other value will be used as String
+//    String string = jsonObject.getString(keyString);
+//    JsonArray jsonArray = jsonObject.getArray(keyString);
+//    JsonObject jsonObject = jsonObject.getObject(keyString);
+//    String jsonString = jsonObject.toString();
 package space.aqoleg.json;
 
-import space.aqoleg.exception.JsonException;
+import space.aqoleg.utils.ParseException;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -14,17 +25,17 @@ public class JsonObject {
      * @param source String to be parsed
      * @return JsonObject created from this source
      * @throws NullPointerException if source == null
-     * @throws JsonException        if source is incorrect
+     * @throws ParseException       if source is incorrect
      */
     public static JsonObject parse(String source) {
-        JsonParser parser = new JsonParser(source);
+        Parser parser = new Parser(source);
         if (parser.nextChar() != '{') {
             throw parser.exception("incorrect first char");
         }
         return parse(parser);
     }
 
-    static JsonObject parse(JsonParser parser) {
+    static JsonObject parse(Parser parser) {
         JsonObject jsonObject = new JsonObject();
         if (parser.nextChar() == '}') {
             return jsonObject;
@@ -58,7 +69,7 @@ public class JsonObject {
      * @param key key
      * @return JsonObject associated with this key or null
      * @throws NullPointerException if key == null
-     * @throws JsonException        if object is not a JsonObject or null
+     * @throws ParseException       if object is not a JsonObject or null
      */
     public JsonObject getObject(String key) {
         Object object = map.get(key);
@@ -67,7 +78,7 @@ public class JsonObject {
         } else if (object instanceof JsonObject) {
             return (JsonObject) object;
         } else {
-            throw new JsonException("not a JsonObject");
+            throw new ParseException("not a JsonObject");
         }
     }
 
@@ -75,7 +86,7 @@ public class JsonObject {
      * @param key key
      * @return JsonArray associated with this key or null
      * @throws NullPointerException if key == null
-     * @throws JsonException        if object is not a JsonArray or null
+     * @throws ParseException       if object is not a JsonArray or null
      */
     public JsonArray getArray(String key) {
         Object object = map.get(key);
@@ -84,7 +95,7 @@ public class JsonObject {
         } else if (object instanceof JsonArray) {
             return (JsonArray) object;
         } else {
-            throw new JsonException("not a JsonArray");
+            throw new ParseException("not a JsonArray");
         }
     }
 
@@ -92,7 +103,7 @@ public class JsonObject {
      * @param key key
      * @return String associated with this key or null
      * @throws NullPointerException if key == null
-     * @throws JsonException        if object is not a String or null
+     * @throws ParseException       if object is not a String or null
      */
     public String getString(String key) {
         Object object = map.get(key);
@@ -101,7 +112,7 @@ public class JsonObject {
         } else if (object instanceof String) {
             return (String) object;
         } else {
-            throw new JsonException("not a String");
+            throw new ParseException("not a String");
         }
     }
 
@@ -109,7 +120,7 @@ public class JsonObject {
      * put pair {"key":value} in this JsonObject, or rewrite if JsonObject already contains this key
      *
      * @param key   key
-     * @param value null, JsonObject, JsonArray; if any other object, use toString()
+     * @param value null, JsonObject, JsonArray; if any other object, uses toString()
      * @return this
      * @throws NullPointerException if key == null
      */
@@ -143,18 +154,7 @@ public class JsonObject {
             builder.append(entry.getKey());
             builder.append("\"");
             builder.append(":");
-            Object value = entry.getValue();
-            if (value == null) {
-                builder.append("null");
-            } else if (value instanceof JsonObject) {
-                ((JsonObject) value).append(builder);
-            } else if (value instanceof JsonArray) {
-                ((JsonArray) value).append(builder);
-            } else {
-                builder.append("\"");
-                builder.append(value);
-                builder.append("\"");
-            }
+            Writer.writeObject(builder, entry.getValue());
         }
         builder.append("}");
     }

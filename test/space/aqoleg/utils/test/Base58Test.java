@@ -1,8 +1,8 @@
 package space.aqoleg.utils.test;
 
 import org.junit.jupiter.api.Test;
-import space.aqoleg.exception.UtilException;
 import space.aqoleg.utils.Base58;
+import space.aqoleg.utils.ParseException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,7 +12,7 @@ class Base58Test {
     void test() {
         assertThrows(NullPointerException.class, () -> Base58.encode(null));
         assertThrows(NullPointerException.class, () -> Base58.decode(null));
-        assertThrows(UtilException.class, () -> Base58.decode("1I"));
+        assertThrows(ParseException.class, () -> Base58.decode("1I"));
 
         test("", new byte[]{});
         test("1", new byte[]{0});

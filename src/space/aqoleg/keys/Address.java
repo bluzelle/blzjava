@@ -1,4 +1,11 @@
 // p2pkh and p2sh addresses
+// usage:
+//    Address address = new Address(string);
+//    Address address = Address.createFromHash(bytes, isP2pkh);
+//    Address address = Address.createFromPublicKey(publicKey);
+//    String string = address.toString();
+//    byte[] hash = address.getHash();
+//    boolean isP2pkh = address.p2pkh;
 //
 // address bytes:
 //    1 byte, version, 0 - p2pkh, 5 - p2sh
@@ -7,9 +14,8 @@
 package space.aqoleg.keys;
 
 import space.aqoleg.crypto.Sha256;
-import space.aqoleg.exception.KeyException;
-import space.aqoleg.exception.UtilException;
 import space.aqoleg.utils.Base58;
+import space.aqoleg.utils.ParseException;
 
 import java.util.Arrays;
 
@@ -32,7 +38,7 @@ public class Address {
     /**
      * @param address String containing address
      * @throws NullPointerException if address == null
-     * @throws UtilException        if address is incorrect
+     * @throws ParseException       if address is incorrect
      * @throws KeyException         if address is incorrect
      */
     public Address(String address) {

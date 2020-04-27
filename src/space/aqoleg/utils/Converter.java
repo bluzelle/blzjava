@@ -1,8 +1,6 @@
 // bytes-to-hex, hex-to-bytes and hex-to-string converters
 package space.aqoleg.utils;
 
-import space.aqoleg.exception.UtilException;
-
 public class Converter {
 
     /**
@@ -27,7 +25,7 @@ public class Converter {
      * @param hex String in hex, can start with 0x
      * @return byte array created from this hex String, big endian
      * @throws NullPointerException if hex == null
-     * @throws UtilException        if string contains not accepted symbols
+     * @throws ParseException       if string contains non-accepted symbols
      */
     public static byte[] hexToBytes(String hex) {
         if (hex.startsWith("0x")) {
@@ -43,11 +41,11 @@ public class Converter {
         for (int i = 0; i < length; i += 2) {
             firstChar = Character.digit(hex.charAt(i), 16);
             if (firstChar < 0) {
-                throw new UtilException("unaccepted symbol " + hex.charAt(i));
+                throw new ParseException("unaccepted symbol " + hex.charAt(i));
             }
             secondChar = Character.digit(hex.charAt(i + 1), 16);
             if (secondChar < 0) {
-                throw new UtilException("unaccepted symbol " + hex.charAt(i + 1));
+                throw new ParseException("unaccepted symbol " + hex.charAt(i + 1));
             }
             bytes[i / 2] = (byte) (firstChar << 4 | secondChar);
         }
@@ -58,7 +56,7 @@ public class Converter {
      * @param hex String in hex, can start with 0x
      * @return String created from this hex String
      * @throws NullPointerException if hex == null
-     * @throws UtilException        if string contains not accepted symbols
+     * @throws ParseException       if string contains non-accepted symbols
      */
     public static String hexToString(String hex) {
         if (hex.startsWith("0x")) {
@@ -75,11 +73,11 @@ public class Converter {
         for (int i = 0; i < length; i += 2) {
             firstChar = Character.digit(hex.charAt(i), 16);
             if (firstChar < 0) {
-                throw new UtilException("unaccepted symbol " + hex.charAt(i));
+                throw new ParseException("unaccepted symbol " + hex.charAt(i));
             }
             secondChar = Character.digit(hex.charAt(i + 1), 16);
             if (secondChar < 0) {
-                throw new UtilException("unaccepted symbol " + hex.charAt(i + 1));
+                throw new ParseException("unaccepted symbol " + hex.charAt(i + 1));
             }
             builder.append((char) (firstChar << 4 | secondChar));
         }

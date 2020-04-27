@@ -1,4 +1,7 @@
 // cryptographic hash function
+// usage:
+//    byte[] hash = Ripemd160.getHash(bytes);
+//    byte[] hash = Ripemd160.getHash(bytes, start, length);
 package space.aqoleg.crypto;
 
 public class Ripemd160 {
@@ -48,7 +51,7 @@ public class Ripemd160 {
      * @param messageLength the number of the bytes containing message
      * @return 20-bytes hash
      * @throws NullPointerException           if message == null
-     * @throws ArrayIndexOutOfBoundsException if incorrect messageStart or messageLength
+     * @throws ArrayIndexOutOfBoundsException if messageStart or messageLength is incorrect
      */
     public static byte[] getHash(byte[] message, int messageStart, int messageLength) {
         int[] hash = {0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0}; // 160-bit hash

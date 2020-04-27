@@ -1,4 +1,7 @@
 // cryptographic hash function
+// usage:
+//    byte[] hash = Sha256.getHash(bytes);
+//    byte[] hash = Sha256.getHash(bytes, start, length);
 package space.aqoleg.crypto;
 
 public class Sha256 {
@@ -28,7 +31,7 @@ public class Sha256 {
      * @param messageLength the number of the bytes containing message
      * @return 32-bytes hash
      * @throws NullPointerException           if message == null
-     * @throws ArrayIndexOutOfBoundsException if incorrect messageStart or messageLength
+     * @throws ArrayIndexOutOfBoundsException if messageStart or messageLength is incorrect
      */
     public static byte[] getHash(byte[] message, int messageStart, int messageLength) {
         int[] hash = {0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,

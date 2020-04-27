@@ -1,12 +1,12 @@
 package space.aqoleg.json;
 
-import space.aqoleg.exception.JsonException;
+import space.aqoleg.utils.ParseException;
 
-class JsonParser {
+class Parser {
     private final String source;
     private int index = 0;
 
-    JsonParser(String source) {
+    Parser(String source) {
         this.source = source;
     }
 
@@ -74,8 +74,8 @@ class JsonParser {
         }
     }
 
-    JsonException exception(String message) {
-        return new JsonException(source + " at index " + (index - 1) + ": " + message);
+    ParseException exception(String message) {
+        return new ParseException(source + " at index " + (index - 1) + ": " + message);
     }
 
     private String parseString() {

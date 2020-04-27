@@ -1,11 +1,22 @@
 // elliptic curve cryptography
-// creates and validates elliptic curve over finite field, or returns secp256k1 curve
-// creates and validates point on that curve by x and y or just x
-// operations: p == q, p == infinity, p + q, p * r, g * r
-// signs and verifies messages
+// usage:
+//    creates and validates elliptic curve over finite field, or returns secp256k1 curve
+//       Ecc ecc = Ecc.getEcc(aBigInteger, bBigInteger, pBigInteger, nBigInteger, gXBigInteger, gYBigInteger);
+//       Ecc ecc = Ecc.secp256k1;
+//    creates and validates point on that curve by x and y or just x
+//       Ecc.Point point = ecc.createPoint(xBigInteger, yBigInteger);
+//       Ecc.Point point = ecc.createPoint(xBigInteger, even);
+//    performs operations with point
+//       Ecc.Point point = aPoint.add(bPoint);
+//       Ecc.Point point = aPoint.multiply(bBigInteger);
+//       Ecc.Point point = ecc.gMultiply(aBigInteger);
+//       boolean equal = aPoint.isEqual(bPoint);
+//       BigInteger x = point.x;
+//       BigInteger y = point.y;
+//    signs and verifies messages
+//       BigInteger[] signatureRS = ecc.sign(messageBytes, privateKeyBigInteger);
+//       boolean verified = ecc.verify(messageBytes, publicKeyPoint, signatureRS);
 package space.aqoleg.crypto;
-
-import space.aqoleg.exception.EccException;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -23,7 +34,7 @@ public class Ecc {
     // point at infinity, infinity + q = q, infinity * r = infinity
     private final Point infinity = new Point();
     // subgroup, g * r = g * (r % n)
-    // n is the smallest such that g * n = infinity, n < p, private key < n
+    // n is the smallest integer such that g * n = infinity, n < p; 0 < private key < n
     private BigInteger n = BigInteger.ZERO; // order of the subgroup
     private BigInteger halfN = BigInteger.ZERO; // = n / 2
     private Point g = infinity; // base point, generator
@@ -208,20 +219,20 @@ public class Ecc {
      * @param message the message to be signed
      * @param d       private key to sign message
      * @return BigInteger [r, s]
-     * @throws NullPointerException          if message == null or d == null
-     * @throws UnsupportedOperationException if message is too big
+     * @throws NullPointerException if message == null or d == null
+     * @throws EccException         if message is too big
      */
     public BigInteger[] sign(byte[] message, BigInteger d) {
         BigInteger z = new BigInteger(1, message);
         if (z.bitLength() > n.bitLength()) {
-            throw new UnsupportedOperationException("the message is too big, requires bitLength <= n.bitLength");
+            throw new EccException("the message is too big, requires bitLength <= n.bitLength");
         }
         BigInteger r;
         BigInteger s = BigInteger.ZERO;
+        Random random = new SecureRandom();
         do {
             // random integer k, 1 <= k < n
             BigInteger k;
-            Random random = new SecureRandom();
             do {
                 k = new BigInteger(n.bitLength(), random);
             } while (k.bitLength() < (n.bitLength() >> 1) || k.compareTo(n) >= 0);

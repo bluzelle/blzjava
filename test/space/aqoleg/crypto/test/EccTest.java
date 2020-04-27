@@ -2,7 +2,7 @@ package space.aqoleg.crypto.test;
 
 import org.junit.jupiter.api.Test;
 import space.aqoleg.crypto.Ecc;
-import space.aqoleg.exception.EccException;
+import space.aqoleg.crypto.EccException;
 import space.aqoleg.utils.Converter;
 
 import java.math.BigInteger;
@@ -480,7 +480,7 @@ class EccTest {
         byte[] message = new byte[]{45, 44, 47, 0, 0, 99, 11};
         BigInteger[] signature = curve.sign(message, privateKey);
         assertThrows(
-                UnsupportedOperationException.class,
+                EccException.class,
                 () -> curve.sign(new byte[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, privateKey)
         );
         assertFalse(curve.verify(new byte[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, publicKey, signature));
@@ -493,7 +493,7 @@ class EccTest {
         assertTrue(curve.verify(message, publicKey, signature));
 
         Ecc curveA = Ecc.getEcc(a, b, p);
-        assertThrows(UnsupportedOperationException.class, () -> curveA.sign(message, privateKey));
+        assertThrows(EccException.class, () -> curveA.sign(message, privateKey));
         assertFalse(curveA.verify(message, publicKey, signature));
     }
 

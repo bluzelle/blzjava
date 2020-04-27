@@ -1,6 +1,8 @@
 // makes seed from the mnemonic, see bip39
 // blockchain.com passphrase = "mnemonic"
 // electrum passphrase = "electrum"
+// usage:
+//    byte[] seed = Mnemonic.createSeed(mnemonicString, passphraseString);
 package space.aqoleg.keys;
 
 import space.aqoleg.crypto.HmacSha512;

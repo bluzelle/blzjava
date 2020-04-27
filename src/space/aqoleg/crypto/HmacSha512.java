@@ -1,4 +1,6 @@
 // hash-based message authentication code using sha512
+// usage:
+//    byte[] mac = HmacSha512.getMac(messageBytes, keyBytes);
 package space.aqoleg.crypto;
 
 import java.util.Arrays;

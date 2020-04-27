@@ -1,12 +1,12 @@
 package space.aqoleg.keys.test;
 
 import org.junit.jupiter.api.Test;
-import space.aqoleg.exception.KeyException;
-import space.aqoleg.exception.UtilException;
 import space.aqoleg.keys.Address;
+import space.aqoleg.keys.KeyException;
 import space.aqoleg.keys.KeyPair;
 import space.aqoleg.keys.PublicKey;
 import space.aqoleg.utils.Converter;
+import space.aqoleg.utils.ParseException;
 
 import java.math.BigInteger;
 
@@ -18,7 +18,7 @@ class AddressTest {
     void test1() {
         assertThrows(NullPointerException.class, () -> new Address(null));
         assertThrows(
-                UtilException.class,
+                ParseException.class,
                 () -> new Address("4Ii")
         );
         assertThrows(

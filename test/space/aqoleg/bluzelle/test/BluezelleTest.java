@@ -12,6 +12,25 @@ import static org.junit.jupiter.api.Assertions.*;
 class BluezelleTest {
 
     @Test
+    void test1() {
+        GasInfo gasInfo = new GasInfo(0, 0, 1000);
+        LeaseInfo leaseInfo = new LeaseInfo(0, 1, 0, 0);
+        Bluzelle bluzelle = Bluzelle.getInstance(
+                "bluzelle1upsfjftremwgxz3gfy0wf3xgvwpymqx754ssu9",
+                "around buzz diagram captain obtain detail salon mango muffin brother morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car",
+                "http://testnet.public.bluzelle.com:1317",
+                null,
+                null
+        );
+        bluzelle.deleteAll(gasInfo);
+        bluzelle.create("key Д\" =? k", "value немаловероятно", gasInfo, leaseInfo);
+        assertEquals("value немаловероятно", bluzelle.read("key Д\" =? k", false));
+        assertNull(bluzelle.read("nokey", true));
+        // assertEquals("value немаловероятно", bluzelle.txRead("key Д\" =? k", gasInfo));
+        bluzelle.keyValues().forEach((key, value) -> System.out.println(key + ":" + value));
+    }
+
+    @Test
     void test() {
         GasInfo gasInfo = new GasInfo(0, 0, 1000);
         LeaseInfo leaseInfo = new LeaseInfo(0, 1, 0, 0);
@@ -25,7 +44,7 @@ class BluezelleTest {
 
         bluzelle.deleteAll(gasInfo);
         bluzelle.create("newkeytest1", "value 1221 1 1 1", gasInfo, null);
-        bluzelle.create("newkeytest2", null, gasInfo, null);
+        bluzelle.create("newkeytest2", "33", gasInfo, null);
         bluzelle.create("newkeytest3", "value", gasInfo, null);
         bluzelle.create("newkeytest4", "new value test 4", gasInfo, null);
         assertNull(bluzelle.read("nonexistingkey", true));

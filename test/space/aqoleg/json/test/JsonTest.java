@@ -1,9 +1,9 @@
 package space.aqoleg.json.test;
 
 import org.junit.jupiter.api.Test;
-import space.aqoleg.exception.JsonException;
 import space.aqoleg.json.JsonArray;
 import space.aqoleg.json.JsonObject;
+import space.aqoleg.utils.ParseException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,11 +15,11 @@ class JsonTest {
         assertEquals("{\"one\":\"1\"}", json.toString());
         // unclosed
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("")
         );
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{")
         );
     }
@@ -28,16 +28,16 @@ class JsonTest {
     void nextKeyTest() {
         // not a key
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{one\":  }")
         );
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{{\"one\":")
         );
         // empty key
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\"\":1")
         );
     }
@@ -48,12 +48,12 @@ class JsonTest {
         assertEquals("{\"four\":\"8E461\",\"one\":null,\"three\":\"-900.89\",\"two\":\"true\"}", json.toString());
         // no value
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\"one\":  }")
         );
         // unclosed
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\"one\": tr")
         );
     }
@@ -62,21 +62,38 @@ class JsonTest {
     void parseStringTest() {
         // unclosed
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\"one\":\"t")
         );
         // incorrect char
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\" \\g\"")
         );
         // incorrect char u
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\"one\":\"r\\uuuuu\"")
         );
-        JsonObject json = JsonObject.parse("{\"one\":\"\\u0048\"}");
+        JsonObject json = JsonObject.parse("{\"one\":\" \\\", \\\\, \\/ \"}");
+        assertEquals(" \", \\, / ", json.getString("one"));
+        // non-canonical use for signature
+        // assertEquals("{\"one\":\" \\\", \\\\, \\/ \"}", json.toString());
+        assertEquals("{\"one\":\" \\\", \\\\, / \"}", json.toString());
+
+        json = JsonObject.parse("{\"one\":\" \\b, \\f, \\n, \\r, \\t \"}");
+        assertEquals(" \b, \f, \n, \r, \t ", json.getString("one"));
+        assertEquals("{\"one\":\" \\b, \\f, \\n, \\r, \\t \"}", json.toString());
+
+        json = JsonObject.parse("{\"one\":\"\\u0048\"}");
         assertEquals("{\"one\":\"H\"}", json.toString());
+
+        json = new JsonObject();
+        json.put("one", ">,  < < \\ &&");
+        assertEquals(">,  < < \\ &&", json.getString("one"));
+        assertEquals("{\"one\":\"\\u003E,  \\u003C \\u003C \\\\ \\u0026\\u0026\"}", json.toString());
+        json = JsonObject.parse(json.toString());
+        assertEquals(">,  < < \\ &&", json.getString("one"));
     }
 
     @Test
@@ -87,22 +104,22 @@ class JsonTest {
         );
         // incorrect first char
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("r")
         );
         // duplicate key
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\"one\":1,\"one\":1}")
         );
         // no ':' after key
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\"one\"1}")
         );
         // unexpected symbol
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\"one\":1:")
         );
     }
@@ -118,7 +135,7 @@ class JsonTest {
         assertEquals("{}", json.getObject("one").toString());
         // not a JsonObject
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> json.getObject("two")
         );
         assertNull(json.getObject("three"));
@@ -135,7 +152,7 @@ class JsonTest {
         assertEquals("[]", json.getArray("one").toString());
         // not a JsonArray
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> json.getArray("two")
         );
         assertNull(json.getArray("three"));
@@ -152,7 +169,7 @@ class JsonTest {
         assertEquals("2", json.getString("two"));
         // not a String
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> json.getString("one")
         );
         assertNull(json.getArray("three"));
@@ -180,7 +197,7 @@ class JsonTest {
     void arrayParse() {
         // unexpected symbol
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> JsonObject.parse("{\"one\":[\"one\",\"two\":]}")
         );
     }
@@ -201,7 +218,7 @@ class JsonTest {
         assertEquals("{}", json.getObject(0).toString());
         // not a JsonObject
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> json.getObject(1)
         );
     }
@@ -221,7 +238,7 @@ class JsonTest {
         assertEquals("[]", json.getArray(1).toString());
         // not a JsonArray
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> json.getObject(2)
         );
     }
@@ -241,7 +258,7 @@ class JsonTest {
         assertEquals("three", json.getString(2));
         // not a String
         assertThrows(
-                JsonException.class,
+                ParseException.class,
                 () -> json.getString(1)
         );
     }

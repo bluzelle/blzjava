@@ -2,9 +2,9 @@ package space.aqoleg.keys.test;
 
 import org.junit.jupiter.api.Test;
 import space.aqoleg.crypto.Ecc;
-import space.aqoleg.exception.KeyException;
-import space.aqoleg.exception.UtilException;
+import space.aqoleg.keys.KeyException;
 import space.aqoleg.keys.KeyPair;
+import space.aqoleg.utils.ParseException;
 
 import java.math.BigInteger;
 
@@ -31,7 +31,7 @@ class KeyPairTest {
     void wif() {
         assertThrows(NullPointerException.class, () -> KeyPair.decode(null));
         assertThrows(
-                UtilException.class,
+                ParseException.class,
                 () -> KeyPair.decode("Iq1Z1yeeVAZaPfFzuB94SMMHiBbkEv3zDHmGv8w3Myx8VQzqy6R")
         );
         assertThrows(

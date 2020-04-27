@@ -2,6 +2,19 @@
 // blockchain.com   m/44'/0'/account'/external ? 0 : 1/index
 // electrum   m/external ? 0 : 1/index
 //
+// usage:
+//    HdKeyPair hdKeyPair = HdKeyPair.deserialize(string);
+//    HdKeyPair hdKeyPair = HdKeyPair.createMaster(seedBytes);
+//    HdKeyPair hdKeyPair = hdKeyPair.generateChild(pathString);
+//    HdKeyPair hdKeyPair = hdKeyPair.generateChild(keyNumber, isHardened);
+//    String string = hdKeyPair.serialize(isPrivate);
+//    String path = hdKeyPair.path;
+//    int depth = hdKeyPair.depth;
+//    int keyNumber = hdKeyPair.keyNumber;
+//    boolean isHardened = hdKeyPair.isHardened;
+//    BigInteger privateKey = hdKeyPair.d;
+//    PublicKey publicKey = hdKeyPair.publicKey;
+//
 // serialized bytes:
 //    intBE, version, private - 0x0488ADE4, public - 0x0488B21E
 //    1 byte, depth
@@ -16,17 +29,15 @@ import space.aqoleg.crypto.Ecc;
 import space.aqoleg.crypto.HmacSha512;
 import space.aqoleg.crypto.Ripemd160;
 import space.aqoleg.crypto.Sha256;
-import space.aqoleg.exception.KeyException;
-import space.aqoleg.exception.UtilException;
 import space.aqoleg.utils.Base58;
 import space.aqoleg.utils.BytesInput;
 import space.aqoleg.utils.BytesOutput;
+import space.aqoleg.utils.ParseException;
 
 import java.math.BigInteger;
 import java.util.Arrays;
 
-public class HdKeyPair {
-    public final KeyPair keyPair; // compressed
+public class HdKeyPair extends KeyPair {
     public final String path; // path of this key as m/1'/55
     public final int depth; // depth of the derivation path, 0 for the master key
     public final int keyNumber; // key number, 0 for the master key
@@ -43,7 +54,7 @@ public class HdKeyPair {
             byte[] fingerprint,
             byte[] chainCode
     ) {
-        keyPair = new KeyPair(privateKey, true); // compressed, throws exception if private key is not valid
+        super(privateKey, true); // compressed, throws exception if private key is not valid
         this.path = path;
         this.depth = depth;
         this.keyNumber = keyNumber;
@@ -71,8 +82,8 @@ public class HdKeyPair {
      * @param string Serialized string
      * @return HdKeyPair deserialized from this string
      * @throws NullPointerException if string == null
-     * @throws UtilException        if string is incorrect
-     * @throws KeyException         if string is incorrect or key is incorrect
+     * @throws ParseException       if string is incorrect
+     * @throws KeyException         if key is incorrect
      */
     public static HdKeyPair deserialize(String string) {
         byte[] serialized = Base58.decode(string);
@@ -143,12 +154,12 @@ public class HdKeyPair {
         // byte[33], key, for hardened first byte is zero, for non-hardened public use compressed public key
         // intBE, key number, += 2^31 for the hardened keys
         if (isHardened) {
-            byte[] key = keyPair.d.toByteArray();
+            byte[] key = d.toByteArray();
             // BigInteger byte array is the signed two's-complement representation, so the first byte can be 0
             int keyStart = key[0] == 0 ? 1 : 0;
             System.arraycopy(key, keyStart, data, 33 - (key.length - keyStart), key.length - keyStart);
         } else {
-            byte[] key = keyPair.publicKey.toByteArray();
+            byte[] key = publicKey.toByteArray();
             System.arraycopy(key, 0, data, 0, 33);
         }
         data[33] = (byte) (keyNumber >>> 24);
@@ -167,11 +178,11 @@ public class HdKeyPair {
         if (privateKey.compareTo(Ecc.secp256k1.getN()) >= 0) {
             throw new KeyException("this key is not less than n");
         }
-        privateKey = keyPair.d.add(privateKey).mod(Ecc.secp256k1.getN());
+        privateKey = d.add(privateKey).mod(Ecc.secp256k1.getN());
         if (privateKey.signum() <= 0) {
             throw new KeyException("this key is zero");
         }
-        byte[] fingerprint = Arrays.copyOfRange(Ripemd160.getHash(Sha256.getHash(keyPair.publicKey.toByteArray())), 0, 4);
+        byte[] fingerprint = Arrays.copyOfRange(Ripemd160.getHash(Sha256.getHash(publicKey.toByteArray())), 0, 4);
         String path = this.path + "/" + keyNumber;
         if (isHardened) {
             path += "'";
@@ -234,14 +245,14 @@ public class HdKeyPair {
         bytes.writeIntBE(n);
         bytes.writeBytes(chainCode);
         if (isKeyPrivate) {
-            byte[] d = keyPair.d.toByteArray();
+            byte[] d = this.d.toByteArray();
             // BigInteger byte array is the signed two's-complement representation, so the first byte can be 0
             int dStart = d[0] == 0 ? 1 : 0;
             byte[] key = new byte[33];
             System.arraycopy(d, dStart, key, 33 - (d.length - dStart), d.length - dStart);
             bytes.writeBytes(key, 0, 33);
         } else {
-            bytes.writeBytes(keyPair.publicKey.toByteArray());
+            bytes.writeBytes(publicKey.toByteArray());
         }
         byte[] checksum = Sha256.getHash(Sha256.getHash(bytes.toByteArray()));
         bytes.writeBytes(checksum, 0, 4);

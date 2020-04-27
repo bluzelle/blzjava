@@ -1,6 +1,4 @@
-import space.aqoleg.bluzelle.Bluzelle;
-import space.aqoleg.bluzelle.GasInfo;
-import space.aqoleg.bluzelle.LeaseInfo;
+import space.aqoleg.bluzelle.*;
 
 public class FirstStep {
 

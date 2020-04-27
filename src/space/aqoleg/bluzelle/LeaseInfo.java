@@ -1,8 +1,7 @@
 package space.aqoleg.bluzelle;
 
-import static space.aqoleg.bluzelle.Bluzelle.blockTimeSeconds;
-
 public class LeaseInfo {
+    static final int blockTimeSeconds = 5;
     final int blocks;
 
     /**

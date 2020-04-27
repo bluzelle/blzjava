@@ -1,10 +1,10 @@
 package space.aqoleg.keys.test;
 
 import org.junit.jupiter.api.Test;
-import space.aqoleg.exception.KeyException;
-import space.aqoleg.exception.UtilException;
 import space.aqoleg.keys.HdKeyPair;
+import space.aqoleg.keys.KeyException;
 import space.aqoleg.keys.Mnemonic;
+import space.aqoleg.utils.ParseException;
 
 import java.math.BigInteger;
 
@@ -228,11 +228,11 @@ class HdKeyPairTest {
         assertFalse(hdKeyPair1.isHardened);
         assertEquals(
                 "L4rEhWkf9sAXRM9dQzjyaP1jRdSouueHrtSj8X183K24hstB8FNw",
-                hdKeyPair1.keyPair.encode()
+                hdKeyPair1.encode()
         );
         assertEquals(
                 "1PckU5bcQY3o8w81RD6ojbzgzMHL8YBPA3",
-                hdKeyPair1.keyPair.getAddress()
+                hdKeyPair1.getAddress()
         );
         desrerializeTest(hdKeyPair1.serialize(true), hdKeyPair1, "m//3");
 
@@ -245,11 +245,11 @@ class HdKeyPairTest {
         assertTrue(hdKeyPair1.isHardened);
         assertEquals(
                 "Kzpej1ZPs1siQCSqFJ4Uj7HKNPHbhHK8rpeBoNbq6K2TAse5pyx2",
-                hdKeyPair1.keyPair.encode()
+                hdKeyPair1.encode()
         );
         assertEquals(
                 "1FS5fULPcy4wDgmtQoTBb1eDzFoUpCU8k",
-                hdKeyPair1.keyPair.getAddress()
+                hdKeyPair1.getAddress()
         );
         hdKeyPair1 = hdKeyPair.generateChild(17, true);
         assertEquals("m/426788'/677/5777'/9/0/0/8887'/78/0/17'", hdKeyPair1.path);
@@ -258,11 +258,11 @@ class HdKeyPairTest {
         assertTrue(hdKeyPair1.isHardened);
         assertEquals(
                 "KxaPE46BxLLk8sjDiU6YcQZeSpDSm56L6kjyWRstYiUkf8QEqRZH",
-                hdKeyPair1.keyPair.encode()
+                hdKeyPair1.encode()
         );
         assertEquals(
                 "1QvfYoqcDrpjnntYRbvKKQ9GDQxrcsFXE",
-                hdKeyPair1.keyPair.getAddress()
+                hdKeyPair1.getAddress()
         );
         desrerializeTest(hdKeyPair1.serialize(true), hdKeyPair1, "m//////////17'");
     }
@@ -270,7 +270,7 @@ class HdKeyPairTest {
     @Test
     void deserializeTest() {
         assertThrows(NullPointerException.class, () -> HdKeyPair.deserialize(null));
-        assertThrows(UtilException.class, () -> HdKeyPair.deserialize("II"));
+        assertThrows(ParseException.class, () -> HdKeyPair.deserialize("II"));
         assertThrows(KeyException.class, () -> HdKeyPair.deserialize("shirtmsg"));
         String xdrv = "xdrv9s21ZrQH143K3QTDL4LXw2F7HEK3wJUD2nW2nRk4stbPy6cq3jPPqjiChkVvvNKmPGJxWUtg6LnF5kejMRNN"
                 + "U3TGtRBeJgk33yuGBxrMPHi";
@@ -288,8 +288,8 @@ class HdKeyPairTest {
         assertEquals(hdKeyPair.keyNumber, deserialized.keyNumber);
         assertEquals(hdKeyPair.depth, deserialized.depth);
         assertEquals(hdKeyPair.isHardened, deserialized.isHardened);
-        assertEquals(0, hdKeyPair.keyPair.d.compareTo(deserialized.keyPair.d));
-        assertEquals(hdKeyPair.keyPair.getAddress(), deserialized.keyPair.getAddress());
+        assertEquals(0, hdKeyPair.d.compareTo(deserialized.d));
+        assertEquals(hdKeyPair.getAddress(), deserialized.getAddress());
         assertEquals(path, deserialized.path);
         assertEquals(serialized, HdKeyPair.deserialize(serialized).serialize(true));
     }

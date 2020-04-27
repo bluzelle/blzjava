@@ -2,8 +2,8 @@ package space.aqoleg.keys.test;
 
 import org.junit.jupiter.api.Test;
 import space.aqoleg.crypto.Ecc;
-import space.aqoleg.exception.EccException;
-import space.aqoleg.exception.KeyException;
+import space.aqoleg.crypto.EccException;
+import space.aqoleg.keys.KeyException;
 import space.aqoleg.keys.KeyPair;
 import space.aqoleg.keys.PublicKey;
 import space.aqoleg.utils.Converter;

@@ -1,4 +1,11 @@
 // bitcoin public key
+// usage:
+//    PublicKey publicKey = PublicKey.createFromBytes(bytes);
+//    PublicKey publicKey = new PublicKey(eccPoint, compressed);
+//    byte[] hash = publicKey.getHash();
+//    byte[] bytes = publicKey.toByteArray();
+//    boolean compressed = publicKey.compressed;
+//    Ecc.Point point = publicKey.point;
 //
 // uncompressed bytes:
 //    1 byte, 0x04
@@ -11,10 +18,9 @@
 package space.aqoleg.keys;
 
 import space.aqoleg.crypto.Ecc;
+import space.aqoleg.crypto.EccException;
 import space.aqoleg.crypto.Ripemd160;
 import space.aqoleg.crypto.Sha256;
-import space.aqoleg.exception.EccException;
-import space.aqoleg.exception.KeyException;
 
 import java.math.BigInteger;
 import java.util.Arrays;

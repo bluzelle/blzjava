@@ -1,8 +1,8 @@
 package space.aqoleg.utils.test;
 
 import org.junit.jupiter.api.Test;
-import space.aqoleg.exception.UtilException;
 import space.aqoleg.utils.Converter;
+import space.aqoleg.utils.ParseException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,8 +32,8 @@ class ConverterTest {
 
     @Test
     void hexToBytes() {
-        assertThrows(UtilException.class, () -> Converter.hexToBytes("0xdq"));
-        assertThrows(UtilException.class, () -> Converter.hexToBytes("0xr4"));
+        assertThrows(ParseException.class, () -> Converter.hexToBytes("0xdq"));
+        assertThrows(ParseException.class, () -> Converter.hexToBytes("0xr4"));
         assertThrows(NullPointerException.class, () -> Converter.hexToBytes(null));
         assertArrayEquals(new byte[]{}, Converter.hexToBytes(""));
         assertArrayEquals(new byte[]{0}, Converter.hexToBytes("0x00"));
@@ -53,8 +53,8 @@ class ConverterTest {
 
     @Test
     void hexToString() {
-        assertThrows(UtilException.class, () -> Converter.hexToString("0xdq"));
-        assertThrows(UtilException.class, () -> Converter.hexToString("0xr4"));
+        assertThrows(ParseException.class, () -> Converter.hexToString("0xdq"));
+        assertThrows(ParseException.class, () -> Converter.hexToString("0xr4"));
         assertThrows(NullPointerException.class, () -> Converter.hexToString(null));
         assertEquals("", Converter.hexToString(""));
         assertEquals("..DOOM..", Converter.hexToString("2E2E444F4F4D2E2E"));

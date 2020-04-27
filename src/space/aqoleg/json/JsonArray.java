@@ -1,13 +1,25 @@
+// usage:
+//    JsonArray jsonArray = new JsonArray();
+//    jsonArray.put(valueString);
+//    jsonArray.put(jsonArray);
+//    jsonArray.put(jsonObject);
+//    jsonArray.put(null);
+//    jsonArray.put(5); // any other value will be used as String
+//    int length = jsonArray.length();
+//    String string = jsonArray.getString(index);
+//    JsonArray jsonArray = jsonArray.getArray(index);
+//    JsonObject jsonObject = jsonArray.getObject(index);
+//    String jsonString = jsonArray.toString();
 package space.aqoleg.json;
 
-import space.aqoleg.exception.JsonException;
+import space.aqoleg.utils.ParseException;
 
 import java.util.ArrayList;
 
 public class JsonArray {
     private final ArrayList<Object> list = new ArrayList<>();
 
-    static JsonArray parse(JsonParser parser) {
+    static JsonArray parse(Parser parser) {
         JsonArray jsonArray = new JsonArray();
         if (parser.nextChar() == ']') {
             return jsonArray;
@@ -39,7 +51,7 @@ public class JsonArray {
      * @param index number of the value
      * @return JsonObject with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if object is not a JsonObject or null
+     * @throws ParseException            if object is not a JsonObject or null
      */
     public JsonObject getObject(int index) {
         Object object = list.get(index);
@@ -48,7 +60,7 @@ public class JsonArray {
         } else if (object instanceof JsonObject) {
             return (JsonObject) object;
         } else {
-            throw new JsonException("not a JsonObject");
+            throw new ParseException("not a JsonObject");
         }
     }
 
@@ -56,7 +68,7 @@ public class JsonArray {
      * @param index number of the value
      * @return JsonArray with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if object is not a JsonArray or null
+     * @throws ParseException            if object is not a JsonArray or null
      */
     public JsonArray getArray(int index) {
         Object object = list.get(index);
@@ -65,7 +77,7 @@ public class JsonArray {
         } else if (object instanceof JsonArray) {
             return (JsonArray) object;
         } else {
-            throw new JsonException("not a JsonArray");
+            throw new ParseException("not a JsonArray");
         }
     }
 
@@ -73,7 +85,7 @@ public class JsonArray {
      * @param index number of the value
      * @return String with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if object is not a String or null
+     * @throws ParseException            if object is not a String or null
      */
     public String getString(int index) {
         Object object = list.get(index);
@@ -82,7 +94,7 @@ public class JsonArray {
         } else if (object instanceof String) {
             return (String) object;
         } else {
-            throw new JsonException("not a String");
+            throw new ParseException("not a String");
         }
     }
 
@@ -118,17 +130,7 @@ public class JsonArray {
                 builder.append(",");
             }
             first = false;
-            if (value == null) {
-                builder.append("null");
-            } else if (value instanceof JsonObject) {
-                ((JsonObject) value).append(builder);
-            } else if (value instanceof JsonArray) {
-                ((JsonArray) value).append(builder);
-            } else {
-                builder.append("\"");
-                builder.append(value);
-                builder.append("\"");
-            }
+            Writer.writeObject(builder, value);
         }
         builder.append("]");
     }

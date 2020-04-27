@@ -1,4 +1,7 @@
 // cryptographic hash function
+// usage:
+//    byte[] hash = Sha512.getHash(bytes);
+//    byte[] hash = Sha512.getHash(bytes, start, length);
 package space.aqoleg.crypto;
 
 public class Sha512 {
@@ -36,7 +39,7 @@ public class Sha512 {
      * @param messageLength the number of the bytes containing message
      * @return 64-bytes hash
      * @throws NullPointerException           if message == null
-     * @throws ArrayIndexOutOfBoundsException if incorrect messageStart or messageLength
+     * @throws ArrayIndexOutOfBoundsException if messageStart or messageLength is incorrect
      */
     public static byte[] getHash(byte[] message, int messageStart, int messageLength) {
         long[] hash = {0x6a09e667f3bcc908L, 0xbb67ae8584caa73bL, 0x3c6ef372fe94f82bL, 0xa54ff53a5f1d36f1L,

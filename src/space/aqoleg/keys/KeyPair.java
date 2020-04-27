@@ -1,4 +1,11 @@
 // bitcoin private and public keys
+// usage:
+//    KeyPair keyPair = new KeyPair(privateKeyBigInteger, compressed);
+//    KeyPair keyPair = KeyPair.decode(wifString);
+//    String wif = keyPair.encode();
+//    String address = keyPair.getAddress();
+//    BigInteger privateKey = keyPair.d;
+//    PublicKey publicKey = keyPair.publicKey;
 //
 // wif bytes:
 //    1 byte, version, 0x80
@@ -9,9 +16,8 @@ package space.aqoleg.keys;
 
 import space.aqoleg.crypto.Ecc;
 import space.aqoleg.crypto.Sha256;
-import space.aqoleg.exception.KeyException;
-import space.aqoleg.exception.UtilException;
 import space.aqoleg.utils.Base58;
+import space.aqoleg.utils.ParseException;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -41,7 +47,7 @@ public class KeyPair {
      * @param wif a wif String to be decoded
      * @return KeyPair created from the decoded private key
      * @throws NullPointerException if wif == null
-     * @throws UtilException        if wif string is incorrect
+     * @throws ParseException       if wif string is incorrect
      * @throws KeyException         if wif string is incorrect or private key is not valid
      */
     public static KeyPair decode(String wif) {

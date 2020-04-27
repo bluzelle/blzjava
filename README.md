@@ -8,7 +8,7 @@ Get the package from github:
 ```
 git clone https://github.com/aqoleg/blzjava
 ```
-Or [download](https://github.com/aqoleg/blzjava/releases/download/1.0.0/blzjava.jar) jar file and add classpath.
+Or [download](https://github.com/aqoleg/blzjava/releases/download/1.0.1/blzjava.jar) jar file and add classpath.
 
 Use:
 ```java
@@ -36,7 +36,7 @@ public class Main {
 }
 ```
 
-You can find javadocs for all public functions and some [examples](https://github.com/aqoleg/blzjava/tree/master/samples).
+You can find javadocs for all of the public functions and some [examples](https://github.com/aqoleg/blzjava/tree/master/samples).
 
 # API documentation
 
@@ -45,7 +45,7 @@ You can find javadocs for all public functions and some [examples](https://githu
 
 Configures the Bluzelle connection. This may be called multiple times to create multiple clients.
 
-```
+```java
 Bluzelle bluzelle = Bluzelle.getInstance(
     "bluzelle1upsfjftremwgxz3gfy0wf3xgvwpymqx754ssu9",
     "around buzz diagram captain obtain detail salon mango muffin brother morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car",
