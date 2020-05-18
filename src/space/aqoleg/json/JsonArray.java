@@ -50,7 +50,7 @@ public class JsonArray {
      * @param index number of the value
      * @return JsonObject with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if value is not a JsonObject or null
+     * @throws JsonException             if value is not a JsonObject
      */
     public JsonObject getObject(int index) {
         Object object = list.get(index);
@@ -67,7 +67,7 @@ public class JsonArray {
      * @param index number of the value
      * @return JsonArray with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if value is not a JsonArray or null
+     * @throws JsonException             if value is not a JsonArray
      */
     @SuppressWarnings("WeakerAccess")
     public JsonArray getArray(int index) {
@@ -85,7 +85,7 @@ public class JsonArray {
      * @param index number of the value
      * @return String with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if value is not a String or null
+     * @throws JsonException             if value is not a String
      */
     public String getString(int index) {
         Object object = list.get(index);
@@ -102,7 +102,7 @@ public class JsonArray {
      * @param index number of the value
      * @return integer with this number
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if value is not an integer
+     * @throws JsonException             if there is no such key or value is not an integer
      */
     @SuppressWarnings("WeakerAccess")
     public int getInt(int index) {

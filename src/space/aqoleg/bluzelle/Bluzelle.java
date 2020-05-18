@@ -478,7 +478,7 @@ public class Bluzelle {
         return out;
     }
 
-    static class ServerException extends RuntimeException {
+    public class ServerException extends RuntimeException {
         ServerException(String message) {
             super(message);
         }

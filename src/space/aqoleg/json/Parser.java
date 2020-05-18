@@ -13,8 +13,8 @@ class Parser {
         try {
             while (true) {
                 char c = source.charAt(index++);
-                // skip space(32), linefeed(10), carriage return(13), horizontal tab(9)
-                if (c == 9 || c == 10 || c == 13 || c == 32) {
+                // skip space ' ' (32), new line '\n' (10), carriage return '\r' (13), horizontal tab '\t' (9)
+                if (c == 32 || c == 10 || c == 13 || c == 9) {
                     continue;
                 }
                 return c;
@@ -79,12 +79,6 @@ class Parser {
                 } else if (c == '\\') {
                     c = source.charAt(index++);
                     switch (c) {
-                        case 'b':
-                            builder.append('\b');
-                            break;
-                        case 'f':
-                            builder.append('\f');
-                            break;
                         case 'n':
                             builder.append('\n');
                             break;
@@ -93,6 +87,12 @@ class Parser {
                             break;
                         case 't':
                             builder.append('\t');
+                            break;
+                        case 'b':
+                            builder.append('\b');
+                            break;
+                        case 'f':
+                            builder.append('\f');
                             break;
                         case 'u':
                             char[] chars = new char[4];

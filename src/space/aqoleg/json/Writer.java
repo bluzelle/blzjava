@@ -33,14 +33,9 @@ class Writer {
             }
             switch (c) {
                 case '"':
+                case '\'':
                 case '\\':
                     builder.append('\\').append(c);
-                    break;
-                case '\b':
-                    builder.append('\\').append('b');
-                    break;
-                case '\f':
-                    builder.append('\\').append('f');
                     break;
                 case '\n':
                     builder.append('\\').append('n');
@@ -50,6 +45,12 @@ class Writer {
                     break;
                 case '\t':
                     builder.append('\\').append('t');
+                    break;
+                case '\b':
+                    builder.append('\\').append('b');
+                    break;
+                case '\f':
+                    builder.append('\\').append('f');
                     break;
                 default:
                     builder.append(c);

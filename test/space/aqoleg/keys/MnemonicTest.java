@@ -1,19 +1,14 @@
-package space.aqoleg.keys.test;
+package space.aqoleg.keys;
+
 
 import org.junit.jupiter.api.Test;
-import space.aqoleg.keys.Mnemonic;
-import space.aqoleg.utils.Converter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class MnemonicTest {
 
     @Test
-    void createSeed() {
-        assertThrows(NullPointerException.class, () -> Mnemonic.createSeed(null, "1"));
-        assertThrows(NullPointerException.class, () -> Mnemonic.createSeed("1", null));
-
+    void test() {
         areEquals(
                 "aac2a6302e48577ab4b46f23dbae0774e2e62c796f797d0a1b5faeb528301e3064342dafb79069e7c4c6b8c38ae11d7a97"
                         + "3bec0d4f70626f8cc5184a8d0b0756",
@@ -113,6 +108,10 @@ class MnemonicTest {
 
     private void areEquals(String correctSeed, String mnemonic, String passphrase) {
         byte[] seed = Mnemonic.createSeed(mnemonic, passphrase);
-        assertEquals(correctSeed, Converter.bytesToHex(seed, false, false));
+        StringBuilder stringBuilder = new StringBuilder();
+        for (byte b : seed) {
+            stringBuilder.append(String.format("%02x", b));
+        }
+        assertEquals(correctSeed, stringBuilder.toString());
     }
 }

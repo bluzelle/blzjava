@@ -122,33 +122,34 @@ class Utils {
                     continue;
             }
             if (c <= 0x007F) {
-                // 0 1 1 1|1 1 1 1
+                // 0 1 1 1 1 1 1 1
+                // 0 x x x|x x x x
                 builder.append("%");
                 builder.append(hex.charAt(c >> 4));
                 builder.append(hex.charAt(c & 0b1111));
             } else if (c <= 0x07FF) {
-                // 0 0 0 0 0 1|1 1 1 1|1 1 1 1 1 1
-                //     1 1
+                // 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1
+                //     1 1 0 x|x x x x
                 builder.append("%");
                 builder.append(hex.charAt(0b1100 | c >> 10));
                 builder.append(hex.charAt((c >> 6) & 0b1111));
-                // 0 0 0 0 0 1 1 1 1 1|1 1|1 1 1 1
-                //                 1
+                // 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1
+                //                 1 0 x x|x x x x
                 builder.append("%");
                 builder.append(hex.charAt(0b1000 | ((c >> 4) & 0b0011)));
                 builder.append(hex.charAt(c & 0b1111));
             } else {
-                // 0 0 0 0|1 1 1 1|1 1 1 1 1 1 1 1 1 1 1 1
-                // 1 1 1
+                // 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+                // 1 1 1 0|x x x x
                 builder.append("%E");
                 builder.append(hex.charAt((c & 0xFFFF) >> 12));
-                // 0 0 0 0 1 1 1 1|1 1|1 1 1 1|1 1 1 1 1 1
-                //             1
+                // 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+                //             1 0 x x|x x x x
                 builder.append("%");
                 builder.append(hex.charAt(0b1000 | ((c >> 10) & 0b0011)));
                 builder.append(hex.charAt((c >> 6) & 0b1111));
-                // 0 0 0 0 1 1 1 1 1 1 1 1 1 1|1 1|1 1 1 1
-                //                         1
+                // 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+                //                         1 0 x x|x x x x
                 builder.append("%");
                 builder.append(hex.charAt(0b1000 | ((c >> 4) & 0b0011)));
                 builder.append(hex.charAt(c & 0b1111));
@@ -179,10 +180,17 @@ class Utils {
             int c = toInt(hex.charAt(pos++)) << 4 | toInt(hex.charAt(pos++));
             if ((c & 0b10000000) != 0) {
                 if ((c & 0b00100000) == 0) {
+                    // 1 1 0 x|x x x x
+                    //             1 0 x x|x x x x
+                    // 0 0 0 1 1 1 1 1 1 1 1 1 1 1
                     c = (c & 0b00011111) << 6;
                     c |= (toInt(hex.charAt(pos++)) & 0b11) << 4;
                     c |= toInt(hex.charAt(pos++));
                 } else {
+                    // 1 1 1 0|x x x x
+                    //             1 0 x x|x x x x
+                    //                         1 0 x x|x x x x
+                    // 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
                     c = (c & 0b1111) << 12;
                     c |= (toInt(hex.charAt(pos++)) & 0b11) << 10;
                     c |= toInt(hex.charAt(pos++)) << 6;

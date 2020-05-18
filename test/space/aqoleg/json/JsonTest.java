@@ -1,9 +1,6 @@
-package space.aqoleg.json.test;
+package space.aqoleg.json;
 
 import org.junit.jupiter.api.Test;
-import space.aqoleg.json.JsonArray;
-import space.aqoleg.json.JsonObject;
-import space.aqoleg.utils.ParseException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,71 +12,51 @@ class JsonTest {
         assertEquals("{\"one\":\"1\"}", json.toString());
         // unclosed
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("")
         );
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("{")
         );
     }
 
     @Test
     void nextKeyTest() {
-        // not a key
-        assertThrows(
-                ParseException.class,
-                () -> JsonObject.parse("{one\":  }")
-        );
-        assertThrows(
-                ParseException.class,
-                () -> JsonObject.parse("{{\"one\":")
-        );
         // empty key
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("{\"\":1")
         );
+        assertThrows(
+                JsonException.class,
+                () -> JsonObject.parse("{:1")
+        );
+        JsonObject json = JsonObject.parse("{\"one\":one, 'two'  :two, three   :3}");
+        assertEquals("{\"one\":\"one\",\"three\":\"3\",\"two\":\"two\"}", json.toString());
     }
 
     @Test
-    void nextObjectTest() {
-        JsonObject json = JsonObject.parse("{\"one\":null,\"two\":true,\"three\":-900.89,\"four\":8E461}");
-        assertEquals("{\"four\":\"8E461\",\"one\":null,\"three\":\"-900.89\",\"two\":\"true\"}", json.toString());
-        // no value
-        assertThrows(
-                ParseException.class,
-                () -> JsonObject.parse("{\"one\":  }")
-        );
-        // unclosed
-        assertThrows(
-                ParseException.class,
-                () -> JsonObject.parse("{\"one\": tr")
-        );
+    void nextValueTest() {
+        JsonObject json = JsonObject.parse("{\"one\":null,\"two\": true in ,\"three\":-90.89 ,\"four\": [],  x:  , }");
+        assertEquals("{\"four\":[],\"one\":null,\"three\":\"-90.89\",\"two\":\"true in\",\"x\":\"\"}", json.toString());
     }
 
     @Test
     void parseStringTest() {
         // unclosed
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("{\"one\":\"t")
-        );
-        // incorrect char
-        assertThrows(
-                ParseException.class,
-                () -> JsonObject.parse("{\" \\g\"")
         );
         // incorrect char u
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("{\"one\":\"r\\uuuuu\"")
         );
-        JsonObject json = JsonObject.parse("{\"one\":\" \\\", \\\\, \\/ \"}");
-        assertEquals(" \", \\, / ", json.getString("one"));
-        // non-canonical use for signature
-        // assertEquals("{\"one\":\" \\\", \\\\, \\/ \"}", json.toString());
-        assertEquals("{\"one\":\" \\\", \\\\, / \"}", json.toString());
+        JsonObject json = JsonObject.parse("{one:\' \\\', \\\", \\\\, \\/ \'}");
+        assertEquals(" \', \", \\, / ", json.getString("one"));
+        assertEquals("{\"one\":\" \\\', \\\", \\\\, / \"}", json.toString());
 
         json = JsonObject.parse("{\"one\":\" \\b, \\f, \\n, \\r, \\t \"}");
         assertEquals(" \b, \f, \n, \r, \t ", json.getString("one"));
@@ -89,37 +66,49 @@ class JsonTest {
         assertEquals("{\"one\":\"H\"}", json.toString());
 
         json = new JsonObject();
-        json.put("one", ">,  < < \\ &&");
-        assertEquals(">,  < < \\ &&", json.getString("one"));
-        assertEquals("{\"one\":\"\\u003E,  \\u003C \\u003C \\\\ \\u0026\\u0026\"}", json.toString());
+        json.put("one", ">,  \u003C <  &&");
+        assertEquals(">,  < <  &&", json.getString("one"));
+        assertEquals("{\"one\":\">,  < <  &&\"}", json.toString());
+        assertEquals("{\"one\":\"\\u003E,  \\u003C \\u003C  \\u0026\\u0026\"}", json.toSanitizeString());
+
         json = JsonObject.parse(json.toString());
-        assertEquals(">,  < < \\ &&", json.getString("one"));
+        assertEquals(">,  < <  &&", json.getString("one"));
+    }
+
+    @Test
+    void parseUnquotedStringTest() {
+        assertThrows(
+                JsonException.class,
+                () -> JsonObject.parse("{one")
+        );
+        JsonObject json = JsonObject.parse("{one  1 : 1 1, t wo  : tttt t t  5, i :[ikk k, o m  ,], }");
+        assertEquals("{\"i\":[\"ikk k\",\"o m\"],\"one  1\":\"1 1\",\"t wo\":\"tttt t t  5\"}", json.toString());
     }
 
     @Test
     void objectParse() {
         assertThrows(
                 NullPointerException.class,
-                () -> JsonObject.parse(null)
+                () -> JsonObject.parse((String) null)
         );
         // incorrect first char
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("r")
         );
         // duplicate key
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("{\"one\":1,\"one\":1}")
         );
         // no ':' after key
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("{\"one\"1}")
         );
         // unexpected symbol
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("{\"one\":1:")
         );
     }
@@ -135,7 +124,7 @@ class JsonTest {
         assertEquals("{}", json.getObject("one").toString());
         // not a JsonObject
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> json.getObject("two")
         );
         assertNull(json.getObject("three"));
@@ -152,7 +141,7 @@ class JsonTest {
         assertEquals("[]", json.getArray("one").toString());
         // not a JsonArray
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> json.getArray("two")
         );
         assertNull(json.getArray("three"));
@@ -169,10 +158,32 @@ class JsonTest {
         assertEquals("2", json.getString("two"));
         // not a String
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> json.getString("one")
         );
         assertNull(json.getArray("three"));
+    }
+
+    @Test
+    void objectGetInt() {
+        JsonObject json = JsonObject.parse("{\"one\":[],\"two\":S2, \"three\":'3'}");
+        assertThrows(
+                NullPointerException.class,
+                () -> json.getInt(null)
+        );
+        assertThrows(
+                JsonException.class,
+                () -> json.getInt("no")
+        );
+        assertThrows(
+                JsonException.class,
+                () -> json.getInt("one")
+        );
+        assertThrows(
+                JsonException.class,
+                () -> json.getInt("two")
+        );
+        assertEquals(3, json.getInt("three"));
     }
 
     @Test
@@ -184,11 +195,11 @@ class JsonTest {
         );
         json.put("one", null);
         json.put("two", new JsonObject().put("9", 9));
-        json.put("three", new JsonArray());
+        json.put("three", null);
         json.put("four", 4);
         json.put("five", new StringBuilder("five"));
         assertEquals(
-                "{\"five\":\"five\",\"four\":\"4\",\"one\":null,\"three\":[],\"two\":{\"9\":\"9\"}}",
+                "{\"five\":\"five\",\"four\":\"4\",\"two\":{\"9\":\"9\"}}",
                 json.toString()
         );
     }
@@ -197,7 +208,7 @@ class JsonTest {
     void arrayParse() {
         // unexpected symbol
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> JsonObject.parse("{\"one\":[\"one\",\"two\":]}")
         );
     }
@@ -218,7 +229,7 @@ class JsonTest {
         assertEquals("{}", json.getObject(0).toString());
         // not a JsonObject
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> json.getObject(1)
         );
     }
@@ -238,7 +249,7 @@ class JsonTest {
         assertEquals("[]", json.getArray(1).toString());
         // not a JsonArray
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> json.getObject(2)
         );
     }
@@ -258,9 +269,31 @@ class JsonTest {
         assertEquals("three", json.getString(2));
         // not a String
         assertThrows(
-                ParseException.class,
+                JsonException.class,
                 () -> json.getString(1)
         );
+    }
+
+    @Test
+    void arrayGetInt() {
+        JsonArray json = JsonObject.parse("{array:[{},S2,3 ]}").getArray("array");
+        assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> json.getInt(-1)
+        );
+        assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> json.getInt(4)
+        );
+        assertThrows(
+                JsonException.class,
+                () -> json.getInt(0)
+        );
+        assertThrows(
+                JsonException.class,
+                () -> json.getInt(1)
+        );
+        assertEquals(3, json.getInt(2));
     }
 
     @Test
@@ -275,6 +308,13 @@ class JsonTest {
                 "[\"one\",null,{\"9\":\"9\"},[],\"4\",\"five\"]",
                 json.toString()
         );
+    }
+
+    @Test
+    void escapeCharTest() {
+        JsonObject json = JsonObject.parse("{one:\" \\\\ \\\' \\\" \\u0079 \\u0aaa \\u0555 \"}");
+        assertEquals(" \\ \' \" y \u0aaa \u0555 ", json.getString("one"));
+        assertEquals("{\"one\":\" \\\\ \\\' \\\" \u0079 \u0aaa \u0555 \"}", json.toString());
     }
 
     @Test
@@ -310,8 +350,26 @@ class JsonTest {
         JsonObject t = json.getObject("one").getObject("two");
         assertEquals("{\"four\":\"4\",\"three\":\"3\"}", t.toString());
 
-        json = JsonObject.parse("{\"key\"  : \"b\" ,  \"go\": [\"one\", \"two\"], \"no\": [\"fff\", \"hhh\"  ] }");
+        json = JsonObject.parse("{\"key\"  : \"b\" ,  \"go\": [\"o\", \"t\"], \"no\": [\"fff\", \"h\"  ] }");
         json.put("moo", "json");
-        assertEquals("{\"go\":[\"one\",\"two\"],\"key\":\"b\",\"moo\":\"json\",\"no\":[\"fff\",\"hhh\"]}", json.toString());
+        assertEquals("{\"go\":[\"o\",\"t\"],\"key\":\"b\",\"moo\":\"json\",\"no\":[\"fff\",\"h\"]}", json.toString());
+
+        String input = "{big: BB b , a : [], 'cool':12 , x:{array:\"a\",g:[], 'empty' : { \n }, } , }";
+        json = JsonObject.parse(input);
+        assertEquals("BB b", json.getString("big"));
+        assertEquals(0, json.getArray("a").length());
+        assertEquals("12", json.getString("cool"));
+        JsonObject x = json.getObject("x");
+        assertEquals("a", x.getString("array"));
+        assertEquals("{}", x.getObject("empty").toString());
+        x.getArray("g").put("54a");
+        x.getArray("g").put("t");
+        assertEquals(2, x.getArray("g").length());
+        String output = "{\"a\":[],\"big\":\"BB b\",\"cool\":\"12\",\"x\":{\"array\":\"a\",\"empty\":{}," +
+                "\"g\":[\"54a\",\"t\"]}}";
+        assertEquals(output, json.toString());
+
+        json = JsonObject.parse("{key : , go:[go, null, 5-3  , { h: <>}, ]  }");
+        assertEquals("{\"go\":[\"go\",null,\"5-3\",{\"h\":\"\\u003C\\u003E\"}],\"key\":\"\"}", json.toSanitizeString());
     }
 }

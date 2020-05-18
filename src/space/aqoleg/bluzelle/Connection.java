@@ -35,11 +35,11 @@ public class Connection {
                 builder.append(input);
             } while (true);
         } catch (MalformedURLException e) {
-            throw new EndpointException(e.getMessage());
+            throw new EndpointException(e);
         } catch (FileNotFoundException e) {
-            throw new NullException(e.getMessage());
+            throw new NullException(e);
         } catch (IOException e) {
-            throw new ConnectionException(e.getMessage());
+            throw new ConnectionException(e);
         }
     }
 
@@ -70,29 +70,29 @@ public class Connection {
                 builder.append(input);
             } while (true);
         } catch (MalformedURLException e) {
-            throw new EndpointException(e.getMessage());
+            throw new EndpointException(e);
         } catch (FileNotFoundException e) {
-            throw new NullException(e.getMessage());
+            throw new NullException(e);
         } catch (IOException e) {
-            throw new ConnectionException(e.getMessage());
+            throw new ConnectionException(e);
         }
     }
 
-    public static class ConnectionException extends RuntimeException {
-        ConnectionException(String message) {
-            super(message);
+    public class ConnectionException extends RuntimeException {
+        ConnectionException(Exception e) {
+            super(e);
         }
     }
 
-    public static class EndpointException extends RuntimeException {
-        EndpointException(String message) {
-            super(message);
+    public class EndpointException extends RuntimeException {
+        EndpointException(Exception e) {
+            super(e);
         }
     }
 
-    public static class NullException extends RuntimeException {
-        NullException(String message) {
-            super(message);
+    public class NullException extends RuntimeException {
+        NullException(Exception e) {
+            super(e);
         }
     }
 }

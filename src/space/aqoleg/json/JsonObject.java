@@ -69,7 +69,7 @@ public class JsonObject {
      * @param key key
      * @return JsonObject associated with this key or null
      * @throws NullPointerException if key == null
-     * @throws JsonException        if value is not a JsonObject or null
+     * @throws JsonException        if value is not a JsonObject
      */
     public JsonObject getObject(String key) {
         Object object = map.get(key);
@@ -86,7 +86,7 @@ public class JsonObject {
      * @param key key
      * @return JsonArray associated with this key or null
      * @throws NullPointerException if key == null
-     * @throws JsonException        if value is not a JsonArray or null
+     * @throws JsonException        if value is not a JsonArray
      */
     public JsonArray getArray(String key) {
         Object object = map.get(key);
@@ -103,7 +103,7 @@ public class JsonObject {
      * @param key key
      * @return String associated with this key or null
      * @throws NullPointerException if key == null
-     * @throws JsonException        if value is not a String or null
+     * @throws JsonException        if value is not a String
      */
     public String getString(String key) {
         Object object = map.get(key);
@@ -120,7 +120,7 @@ public class JsonObject {
      * @param key key
      * @return integer associated with this key
      * @throws NullPointerException if key == null
-     * @throws JsonException        if value is not an integer
+     * @throws JsonException        if there is no such key or value is not an integer
      */
     public int getInt(String key) {
         Object object = map.get(key);
@@ -137,6 +137,7 @@ public class JsonObject {
 
     /**
      * put pair {"key":value} in this JsonObject, or rewrite if JsonObject already contains this key
+     * remove key if value == null
      *
      * @param key   key
      * @param value null, JsonObject, JsonArray; if any other object, uses toString()
@@ -144,10 +145,14 @@ public class JsonObject {
      * @throws NullPointerException if key == null
      */
     public JsonObject put(String key, Object value) {
-        if (value != null && !(value instanceof JsonObject) && !(value instanceof JsonArray)) {
-            value = value.toString();
+        if (value == null) {
+            map.remove(key);
+        } else {
+            if (!(value instanceof JsonObject) && !(value instanceof JsonArray)) {
+                value = value.toString();
+            }
+            map.put(key, value);
         }
-        map.put(key, value);
         return this;
     }
 
