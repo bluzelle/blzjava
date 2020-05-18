@@ -1,18 +1,17 @@
 // usage:
 //    JsonArray jsonArray = new JsonArray();
-//    jsonArray.put(valueString);
-//    jsonArray.put(jsonArray);
 //    jsonArray.put(jsonObject);
+//    jsonArray.put(jsonArray);
+//    jsonArray.put(valueString);
 //    jsonArray.put(null);
 //    jsonArray.put(5); // any other value will be used as String
 //    int length = jsonArray.length();
-//    String string = jsonArray.getString(index);
-//    JsonArray jsonArray = jsonArray.getArray(index);
 //    JsonObject jsonObject = jsonArray.getObject(index);
+//    JsonArray jsonArray = jsonArray.getArray(index);
+//    String string = jsonArray.getString(index);
+//    int i = jsonArray.getInt(index);
 //    String jsonString = jsonArray.toString();
 package space.aqoleg.json;
-
-import space.aqoleg.utils.ParseException;
 
 import java.util.ArrayList;
 
@@ -21,13 +20,13 @@ public class JsonArray {
 
     static JsonArray parse(Parser parser) {
         JsonArray jsonArray = new JsonArray();
-        if (parser.nextChar() == ']') {
-            return jsonArray;
-        }
-        parser.moveBack();
-
         while (true) {
-            jsonArray.list.add(parser.nextObject());
+            if (parser.nextChar() == ']') {
+                return jsonArray;
+            }
+            parser.moveBack();
+
+            jsonArray.list.add(parser.nextValue());
 
             switch (parser.nextChar()) {
                 case ',':
@@ -51,7 +50,7 @@ public class JsonArray {
      * @param index number of the value
      * @return JsonObject with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws ParseException            if object is not a JsonObject or null
+     * @throws JsonException             if value is not a JsonObject or null
      */
     public JsonObject getObject(int index) {
         Object object = list.get(index);
@@ -60,7 +59,7 @@ public class JsonArray {
         } else if (object instanceof JsonObject) {
             return (JsonObject) object;
         } else {
-            throw new ParseException("not a JsonObject");
+            throw new JsonException("not a JsonObject");
         }
     }
 
@@ -68,8 +67,9 @@ public class JsonArray {
      * @param index number of the value
      * @return JsonArray with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws ParseException            if object is not a JsonArray or null
+     * @throws JsonException             if value is not a JsonArray or null
      */
+    @SuppressWarnings("WeakerAccess")
     public JsonArray getArray(int index) {
         Object object = list.get(index);
         if (object == null) {
@@ -77,7 +77,7 @@ public class JsonArray {
         } else if (object instanceof JsonArray) {
             return (JsonArray) object;
         } else {
-            throw new ParseException("not a JsonArray");
+            throw new JsonException("not a JsonArray");
         }
     }
 
@@ -85,7 +85,7 @@ public class JsonArray {
      * @param index number of the value
      * @return String with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws ParseException            if object is not a String or null
+     * @throws JsonException             if value is not a String or null
      */
     public String getString(int index) {
         Object object = list.get(index);
@@ -94,7 +94,27 @@ public class JsonArray {
         } else if (object instanceof String) {
             return (String) object;
         } else {
-            throw new ParseException("not a String");
+            throw new JsonException("not a String");
+        }
+    }
+
+    /**
+     * @param index number of the value
+     * @return integer with this number
+     * @throws IndexOutOfBoundsException if index is incorrect
+     * @throws JsonException             if value is not an integer
+     */
+    @SuppressWarnings("WeakerAccess")
+    public int getInt(int index) {
+        Object object = list.get(index);
+        if (object instanceof String) {
+            try {
+                return Integer.parseInt((String) object);
+            } catch (NumberFormatException e) {
+                throw new JsonException("not an integer " + e.getMessage());
+            }
+        } else {
+            throw new JsonException("not a String");
         }
     }
 
@@ -118,11 +138,11 @@ public class JsonArray {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        append(builder);
+        write(builder, false);
         return builder.toString();
     }
 
-    void append(StringBuilder builder) {
+    void write(StringBuilder builder, boolean sanitize) {
         builder.append("[");
         boolean first = true;
         for (Object value : list) {
@@ -130,7 +150,7 @@ public class JsonArray {
                 builder.append(",");
             }
             first = false;
-            Writer.writeObject(builder, value);
+            Writer.writeObject(builder, value, sanitize);
         }
         builder.append("]");
     }

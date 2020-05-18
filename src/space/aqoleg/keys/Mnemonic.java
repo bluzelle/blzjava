@@ -1,13 +1,23 @@
 // makes seed from the mnemonic, see bip39
-// blockchain.com passphrase = "mnemonic"
-// electrum passphrase = "electrum"
 // usage:
 //    byte[] seed = Mnemonic.createSeed(mnemonicString, passphraseString);
 package space.aqoleg.keys;
 
-import space.aqoleg.crypto.HmacSha512;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 public class Mnemonic {
+    private static final Mac mac;
+
+    static {
+        try {
+            mac = Mac.getInstance("HmacSHA512");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * @param mnemonic   words in UTF-8
@@ -29,18 +39,23 @@ public class Mnemonic {
         // u1 = prf(password, salt || 0x00000001)
         // un = prf(password, un-1)
 
-        byte[] password = mnemonic.getBytes();
+        try {
+            mac.init(new SecretKeySpec(mnemonic.getBytes(), "HmacSHA512"));
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
+
         // key = salt || 0x00000001
         byte[] passphraseBytes = passphrase.getBytes();
         byte[] salt = new byte[passphraseBytes.length + 4];
         System.arraycopy(passphraseBytes, 0, salt, 0, passphraseBytes.length);
         salt[salt.length - 1] = 0x01;
         // seed = u = u1
-        byte[] u = HmacSha512.getMac(salt, password);
+        byte[] u = mac.doFinal(salt);
         byte[] seed = u;
         // u = u2...u2048, seed ^= u
         for (int i = 1; i < 2048; i++) {
-            u = HmacSha512.getMac(u, password);
+            u = mac.doFinal(u);
             for (int j = 0; j < 64; j++) {
                 seed[j] ^= u[j];
             }

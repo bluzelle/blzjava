@@ -1,9 +1,10 @@
 package space.aqoleg.bluzelle;
 
+@SuppressWarnings("WeakerAccess")
 public class GasInfo {
-    final int maxGas;
-    final int maxFee;
-    final int gasPrice;
+    public final int maxGas;
+    public final int maxFee;
+    public final int gasPrice;
 
     /**
      * object containing parameters related to gas consumption

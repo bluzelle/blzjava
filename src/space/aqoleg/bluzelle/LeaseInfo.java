@@ -1,8 +1,13 @@
 package space.aqoleg.bluzelle;
 
+@SuppressWarnings("WeakerAccess")
 public class LeaseInfo {
-    static final int blockTimeSeconds = 5;
-    final int blocks;
+    public static final int blockTimeSeconds = 5;
+    public final int days;
+    public final int hours;
+    public final int minutes;
+    public final int seconds;
+    public final int blocks;
 
     /**
      * object containing parameters related to the minimum time a key should be maintained in the database
@@ -13,6 +18,10 @@ public class LeaseInfo {
      * @param seconds number of seconds
      */
     public LeaseInfo(int days, int hours, int minutes, int seconds) {
+        this.days = days;
+        this.hours = hours;
+        this.minutes = minutes;
+        this.seconds = seconds;
         blocks = (seconds + (minutes + (hours + days * 24) * 60) * 60) / blockTimeSeconds;
     }
 }

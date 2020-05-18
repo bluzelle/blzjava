@@ -1,34 +1,27 @@
 package space.aqoleg.bluzelle;
 
-import space.aqoleg.crypto.Ecc;
-import space.aqoleg.crypto.Sha256;
 import space.aqoleg.json.JsonArray;
 import space.aqoleg.json.JsonObject;
+import space.aqoleg.keys.Ecc;
 import space.aqoleg.keys.HdKeyPair;
-import space.aqoleg.keys.KeyException;
-import space.aqoleg.keys.KeyPair;
 import space.aqoleg.keys.Mnemonic;
-import space.aqoleg.utils.ParseException;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 import static space.aqoleg.bluzelle.LeaseInfo.blockTimeSeconds;
 import static space.aqoleg.bluzelle.Utils.*;
-import static space.aqoleg.utils.Converter.hexToString;
 
 public class Bluzelle {
     private final Connection connection;
-    private final KeyPair keyPair;
+    private final HdKeyPair keyPair;
     private final String address;
     private final String uuid;
     private final String chainId;
     private int accountNumber;
 
-    private Bluzelle(KeyPair keyPair, String address, String endpoint, String uuid, String chainId) {
+    private Bluzelle(HdKeyPair keyPair, String address, String endpoint, String uuid, String chainId) {
         connection = new Connection(endpoint == null ? "http://localhost:1317" : endpoint);
         this.keyPair = keyPair;
         this.address = address;
@@ -45,11 +38,6 @@ public class Bluzelle {
      * @param uuid     uuid or null
      * @param chainId  chain id of account or null
      * @return instance of Bluzelle
-     * @throws NullPointerException if address == null or mnemonic == null
-     * @throws KeyException         if key is not valid
-     * @throws EndpointException    if endpoint is not valid
-     * @throws ConnectionException  if can not connect
-     * @throws ParseException       if can not parse response
      */
     public static Bluzelle getInstance(
             String address,
@@ -62,17 +50,15 @@ public class Bluzelle {
             throw new NullPointerException("null address");
         }
         HdKeyPair master = HdKeyPair.createMaster(Mnemonic.createSeed(mnemonic, "mnemonic"));
-        KeyPair keyPair = master.generateChild("44'/118'/0'/0/0");
+        HdKeyPair keyPair = master.generateChild("44'/118'/0'/0/0");
         Bluzelle bluzelle = new Bluzelle(keyPair, address, endpoint, uuid, chainId);
         JsonObject account = bluzelle.account();
-        bluzelle.accountNumber = parseInt(account.getString("account_number"));
+        bluzelle.accountNumber = account.getInt("account_number");
         return bluzelle;
     }
 
     /**
      * @return version of the service
-     * @throws ConnectionException if can not connect
-     * @throws ParseException      if can not parse
      */
     public String version() {
         String response = connection.get("/node_info");
@@ -81,8 +67,6 @@ public class Bluzelle {
 
     /**
      * @return JsonObject with information about the currently active account
-     * @throws ConnectionException if can not connect
-     * @throws ParseException      if can not parse
      */
     public JsonObject account() {
         String response = connection.get("/auth/accounts/" + address);
@@ -96,11 +80,6 @@ public class Bluzelle {
      * @param value     value to set the key
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
-     * @throws NullPointerException          if key, value or gasInfo is null
-     * @throws UnsupportedOperationException if lease is negative
-     * @throws ConnectionException           if can not connect
-     * @throws ParseException                if can not parse
-     * @throws ServerException               if server returns error
      */
     public void create(String key, String value, GasInfo gasInfo, LeaseInfo leaseInfo) {
         if (key == null || value == null) {
@@ -126,16 +105,13 @@ public class Bluzelle {
      * @param key   the key to retrieve
      * @param prove a proof of the value is required from the network
      * @return String value of the key or null
-     * @throws NullPointerException if key is null
-     * @throws ConnectionException  if can not connect
-     * @throws ParseException       if can not parse
      */
     public String read(String key, boolean prove) {
         String path = "/crud/" + (prove ? "pread/" : "read/") + uuid + "/" + urlEncode(key);
         try {
             String response = connection.get(path);
             return JsonObject.parse(response).getObject("result").getString("value");
-        } catch (NullException ignored) {
+        } catch (Connection.NullException ignored) {
             return null;
         }
     }
@@ -146,10 +122,6 @@ public class Bluzelle {
      * @param key     the key to retrieve
      * @param gasInfo object containing gas parameters
      * @return String value of the key
-     * @throws NullPointerException if key or gasInfo is null
-     * @throws ConnectionException  if can not connect
-     * @throws ParseException       if can not parse
-     * @throws ServerException      if server returns error
      */
     public String txRead(String key, GasInfo gasInfo) {
         JsonObject data = new JsonObject().put("Key", key);
@@ -164,10 +136,6 @@ public class Bluzelle {
      * @param value     value to set the key
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
-     * @throws NullPointerException if key, value or gasInfo is null
-     * @throws ConnectionException  if can not connect
-     * @throws ParseException       if can not parse
-     * @throws ServerException      if server returns error
      */
     public void update(String key, String value, GasInfo gasInfo, LeaseInfo leaseInfo) {
         if (key == null || value == null) {
@@ -185,10 +153,6 @@ public class Bluzelle {
      *
      * @param key     the name of the key to delete
      * @param gasInfo object containing gas parameters
-     * @throws NullPointerException if key or gasInfo is null
-     * @throws ConnectionException  if can not connect
-     * @throws ParseException       if can not parse
-     * @throws ServerException      if server returns error
      */
     public void delete(String key, GasInfo gasInfo) {
         if (key == null) {
@@ -278,7 +242,7 @@ public class Bluzelle {
      */
     public int count() {
         String response = connection.get("/crud/count/" + uuid);
-        return parseInt(JsonObject.parse(response).getObject("result").getString("count"));
+        return JsonObject.parse(response).getObject("result").getInt("count");
     }
 
     /**
@@ -287,7 +251,7 @@ public class Bluzelle {
      */
     public int txCount(GasInfo gasInfo) {
         String response = sendTx("/crud/count", false, new JsonObject(), gasInfo);
-        return parseInt(JsonObject.parse(hexToString(response)).getString("count"));
+        return JsonObject.parse(hexToString(response)).getInt("count");
     }
 
     /**
@@ -363,7 +327,7 @@ public class Bluzelle {
      */
     public int getLease(String key) {
         String response = connection.get("/crud/getlease/" + uuid + "/" + urlEncode(key));
-        return parseInt(JsonObject.parse(response).getObject("result").getString("lease")) * blockTimeSeconds;
+        return JsonObject.parse(response).getObject("result").getInt("lease") * blockTimeSeconds;
     }
 
     /**
@@ -376,7 +340,7 @@ public class Bluzelle {
     public int txGetLease(String key, GasInfo gasInfo) {
         JsonObject data = new JsonObject().put("Key", key);
         String response = sendTx("/crud/getlease", false, data, gasInfo);
-        return parseInt(JsonObject.parse(hexToString(response)).getString("lease")) * blockTimeSeconds;
+        return JsonObject.parse(hexToString(response)).getInt("lease") * blockTimeSeconds;
     }
 
     /**
@@ -420,7 +384,7 @@ public class Bluzelle {
         Map<String, Integer> map = new HashMap<>();
         for (int i = 0; i < length; i++) {
             JsonObject object = json.getObject(i);
-            map.put(object.getString("key"), parseInt(object.getString("lease")) * blockTimeSeconds);
+            map.put(object.getString("key"), object.getInt("lease") * blockTimeSeconds);
         }
         return map;
     }
@@ -443,7 +407,7 @@ public class Bluzelle {
         Map<String, Integer> map = new HashMap<>();
         for (int i = 0; i < length; i++) {
             JsonObject object = json.getObject(i);
-            map.put(object.getString("key"), parseInt(object.getString("lease")) * blockTimeSeconds);
+            map.put(object.getString("key"), object.getInt("lease") * blockTimeSeconds);
         }
         return map;
     }
@@ -460,12 +424,12 @@ public class Bluzelle {
         data = JsonObject.parse(response).getObject("value");
 
         JsonObject fee = data.getObject("fee");
-        if (gasInfo.maxGas > 0 && parseInt(fee.getString("gas")) > gasInfo.maxGas) {
+        if (gasInfo.maxGas > 0 && fee.getInt("gas") > gasInfo.maxGas) {
             fee.put("gas", gasInfo.maxGas);
         }
         int amount = gasInfo.maxFee;
         if (amount == 0) {
-            amount = parseInt(fee.getString("gas")) * gasInfo.gasPrice;
+            amount = fee.getInt("gas") * gasInfo.gasPrice;
         }
         JsonObject feeAmount = new JsonObject();
         feeAmount.put("denom", "ubnt");
@@ -500,25 +464,23 @@ public class Bluzelle {
         payload.put("msgs", message);
         payload.put("sequence", sequence);
 
-        byte[] hash = Sha256.getHash(payload.toString().getBytes());
-        BigInteger[] signature = Ecc.secp256k1.sign(hash, keyPair.d);
-
-        byte[] signatureArray = new byte[64];
-        byte[] r = signature[0].toByteArray();
-        int rStart = r[0] == 0 ? 1 : 0;
-        System.arraycopy(r, rStart, signatureArray, 32 - (r.length - rStart), r.length - rStart);
-        byte[] s = signature[1].toByteArray();
-        int sStart = s[0] == 0 ? 1 : 0;
-        System.arraycopy(s, sStart, signatureArray, 64 - (s.length - sStart), s.length - sStart);
+        byte[] hash = sha256hash(payload.toSanitizeString().getBytes());
+        byte[] signature = Ecc.ecc.sign(hash, keyPair.d);
 
         JsonObject out = new JsonObject();
         JsonObject publicKey = new JsonObject();
         publicKey.put("type", "tendermint/PubKeySecp256k1");
-        publicKey.put("value", Base64.getEncoder().encodeToString(keyPair.publicKey.toByteArray()));
+        publicKey.put("value", base64encode(keyPair.publicKeyToByteArray()));
         out.put("pub_key", publicKey);
-        out.put("signature", Base64.getEncoder().encodeToString(signatureArray));
+        out.put("signature", base64encode(signature));
         out.put("account_number", accountNumber);
         out.put("sequence", sequence);
         return out;
+    }
+
+    static class ServerException extends RuntimeException {
+        ServerException(String message) {
+            super(message);
+        }
     }
 }

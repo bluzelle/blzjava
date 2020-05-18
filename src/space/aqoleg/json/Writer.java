@@ -2,29 +2,38 @@ package space.aqoleg.json;
 
 class Writer {
 
-    static void writeObject(StringBuilder builder, Object value) {
+    static void writeObject(StringBuilder builder, Object value, boolean sanitize) {
         if (value == null) {
             builder.append("null");
         } else if (value instanceof JsonObject) {
-            ((JsonObject) value).append(builder);
+            ((JsonObject) value).write(builder, sanitize);
         } else if (value instanceof JsonArray) {
-            ((JsonArray) value).append(builder);
+            ((JsonArray) value).write(builder, sanitize);
         } else {
             builder.append("\"");
-            writeString(builder, (String) value);
+            writeString(builder, (String) value, sanitize);
             builder.append("\"");
         }
     }
 
-    private static void writeString(StringBuilder builder, String string) {
+    static void writeString(StringBuilder builder, String string, boolean sanitize) {
         int length = string.length();
-        for (int i = 0; i < length; i++) {
-            char c = string.charAt(i);
+        int i = 0;
+        while (i < length) {
+            char c = string.charAt(i++);
+            if (sanitize) {
+                switch (c) {
+                    case '&':
+                    case '<':
+                    case '>':
+                        builder.append("\\u00");
+                        builder.append(String.format("%02X", (int) c)); // zero-padded, min width 2
+                        continue;
+                }
+            }
             switch (c) {
                 case '"':
                 case '\\':
-                    // non-canonical use for signature
-                    // case '/':
                     builder.append('\\').append(c);
                     break;
                 case '\b':
@@ -41,12 +50,6 @@ class Writer {
                     break;
                 case '\t':
                     builder.append('\\').append('t');
-                    break;
-                case '&':
-                case '<':
-                case '>':
-                    builder.append("\\u00");
-                    builder.append(String.format("%02X", (int) c)); // zero-padded, min width 2
                     break;
                 default:
                     builder.append(c);

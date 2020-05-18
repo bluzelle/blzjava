@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+@SuppressWarnings("WeakerAccess")
 public class Connection {
     private final String endpoint;
 
@@ -74,6 +75,24 @@ public class Connection {
             throw new NullException(e.getMessage());
         } catch (IOException e) {
             throw new ConnectionException(e.getMessage());
+        }
+    }
+
+    public static class ConnectionException extends RuntimeException {
+        ConnectionException(String message) {
+            super(message);
+        }
+    }
+
+    public static class EndpointException extends RuntimeException {
+        EndpointException(String message) {
+            super(message);
+        }
+    }
+
+    public static class NullException extends RuntimeException {
+        NullException(String message) {
+            super(message);
         }
     }
 }
