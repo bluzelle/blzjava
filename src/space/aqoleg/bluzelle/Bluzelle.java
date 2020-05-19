@@ -21,44 +21,49 @@ public class Bluzelle {
     private final String chainId;
     private int accountNumber;
 
-    private Bluzelle(HdKeyPair keyPair, String address, String endpoint, String uuid, String chainId) {
-        connection = new Connection(endpoint == null ? "http://localhost:1317" : endpoint);
+    private Bluzelle(Connection connection, HdKeyPair keyPair, String address, String uuid, String chainId) {
+        this.connection = connection;
         this.keyPair = keyPair;
         this.address = address;
-        this.uuid = uuid == null ? address : uuid;
-        this.chainId = chainId == null ? "bluzelle" : chainId;
+        this.uuid = uuid;
+        this.chainId = chainId;
     }
 
     /**
-     * configures connection
+     * creates and configures connection
      *
-     * @param address  address of account
      * @param mnemonic mnemonic of the private key for account
-     * @param endpoint hostname and port of rest server or null
-     * @param uuid     uuid or null
-     * @param chainId  chain id of account or null
+     * @param endpoint hostname and port of rest server or null (endpoint http://localhost:1317)
+     * @param chainId  chain id of account or null (chain id bluzelle)
+     * @param uuid     uuid or null (the same as address)
      * @return instance of Bluzelle
+     * @throws NullPointerException           if mnemonic == null
+     * @throws Connection.ConnectionException if can not connect to the node
      */
-    public static Bluzelle getInstance(
-            String address,
-            String mnemonic,
-            String endpoint,
-            String uuid,
-            String chainId
-    ) {
-        if (address == null) {
-            throw new NullPointerException("null address");
-        }
+    public static Bluzelle connect(String mnemonic, String endpoint, String uuid, String chainId) {
+        Connection connection = new Connection(endpoint == null ? "http://localhost:1317" : endpoint);
+
         HdKeyPair master = HdKeyPair.createMaster(Mnemonic.createSeed(mnemonic, "mnemonic"));
         HdKeyPair keyPair = master.generateChild("44'/118'/0'/0/0");
-        Bluzelle bluzelle = new Bluzelle(keyPair, address, endpoint, uuid, chainId);
+        String address = getAddress(keyPair);
+
+        if (uuid == null) {
+            uuid = address;
+        }
+        if (chainId == null) {
+            chainId = "bluzelle";
+        }
+        Bluzelle bluzelle = new Bluzelle(connection, keyPair, address, uuid, chainId);
+
         JsonObject account = bluzelle.account();
         bluzelle.accountNumber = account.getInt("account_number");
+
         return bluzelle;
     }
 
     /**
      * @return version of the service
+     * @throws Connection.ConnectionException if can not connect to the node
      */
     public String version() {
         String response = connection.get("/node_info");
@@ -67,6 +72,7 @@ public class Bluzelle {
 
     /**
      * @return JsonObject with information about the currently active account
+     * @throws Connection.ConnectionException if can not connect to the node
      */
     public JsonObject account() {
         String response = connection.get("/auth/accounts/" + address);
@@ -80,6 +86,8 @@ public class Bluzelle {
      * @param value     value to set the key
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public void create(String key, String value, GasInfo gasInfo, LeaseInfo leaseInfo) {
         if (key == null || value == null) {
@@ -88,9 +96,6 @@ public class Bluzelle {
         int blocks = 0;
         if (leaseInfo != null) {
             blocks = leaseInfo.blocks;
-            if (blocks < 0) {
-                throw new UnsupportedOperationException("negative lease time");
-            }
         }
         JsonObject data = new JsonObject();
         data.put("Key", key);
@@ -105,14 +110,18 @@ public class Bluzelle {
      * @param key   the key to retrieve
      * @param prove a proof of the value is required from the network
      * @return String value of the key or null
+     * @throws Connection.ConnectionException if can not connect to the node
      */
     public String read(String key, boolean prove) {
         String path = "/crud/" + (prove ? "pread/" : "read/") + uuid + "/" + urlEncode(key);
         try {
             String response = connection.get(path);
             return JsonObject.parse(response).getObject("result").getString("value");
-        } catch (Connection.NullException ignored) {
-            return null;
+        } catch (Connection.ConnectionException e) {
+            if (e.notFound) {
+                return null;
+            }
+            throw e;
         }
     }
 
@@ -122,6 +131,8 @@ public class Bluzelle {
      * @param key     the key to retrieve
      * @param gasInfo object containing gas parameters
      * @return String value of the key
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public String txRead(String key, GasInfo gasInfo) {
         JsonObject data = new JsonObject().put("Key", key);
@@ -136,6 +147,8 @@ public class Bluzelle {
      * @param value     value to set the key
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public void update(String key, String value, GasInfo gasInfo, LeaseInfo leaseInfo) {
         if (key == null || value == null) {
@@ -153,6 +166,8 @@ public class Bluzelle {
      *
      * @param key     the name of the key to delete
      * @param gasInfo object containing gas parameters
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public void delete(String key, GasInfo gasInfo) {
         if (key == null) {
@@ -167,6 +182,7 @@ public class Bluzelle {
      *
      * @param key the name of the key to query
      * @return value representing whether the key is in the database
+     * @throws Connection.ConnectionException if can not connect to the node
      */
     public boolean has(String key) {
         String response = connection.get("/crud/has/" + uuid + "/" + urlEncode(key));
@@ -179,6 +195,8 @@ public class Bluzelle {
      * @param key     the name of the key to query
      * @param gasInfo object containing gas parameters
      * @return value representing whether the key is in the database
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public boolean txHas(String key, GasInfo gasInfo) {
         JsonObject data = new JsonObject().put("Key", key);
@@ -190,6 +208,7 @@ public class Bluzelle {
      * retrieve a list of all keys
      *
      * @return ArrayList containing all keys
+     * @throws Connection.ConnectionException if can not connect to the node
      */
     public ArrayList<String> keys() {
         String response = connection.get("/crud/keys/" + uuid);
@@ -209,6 +228,8 @@ public class Bluzelle {
      *
      * @param gasInfo object containing gas parameters
      * @return ArrayList containing all keys
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public ArrayList<String> txKeys(GasInfo gasInfo) {
         String response = sendTx("/crud/keys", false, new JsonObject(), gasInfo);
@@ -229,6 +250,8 @@ public class Bluzelle {
      * @param key     the name of the key to rename
      * @param newKey  the new name for the key
      * @param gasInfo object containing gas parameters
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public void rename(String key, String newKey, GasInfo gasInfo) {
         JsonObject data = new JsonObject();
@@ -239,6 +262,7 @@ public class Bluzelle {
 
     /**
      * @return the number of keys in the current database/uuid
+     * @throws Connection.ConnectionException if can not connect to the node
      */
     public int count() {
         String response = connection.get("/crud/count/" + uuid);
@@ -248,6 +272,8 @@ public class Bluzelle {
     /**
      * @param gasInfo object containing gas parameters
      * @return the number of keys in the current database/uuid via a transaction
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public int txCount(GasInfo gasInfo) {
         String response = sendTx("/crud/count", false, new JsonObject(), gasInfo);
@@ -258,6 +284,8 @@ public class Bluzelle {
      * remove all keys in the current database/uuid
      *
      * @param gasInfo object containing gas parameters
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public void deleteAll(GasInfo gasInfo) {
         sendTx("/crud/deleteall", false, new JsonObject(), gasInfo);
@@ -267,6 +295,7 @@ public class Bluzelle {
      * enumerate all keys and values in the current database/uuid
      *
      * @return HashMap(key, value)
+     * @throws Connection.ConnectionException if can not connect to the node
      */
     public HashMap<String, String> keyValues() {
         String response = connection.get("/crud/keyvalues/" + uuid);
@@ -286,6 +315,8 @@ public class Bluzelle {
      *
      * @param gasInfo object containing gas parameters
      * @return HashMap(key, value)
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public HashMap<String, String> txKeyValues(GasInfo gasInfo) {
         String response = sendTx("/crud/keyvalues", false, new JsonObject(), gasInfo);
@@ -305,6 +336,8 @@ public class Bluzelle {
      *
      * @param keyValues HashMap(key, value)
      * @param gasInfo   object containing gas parameters
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public void multiUpdate(HashMap<String, String> keyValues, GasInfo gasInfo) {
         JsonArray json = new JsonArray();
@@ -324,6 +357,7 @@ public class Bluzelle {
      *
      * @param key the key to retrieve the lease information for
      * @return minimum length of time remaining for the key's lease, in seconds
+     * @throws Connection.ConnectionException if can not connect to the node
      */
     public int getLease(String key) {
         String response = connection.get("/crud/getlease/" + uuid + "/" + urlEncode(key));
@@ -336,6 +370,8 @@ public class Bluzelle {
      * @param key     the key to retrieve the lease information for
      * @param gasInfo object containing gas parameters
      * @return minimum length of time remaining for the key's lease, in seconds
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public int txGetLease(String key, GasInfo gasInfo) {
         JsonObject data = new JsonObject().put("Key", key);
@@ -349,6 +385,8 @@ public class Bluzelle {
      * @param key       the key to retrieve the lease information for
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public void renewLease(String key, GasInfo gasInfo, LeaseInfo leaseInfo) {
         JsonObject data = new JsonObject();
@@ -362,6 +400,8 @@ public class Bluzelle {
      *
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
     public void renewLeaseAll(GasInfo gasInfo, LeaseInfo leaseInfo) {
         JsonObject data = new JsonObject().put("Lease", leaseInfo == null ? 0 : leaseInfo.blocks);
@@ -372,16 +412,18 @@ public class Bluzelle {
      * retrieve a list of the n keys in the database with the shortest leases
      *
      * @param n the number of keys to retrieve the lease information for
-     * @return Map(key, lease seconds)
+     * @return HashMap(key, lease seconds)
+     * @throws IllegalArgumentException       if n <= 0
+     * @throws Connection.ConnectionException if can not connect to the node
      */
-    public Map<String, Integer> getNShortestLeases(int n) {
-        if (n < 0) {
-            throw new IllegalArgumentException("negative n");
+    public HashMap<String, Integer> getNShortestLeases(int n) {
+        if (n <= 0) {
+            throw new IllegalArgumentException("non-positive n");
         }
         String response = connection.get("/crud/getnshortestleases/" + uuid + "/" + n);
         JsonArray json = JsonObject.parse(response).getObject("result").getArray("keyleases");
         int length = json.length();
-        Map<String, Integer> map = new HashMap<>();
+        HashMap<String, Integer> map = new HashMap<>();
         for (int i = 0; i < length; i++) {
             JsonObject object = json.getObject(i);
             map.put(object.getString("key"), object.getInt("lease") * blockTimeSeconds);
@@ -394,17 +436,20 @@ public class Bluzelle {
      *
      * @param n       the number of keys to retrieve the lease information for
      * @param gasInfo object containing gas parameters
-     * @return Map(key, lease seconds)
+     * @return HashMap(key, lease seconds)
+     * @throws IllegalArgumentException       if n <= 0
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws ServerException                if server returns error
      */
-    public Map<String, Integer> txGetNShortestLeases(int n, GasInfo gasInfo) {
-        if (n < 0) {
-            throw new IllegalArgumentException("negative n");
+    public HashMap<String, Integer> txGetNShortestLeases(int n, GasInfo gasInfo) {
+        if (n <= 0) {
+            throw new IllegalArgumentException("non-positive n");
         }
-        JsonObject data = new JsonObject().put("N", String.valueOf(n));
+        JsonObject data = new JsonObject().put("N", n);
         String response = sendTx("/crud/getnshortestleases", false, data, gasInfo);
         JsonArray json = JsonObject.parse(hexToString(response)).getArray("keyleases");
         int length = json.length();
-        Map<String, Integer> map = new HashMap<>();
+        HashMap<String, Integer> map = new HashMap<>();
         for (int i = 0; i < length; i++) {
             JsonObject object = json.getObject(i);
             map.put(object.getString("key"), object.getInt("lease") * blockTimeSeconds);
@@ -413,10 +458,7 @@ public class Bluzelle {
     }
 
     private String sendTx(String path, boolean delete, JsonObject data, GasInfo gasInfo) {
-        JsonObject baseReq = new JsonObject();
-        baseReq.put("from", address);
-        baseReq.put("chain_id", chainId);
-        data.put("BaseReq", baseReq);
+        data.put("BaseReq", new JsonObject().put("from", address).put("chain_id", chainId));
         data.put("UUID", uuid);
         data.put("Owner", address);
 
@@ -479,7 +521,7 @@ public class Bluzelle {
     }
 
     public class ServerException extends RuntimeException {
-        ServerException(String message) {
+        private ServerException(String message) {
             super(message);
         }
     }

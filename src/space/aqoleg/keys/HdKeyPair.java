@@ -43,6 +43,7 @@ public class HdKeyPair {
             mac = Mac.getInstance("HmacSHA512");
             mac.init(new SecretKeySpec("Bitcoin seed".getBytes(), "HmacSHA512"));
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
         byte[] data = mac.doFinal(seed);
@@ -138,11 +139,11 @@ public class HdKeyPair {
         // child private key = (the first 32 bytes of the data + parent private key) % n
         BigInteger privateKey = new BigInteger(1, Arrays.copyOfRange(data, 0, 32));
         if (privateKey.compareTo(Ecc.ecc.n) >= 0) {
-            throw new UnsupportedOperationException("this key is not less than n");
+            throw new UnsupportedOperationException("private key is not less than n");
         }
         privateKey = d.add(privateKey).mod(Ecc.ecc.n);
         if (privateKey.signum() <= 0) {
-            throw new UnsupportedOperationException("this key is zero");
+            throw new UnsupportedOperationException("private key is zero");
         }
         return new HdKeyPair(privateKey, chainCode);
     }

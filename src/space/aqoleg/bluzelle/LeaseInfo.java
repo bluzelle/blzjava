@@ -16,6 +16,7 @@ public class LeaseInfo {
      * @param hours   number of hours
      * @param minutes number of minute
      * @param seconds number of seconds
+     * @throws IllegalArgumentException if total time is negative
      */
     public LeaseInfo(int days, int hours, int minutes, int seconds) {
         this.days = days;
@@ -23,5 +24,8 @@ public class LeaseInfo {
         this.minutes = minutes;
         this.seconds = seconds;
         blocks = (seconds + (minutes + (hours + days * 24) * 60) * 60) / blockTimeSeconds;
+        if (blocks < 0) {
+            throw new IllegalArgumentException("negative lease");
+        }
     }
 }

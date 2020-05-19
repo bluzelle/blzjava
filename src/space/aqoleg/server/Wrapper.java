@@ -1,6 +1,7 @@
 package space.aqoleg.server;
 
 import space.aqoleg.bluzelle.Bluzelle;
+import space.aqoleg.bluzelle.Connection;
 import space.aqoleg.bluzelle.GasInfo;
 import space.aqoleg.bluzelle.LeaseInfo;
 import space.aqoleg.json.JsonArray;
@@ -12,18 +13,34 @@ import java.util.Map;
 
 @SuppressWarnings("WeakerAccess")
 public class Wrapper {
-    private final GasInfo gasInfo = new GasInfo(0, 0, 1000);
-    private final Bluzelle bluzelle;
+    private static final GasInfo gasInfo = new GasInfo(1000, 0, 0);
+    private static Bluzelle bluzelle;
 
-    private Wrapper(Bluzelle bluzelle) {
-        this.bluzelle = bluzelle;
+    private Wrapper() {
     }
 
-    public static Wrapper initialize() {
-        String address = System.getenv("ADDRESS");
+    /**
+     * @param request String with request
+     *                for example {"method":"create","args":["myKey","myValue",{"gas_price":10},{"days":10}]}
+     * @return result as a String or as a json string or String with error message
+     */
+    public static String wrap(String request) {
+        if (bluzelle == null) {
+            initialize();
+        }
+        try {
+            return proceed(request);
+        } catch (Connection.ConnectionException | Bluzelle.ServerException e) {
+            return e.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return e.toString();
+        }
+    }
+
+    private static void initialize() {
         String mnemonic = System.getenv("MNEMONIC");
-        if (mnemonic == null || address == null) {
-            address = "bluzelle1upsfjftremwgxz3gfy0wf3xgvwpymqx754ssu9";
+        if (mnemonic == null) {
             mnemonic = "around buzz diagram captain obtain detail salon mango muffin brother morning jeans" +
                     " display attend knife carry green dwarf vendor hungry fan route pumpkin car";
         }
@@ -33,11 +50,10 @@ public class Wrapper {
         }
         String uuid = System.getenv("UUID");
         String chainId = System.getenv("CHAIN_ID");
-
-        return new Wrapper(Bluzelle.getInstance(address, mnemonic, endpoint, uuid, chainId));
+        bluzelle = Bluzelle.connect(mnemonic, endpoint, uuid, chainId);
     }
 
-    public String proceed(String request) {
+    private static String proceed(String request) {
         JsonObject json = JsonObject.parse(request);
         JsonArray args = json.getArray("args");
         switch (json.getString("method")) {
@@ -52,7 +68,7 @@ public class Wrapper {
                         getGasInfo(args, 2),
                         getLeaseInfo(args, 3)
                 );
-                return "";
+                return "ok";
             case "read":
                 boolean prove = false;
                 if (args.length() > 1) {
@@ -69,10 +85,10 @@ public class Wrapper {
                         getGasInfo(args, 2),
                         getLeaseInfo(args, 3)
                 );
-                return "";
+                return "ok";
             case "delete":
                 bluzelle.delete(args.getString(0), getGasInfo(args, 1));
-                return "";
+                return "ok";
             case "has":
                 return bluzelle.has(args.getString(0)) ? "true" : "false";
             case "txHas":
@@ -85,7 +101,7 @@ public class Wrapper {
                 return listToJson(bluzelle.txKeys(getGasInfo(args, 0)));
             case "rename":
                 bluzelle.rename(args.getString(0), args.getString(1), getGasInfo(args, 2));
-                return "";
+                return "ok";
             case "count":
                 return String.valueOf(bluzelle.count());
             case "txCount":
@@ -94,7 +110,7 @@ public class Wrapper {
             case "deleteAll":
             case "delete_all":
                 bluzelle.deleteAll(getGasInfo(args, 0));
-                return "";
+                return "ok";
             case "keyValues":
             case "key_values":
                 return mapToJson(bluzelle.keyValues());
@@ -104,7 +120,7 @@ public class Wrapper {
             case "multiUpdate":
             case "multi_update":
                 bluzelle.multiUpdate(jsonToMap(args.getArray(0)), getGasInfo(args, 1));
-                return "";
+                return "ok";
             case "getLease":
             case "get_lease":
                 return String.valueOf(bluzelle.getLease(args.getString(0)));
@@ -114,11 +130,11 @@ public class Wrapper {
             case "renewLease":
             case "renew_lease":
                 bluzelle.renewLease(args.getString(0), getGasInfo(args, 1), getLeaseInfo(args, 2));
-                return "";
+                return "ok";
             case "renewLeaseAll":
             case "renew_lease_all":
                 bluzelle.renewLeaseAll(getGasInfo(args, 0), getLeaseInfo(args, 1));
-                return "";
+                return "ok";
             case "getNShortestLeases":
             case "get_n_shortest_leases":
                 return mapToLeases(bluzelle.getNShortestLeases(args.getInt(0)));
@@ -130,7 +146,7 @@ public class Wrapper {
         }
     }
 
-    private GasInfo getGasInfo(JsonArray array, int index) {
+    private static GasInfo getGasInfo(JsonArray array, int index) {
         if (array == null || index >= array.length()) {
             return gasInfo;
         }
@@ -150,10 +166,10 @@ public class Wrapper {
             maxFee = json.getInt("max_fee");
         } catch (Exception ignored) {
         }
-        return new GasInfo(maxGas, maxFee, gasPrice);
+        return new GasInfo(gasPrice, maxGas, maxFee);
     }
 
-    private LeaseInfo getLeaseInfo(JsonArray array, int index) {
+    private static LeaseInfo getLeaseInfo(JsonArray array, int index) {
         if (array == null || index >= array.length()) {
             return null;
         }
@@ -181,7 +197,7 @@ public class Wrapper {
         return new LeaseInfo(days, hours, minutes, seconds);
     }
 
-    private String listToJson(ArrayList<String> list) {
+    private static String listToJson(ArrayList<String> list) {
         JsonArray array = new JsonArray();
         for (String s : list) {
             array.put(s);
@@ -189,7 +205,7 @@ public class Wrapper {
         return array.toString();
     }
 
-    private String mapToJson(HashMap<String, String> map) {
+    private static String mapToJson(HashMap<String, String> map) {
         JsonArray array = new JsonArray();
         map.forEach((key, value) -> {
             JsonObject object = new JsonObject();
@@ -200,7 +216,7 @@ public class Wrapper {
         return array.toString();
     }
 
-    private HashMap<String, String> jsonToMap(JsonArray json) {
+    private static HashMap<String, String> jsonToMap(JsonArray json) {
         HashMap<String, String> map = new HashMap<>();
         JsonObject object;
         int length = json.length();
@@ -211,7 +227,7 @@ public class Wrapper {
         return map;
     }
 
-    private String mapToLeases(Map<String, Integer> map) {
+    private static String mapToLeases(Map<String, Integer> map) {
         JsonArray array = new JsonArray();
         map.forEach((key, value) -> {
             JsonObject object = new JsonObject();

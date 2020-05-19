@@ -1,6 +1,8 @@
 package space.aqoleg.bluzelle;
 
 import org.junit.jupiter.api.Test;
+import space.aqoleg.keys.HdKeyPair;
+import space.aqoleg.keys.Mnemonic;
 
 import java.util.Arrays;
 
@@ -8,6 +10,21 @@ import static org.junit.jupiter.api.Assertions.*;
 import static space.aqoleg.bluzelle.Utils.*;
 
 class UtilsTest {
+
+    @Test
+    void getAddressTest() {
+        String mnemonic = "around buzz diagram captain obtain detail salon mango muffin brother morning jeans" +
+                " display attend knife carry green dwarf vendor hungry fan route pumpkin car";
+        HdKeyPair master = HdKeyPair.createMaster(Mnemonic.createSeed(mnemonic, "mnemonic"));
+        HdKeyPair keyPair = master.generateChild("44'/118'/0'/0/0");
+        assertEquals("bluzelle1upsfjftremwgxz3gfy0wf3xgvwpymqx754ssu9", getAddress(keyPair));
+
+        mnemonic = "volcano arrest ceiling physical concert sunset absent hungry tobacco canal census era pretty" +
+                " car code crunch inside behind afraid express giraffe reflect stadium luxury";
+        master = HdKeyPair.createMaster(Mnemonic.createSeed(mnemonic, "mnemonic"));
+        keyPair = master.generateChild("44'/118'/0'/0/0");
+        assertEquals("bluzelle1xhz23a58mku7ch3hx8f9hrx6he6gyujq57y3kp", getAddress(keyPair));
+    }
 
     @Test
     void sha256hashTest() {

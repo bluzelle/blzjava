@@ -15,13 +15,14 @@ public class Mnemonic {
         try {
             mac = Mac.getInstance("HmacSHA512");
         } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * @param mnemonic   words in UTF-8
-     * @param passphrase in UTF-8, can be empty string
+     * @param mnemonic   words in utf-8
+     * @param passphrase in utf-8, can be empty string
      * @return 64 bytes seed
      * @throws NullPointerException if mnemonic == null, or passphrase == null
      */
@@ -42,6 +43,7 @@ public class Mnemonic {
         try {
             mac.init(new SecretKeySpec(mnemonic.getBytes(), "HmacSHA512"));
         } catch (InvalidKeyException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 

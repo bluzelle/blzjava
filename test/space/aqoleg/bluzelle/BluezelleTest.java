@@ -2,12 +2,13 @@ package space.aqoleg.bluzelle;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class BluezelleTest {
-    private GasInfo gasInfo = new GasInfo(0, 0, 1000);
+    private GasInfo gasInfo = new GasInfo(1000, 0, 0);
     private LeaseInfo leaseInfo = new LeaseInfo(0, 1, 0, 0);
 
     @Test
@@ -15,10 +16,15 @@ class BluezelleTest {
         Bluzelle bluzelle = connect();
         System.out.println("version " + bluzelle.version());
         System.out.println("account " + bluzelle.account().toString());
+
+        assertThrows(
+                Bluzelle.ServerException.class,
+                () -> bluzelle.delete("nonexistingkey", gasInfo)
+        );
     }
 
     @Test
-    void crudTest() {
+    void crudTest1() {
         Bluzelle bluzelle = connect();
         String key = "key";
         String value = "Ф  rr \u8900  ..";
@@ -30,7 +36,7 @@ class BluezelleTest {
     }
 
     @Test
-    void test1() {
+    void crudTest2() {
         Bluzelle bluzelle = connect();
         if (bluzelle.has("key Д\" =? k")) {
             bluzelle.delete("key Д\" =? k", gasInfo);
@@ -64,7 +70,11 @@ class BluezelleTest {
         bluzelle.create("key3", "value3", gasInfo, leaseInfo);
         bluzelle.create("key4", "new value test 4", gasInfo, leaseInfo);
         assertEquals(4, bluzelle.count());
-        bluzelle.keyValues().forEach((key, value) -> System.out.println(key + ":" + value));
+        HashMap<String, String> map = bluzelle.keyValues();
+        assertEquals("key1", map.get("key1"));
+        assertEquals("34 44 null", map.get("key2"));
+        assertEquals("value3", map.get("key3"));
+        assertEquals("new value test 4", map.get("key4"));
         assertTrue(bluzelle.has("key1"));
         bluzelle.rename("key1", "Mkey", gasInfo);
         assertFalse(bluzelle.has("key1"));
@@ -72,27 +82,43 @@ class BluezelleTest {
         bluzelle.delete("key3", gasInfo);
         assertFalse(bluzelle.txHas("key3", gasInfo));
         assertTrue(bluzelle.txHas("key2", gasInfo));
-        bluzelle.keys().forEach(System.out::println);
+        ArrayList<String> list = bluzelle.keys();
+        assertTrue(list.contains("Mkey"));
+        assertTrue(list.contains("key2"));
+        assertTrue(list.contains("key4"));
         assertEquals(3, bluzelle.txCount(gasInfo));
-        HashMap<String, String> map = new HashMap<>();
+        map.clear();
         map.put("key2", "booooo");
         map.put("key4", "aqoleg");
         bluzelle.multiUpdate(map, gasInfo);
-        bluzelle.txKeys(gasInfo).forEach(System.out::println);
-        bluzelle.txKeyValues(gasInfo).forEach((key, value) -> System.out.println(key + ":" + value));
-        System.out.println(bluzelle.getLease("key2"));
-        bluzelle.renewLease("key2", gasInfo, new LeaseInfo(10, 0, 10, 0));
-        System.out.println(bluzelle.txGetLease("key2", gasInfo));
-        bluzelle.renewLeaseAll(gasInfo, new LeaseInfo(0, 0, 1, 50));
-        System.out.println(bluzelle.txGetLease("Mkey", gasInfo));
-        System.out.println(bluzelle.getNShortestLeases(2));
-        System.out.println(bluzelle.txGetNShortestLeases(1, gasInfo));
+        list = bluzelle.txKeys(gasInfo);
+        assertTrue(list.contains("key4"));
+        assertTrue(list.contains("key2"));
+        map = bluzelle.txKeyValues(gasInfo);
+        assertEquals("booooo", map.get("key2"));
+        assertEquals("aqoleg", map.get("key4"));
+        bluzelle.create("key", "lease600", gasInfo, new LeaseInfo(0, 0, 10, 0));
+        int lease = bluzelle.getLease("key");
+        assertTrue(lease <= 600 && lease > 530);
+        bluzelle.renewLeaseAll(gasInfo, new LeaseInfo(0, 0, 1, 40));
+        bluzelle.renewLease("key", gasInfo, new LeaseInfo(0, 0, 40, 0));
+        lease = bluzelle.txGetLease("key", gasInfo);
+        assertTrue(lease <= 2400 && lease > 2200);
+        HashMap<String, Integer> leaseMap = bluzelle.getNShortestLeases(3);
+        assertEquals(3, leaseMap.size());
+        assertTrue(leaseMap.get("Mkey") < 100);
+        assertTrue(leaseMap.get("key2") < 100);
+        assertTrue(leaseMap.get("key4") < 100);
+        leaseMap = bluzelle.txGetNShortestLeases(4, gasInfo);
+        assertTrue(leaseMap.get("Mkey") < 100);
+        assertTrue(leaseMap.get("key") < 2400);
+        assertTrue(leaseMap.get("key2") < 100);
+        assertTrue(leaseMap.get("key4") < 100);
         bluzelle.deleteAll(gasInfo);
     }
 
     private Bluzelle connect() {
-        return Bluzelle.getInstance(
-                "bluzelle1upsfjftremwgxz3gfy0wf3xgvwpymqx754ssu9",
+        return Bluzelle.connect(
                 "around buzz diagram captain obtain detail salon mango muffin brother morning jeans display attend" +
                         " knife carry green dwarf vendor hungry fan route pumpkin car",
                 "http://testnet.public.bluzelle.com:1317",

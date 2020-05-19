@@ -4,7 +4,6 @@ import space.aqoleg.json.JsonObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -12,10 +11,21 @@ import java.net.URLConnection;
 public class Connection {
     private final String endpoint;
 
+    /**
+     * @param endpoint http url of the endpoint, for example "http://testnet.com:1317"
+     * @throws NullPointerException if endpoint == null
+     */
     public Connection(String endpoint) {
         this.endpoint = endpoint;
     }
 
+    /**
+     * perform get request
+     *
+     * @param path url path
+     * @return response String
+     * @throws ConnectionException if can not connect
+     */
     public String get(String path) {
         try {
             URL url = new URL(endpoint + path);
@@ -34,15 +44,22 @@ public class Connection {
                 }
                 builder.append(input);
             } while (true);
-        } catch (MalformedURLException e) {
-            throw new EndpointException(e);
         } catch (FileNotFoundException e) {
-            throw new NullException(e);
+            throw new ConnectionException(e, true);
         } catch (IOException e) {
             throw new ConnectionException(e);
         }
     }
 
+    /**
+     * perform post or delete request
+     *
+     * @param path   url path
+     * @param delete if true performs delete request
+     * @param data   JsonObject with data to pass with request
+     * @return response String
+     * @throws ConnectionException if can not connect
+     */
     public String post(String path, boolean delete, JsonObject data) {
         try {
             URL url = new URL(endpoint + path);
@@ -69,30 +86,22 @@ public class Connection {
                 }
                 builder.append(input);
             } while (true);
-        } catch (MalformedURLException e) {
-            throw new EndpointException(e);
-        } catch (FileNotFoundException e) {
-            throw new NullException(e);
         } catch (IOException e) {
             throw new ConnectionException(e);
         }
     }
 
     public class ConnectionException extends RuntimeException {
-        ConnectionException(Exception e) {
-            super(e);
-        }
-    }
+        final boolean notFound;
 
-    public class EndpointException extends RuntimeException {
-        EndpointException(Exception e) {
+        private ConnectionException(Exception e, boolean notFound) {
             super(e);
+            this.notFound = notFound;
         }
-    }
 
-    public class NullException extends RuntimeException {
-        NullException(Exception e) {
+        private ConnectionException(Exception e) {
             super(e);
+            this.notFound = false;
         }
     }
 }

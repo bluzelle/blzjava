@@ -4,7 +4,7 @@
 //    jsonArray.put(jsonArray);
 //    jsonArray.put(valueString);
 //    jsonArray.put(null);
-//    jsonArray.put(5); // any other value will be used as String
+//    jsonArray.put(5); // any other value will be converted to String
 //    int length = jsonArray.length();
 //    JsonObject jsonObject = jsonArray.getObject(index);
 //    JsonArray jsonArray = jsonArray.getArray(index);
@@ -50,7 +50,7 @@ public class JsonArray {
      * @param index number of the value
      * @return JsonObject with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if value is not a JsonObject
+     * @throws ClassCastException        if value is not a JsonObject
      */
     public JsonObject getObject(int index) {
         Object object = list.get(index);
@@ -59,7 +59,7 @@ public class JsonArray {
         } else if (object instanceof JsonObject) {
             return (JsonObject) object;
         } else {
-            throw new JsonException("not a JsonObject");
+            throw new ClassCastException("not a JsonObject " + object.toString());
         }
     }
 
@@ -67,7 +67,7 @@ public class JsonArray {
      * @param index number of the value
      * @return JsonArray with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if value is not a JsonArray
+     * @throws ClassCastException        if value is not a JsonArray
      */
     @SuppressWarnings("WeakerAccess")
     public JsonArray getArray(int index) {
@@ -77,7 +77,7 @@ public class JsonArray {
         } else if (object instanceof JsonArray) {
             return (JsonArray) object;
         } else {
-            throw new JsonException("not a JsonArray");
+            throw new ClassCastException("not a JsonArray " + object.toString());
         }
     }
 
@@ -85,7 +85,7 @@ public class JsonArray {
      * @param index number of the value
      * @return String with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if value is not a String
+     * @throws ClassCastException        if value is not a String
      */
     public String getString(int index) {
         Object object = list.get(index);
@@ -94,7 +94,7 @@ public class JsonArray {
         } else if (object instanceof String) {
             return (String) object;
         } else {
-            throw new JsonException("not a String");
+            throw new ClassCastException("not a String " + object.toString());
         }
     }
 
@@ -102,7 +102,7 @@ public class JsonArray {
      * @param index number of the value
      * @return integer with this number
      * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws JsonException             if there is no such key or value is not an integer
+     * @throws ClassCastException        if value is not an integer
      */
     @SuppressWarnings("WeakerAccess")
     public int getInt(int index) {
@@ -111,10 +111,10 @@ public class JsonArray {
             try {
                 return Integer.parseInt((String) object);
             } catch (NumberFormatException e) {
-                throw new JsonException("not an integer " + e.getMessage());
+                throw new ClassCastException("not an integer " + object.toString());
             }
         } else {
-            throw new JsonException("not a String");
+            throw new ClassCastException("not an integer " + object.toString());
         }
     }
 

@@ -1,5 +1,9 @@
 package space.aqoleg.bluzelle;
 
+import space.aqoleg.keys.Bech32;
+import space.aqoleg.keys.HdKeyPair;
+import space.aqoleg.keys.Ripemd160;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -14,6 +18,17 @@ class Utils {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * @param keyPair HdKeyPair keypair from which will be created address
+     * @return String address
+     * @throws NullPointerException if keyPair == null
+     */
+    @SuppressWarnings("WeakerAccess")
+    public static String getAddress(HdKeyPair keyPair) {
+        byte[] hash = Ripemd160.getHash(sha256hash(keyPair.publicKeyToByteArray()));
+        return Bech32.encode("bluzelle", hash);
     }
 
     /**

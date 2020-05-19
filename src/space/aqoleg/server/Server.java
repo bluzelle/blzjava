@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
 public class Server implements HttpHandler {
-    private Wrapper wrapper;
 
     public static void main(String[] args) {
         int port = 5000;
@@ -29,18 +28,20 @@ public class Server implements HttpHandler {
         server.createContext("/", new Server());
         server.setExecutor(null);
         server.start();
+        System.out.println("Server started.\nListening for connections on port " + port + " ...\n");
     }
 
     @Override
     public void handle(HttpExchange http) {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(http.getRequestBody()));
         String input;
-        StringBuilder builder = new StringBuilder();
         try {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getRequestBody()));
+            StringBuilder builder = new StringBuilder();
             do {
                 input = reader.readLine();
                 if (input == null) {
                     reader.close();
+                    input = builder.toString();
                     break;
                 }
                 builder.append(input);
@@ -48,16 +49,14 @@ public class Server implements HttpHandler {
         } catch (IOException e) {
             e.printStackTrace();
             http.close();
+            return;
         }
 
-        if (wrapper == null) {
-            wrapper = Wrapper.initialize();
-        }
         String result;
-        try {
-            result = wrapper.proceed(builder.toString());
-        } catch (Exception e) {
-            result = e.getMessage();
+        if (input.isEmpty()) {
+            result = "bluzelle version " + Wrapper.wrap("{method:version}");
+        } else {
+            result = Wrapper.wrap(input);
         }
 
         try {

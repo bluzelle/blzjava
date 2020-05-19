@@ -65,8 +65,8 @@ class Parser {
         }
     }
 
-    JsonException exception(String message) {
-        return new JsonException(source + " at index " + (index - 1) + ": " + message);
+    IllegalArgumentException exception(String message) {
+        return new IllegalArgumentException(source + " at index " + (index - 1) + ": " + message);
     }
 
     private String parseString(char openChar) {

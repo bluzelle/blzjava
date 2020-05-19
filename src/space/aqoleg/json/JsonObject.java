@@ -1,4 +1,4 @@
-// integer and boolean always represents as string
+// integer and boolean represents as string
 // usage:
 //    JsonObject jsonObject = new JsonObject();
 //    JsonObject jsonObject = JsonObject.parse(jsonString);
@@ -6,7 +6,7 @@
 //    jsonObject.put(keyString, jsonArray);
 //    jsonObject.put(keyString, valueString);
 //    jsonObject.put(keyString, null);
-//    jsonObject.put(keyString, 5); // any other value will be used as String
+//    jsonObject.put(keyString, 5); // any other value will be converted to String
 //    JsonObject jsonObject = jsonObject.getObject(keyString);
 //    JsonArray jsonArray = jsonObject.getArray(keyString);
 //    String string = jsonObject.getString(keyString);
@@ -16,6 +16,7 @@
 package space.aqoleg.json;
 
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 public class JsonObject {
@@ -24,8 +25,8 @@ public class JsonObject {
     /**
      * @param source String to be parsed
      * @return JsonObject created from this source
-     * @throws NullPointerException if source == null
-     * @throws JsonException        if source is incorrect
+     * @throws NullPointerException     if source == null
+     * @throws IllegalArgumentException if source is incorrect
      */
     public static JsonObject parse(String source) {
         Parser parser = new Parser(source);
@@ -45,7 +46,7 @@ public class JsonObject {
 
             String key = parser.nextKey();
             if (jsonObject.map.containsKey(key)) {
-                throw parser.exception("duplicate key");
+                throw parser.exception("duplicate key " + key);
             }
 
             if (parser.nextChar() != ':') {
@@ -69,7 +70,7 @@ public class JsonObject {
      * @param key key
      * @return JsonObject associated with this key or null
      * @throws NullPointerException if key == null
-     * @throws JsonException        if value is not a JsonObject
+     * @throws ClassCastException   if value is not a JsonObject
      */
     public JsonObject getObject(String key) {
         Object object = map.get(key);
@@ -78,7 +79,7 @@ public class JsonObject {
         } else if (object instanceof JsonObject) {
             return (JsonObject) object;
         } else {
-            throw new JsonException("not a JsonObject");
+            throw new ClassCastException("not a JsonObject " + object.toString());
         }
     }
 
@@ -86,7 +87,7 @@ public class JsonObject {
      * @param key key
      * @return JsonArray associated with this key or null
      * @throws NullPointerException if key == null
-     * @throws JsonException        if value is not a JsonArray
+     * @throws ClassCastException   if value is not a JsonArray
      */
     public JsonArray getArray(String key) {
         Object object = map.get(key);
@@ -95,7 +96,7 @@ public class JsonObject {
         } else if (object instanceof JsonArray) {
             return (JsonArray) object;
         } else {
-            throw new JsonException("not a JsonArray");
+            throw new ClassCastException("not a JsonArray " + object.toString());
         }
     }
 
@@ -103,7 +104,7 @@ public class JsonObject {
      * @param key key
      * @return String associated with this key or null
      * @throws NullPointerException if key == null
-     * @throws JsonException        if value is not a String
+     * @throws ClassCastException   if value is not a String
      */
     public String getString(String key) {
         Object object = map.get(key);
@@ -112,26 +113,29 @@ public class JsonObject {
         } else if (object instanceof String) {
             return (String) object;
         } else {
-            throw new JsonException("not a String");
+            throw new ClassCastException("not a String " + object.toString());
         }
     }
 
     /**
      * @param key key
      * @return integer associated with this key
-     * @throws NullPointerException if key == null
-     * @throws JsonException        if there is no such key or value is not an integer
+     * @throws NullPointerException   if key == null
+     * @throws NoSuchElementException if there is no such key
+     * @throws ClassCastException     if value is not an integer
      */
     public int getInt(String key) {
         Object object = map.get(key);
-        if (object instanceof String) {
+        if (object == null) {
+            throw new NoSuchElementException();
+        } else if (object instanceof String) {
             try {
                 return Integer.parseInt((String) object);
             } catch (NumberFormatException e) {
-                throw new JsonException("not an integer " + e.getMessage());
+                throw new ClassCastException("not an integer " + object.toString());
             }
         } else {
-            throw new JsonException("not a String");
+            throw new ClassCastException("not an integer " + object.toString());
         }
     }
 
