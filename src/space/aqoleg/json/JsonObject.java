@@ -1,22 +1,23 @@
-// integer and boolean represents as string
+// json object {}
 // usage:
 //    JsonObject jsonObject = new JsonObject();
 //    JsonObject jsonObject = JsonObject.parse(jsonString);
+//    jsonObject.put(keyString, null);
 //    jsonObject.put(keyString, jsonObject);
 //    jsonObject.put(keyString, jsonArray);
-//    jsonObject.put(keyString, valueString);
-//    jsonObject.put(keyString, null);
-//    jsonObject.put(keyString, 5); // any other value will be converted to String
+//    jsonObject.put(keyString, valueInt);
+//    jsonObject.put(keyString, valueBool);
+//    jsonObject.put(keyString, valueString); // any other value will be converted to String
 //    JsonObject jsonObject = jsonObject.getObject(keyString);
 //    JsonArray jsonArray = jsonObject.getArray(keyString);
+//    Integer integer = jsonObject.getInteger(keyString);
+//    Boolean boolean = jsonObject.getBoolean(keyString);
 //    String string = jsonObject.getString(keyString);
-//    int i = jsonObject.getInt(keyInt);
 //    String jsonString = jsonObject.toString();
 //    String sanitizedString = jsonObject.toSanitizeString();
 package space.aqoleg.json;
 
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
 public class JsonObject {
@@ -102,6 +103,40 @@ public class JsonObject {
 
     /**
      * @param key key
+     * @return Integer associated with this key or null
+     * @throws NullPointerException if key == null
+     * @throws ClassCastException   if value is not an Integer
+     */
+    public Integer getInteger(String key) {
+        Object object = map.get(key);
+        if (object == null) {
+            return null;
+        } else if (object instanceof Integer) {
+            return (Integer) object;
+        } else {
+            throw new ClassCastException("not an Integer " + object.toString());
+        }
+    }
+
+    /**
+     * @param key key
+     * @return Boolean associated with this key or null
+     * @throws NullPointerException if key == null
+     * @throws ClassCastException   if value is not a Boolean
+     */
+    public Boolean getBoolean(String key) {
+        Object object = map.get(key);
+        if (object == null) {
+            return null;
+        } else if (object instanceof Boolean) {
+            return (Boolean) object;
+        } else {
+            throw new ClassCastException("not a Boolean " + object.toString());
+        }
+    }
+
+    /**
+     * @param key key
      * @return String associated with this key or null
      * @throws NullPointerException if key == null
      * @throws ClassCastException   if value is not a String
@@ -118,33 +153,11 @@ public class JsonObject {
     }
 
     /**
-     * @param key key
-     * @return integer associated with this key
-     * @throws NullPointerException   if key == null
-     * @throws NoSuchElementException if there is no such key
-     * @throws ClassCastException     if value is not an integer
-     */
-    public int getInt(String key) {
-        Object object = map.get(key);
-        if (object == null) {
-            throw new NoSuchElementException();
-        } else if (object instanceof String) {
-            try {
-                return Integer.parseInt((String) object);
-            } catch (NumberFormatException e) {
-                throw new ClassCastException("not an integer " + object.toString());
-            }
-        } else {
-            throw new ClassCastException("not an integer " + object.toString());
-        }
-    }
-
-    /**
      * put pair {"key":value} in this JsonObject, or rewrite if JsonObject already contains this key
      * remove key if value == null
      *
      * @param key   key
-     * @param value null, JsonObject, JsonArray; if any other object, uses toString()
+     * @param value null, JsonObject, JsonArray, int, bool; if any other object, uses toString()
      * @return this
      * @throws NullPointerException if key == null
      */
@@ -152,7 +165,10 @@ public class JsonObject {
         if (value == null) {
             map.remove(key);
         } else {
-            if (!(value instanceof JsonObject) && !(value instanceof JsonArray)) {
+            if (!(value instanceof JsonObject) &&
+                    !(value instanceof JsonArray) &&
+                    !(value instanceof Integer) &&
+                    !(value instanceof Boolean)) {
                 value = value.toString();
             }
             map.put(key, value);

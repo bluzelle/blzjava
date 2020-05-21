@@ -9,13 +9,20 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import static space.aqoleg.bluzelle.BluzelleTest.endpoint;
+import static space.aqoleg.bluzelle.BluzelleTest.mnemonic;
+
 class ServerTest {
+    private int port = 4000;
 
     @Test
     void test() {
-        Server.main(new String[]{"4000"});
+        Server.main(new String[]{String.valueOf(port)});
+        System.out.println();
 
         post("{method:version}");
+        post("{method:connect,args:[\"" + mnemonic + "\",\"" + endpoint + "\"]}");
+        post("");
         post("{method:account}");
         post("{method:create,args:[myKey,myValue,{gas_price:10},{days:10}]}");
         post("{method:read,args:[myKey,true]}");
@@ -34,9 +41,11 @@ class ServerTest {
         post("{method:tx_count}");
     }
 
-    private static void post(String request) {
+    private void post(String request) {
         try {
-            URL url = new URL("http://localhost:4000");
+            System.out.println("request " + request);
+
+            URL url = new URL("http://localhost:" + port);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(1000);
             connection.setReadTimeout(20000);
@@ -48,14 +57,23 @@ class ServerTest {
             stream.flush();
             stream.close();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            int responseCode = connection.getResponseCode();
+            System.out.println("response code " + responseCode);
+
+            BufferedReader reader;
+            if (responseCode == 200) {
+                reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            } else {
+                reader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
+            }
             String input;
             StringBuilder builder = new StringBuilder();
             do {
                 input = reader.readLine();
                 if (input == null) {
                     reader.close();
-                    System.out.println(builder.toString());
+                    System.out.println("response " + builder.toString());
+                    System.out.println();
                     return;
                 }
                 builder.append(input);

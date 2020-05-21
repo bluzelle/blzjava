@@ -9,6 +9,8 @@ class Writer {
             ((JsonObject) value).write(builder, sanitize);
         } else if (value instanceof JsonArray) {
             ((JsonArray) value).write(builder, sanitize);
+        } else if (value instanceof Boolean || value instanceof Integer) {
+            builder.append(value);
         } else {
             builder.append("\"");
             writeString(builder, (String) value, sanitize);
@@ -27,13 +29,13 @@ class Writer {
                     case '<':
                     case '>':
                         builder.append("\\u00");
-                        builder.append(String.format("%02X", (int) c)); // zero-padded, min width 2
+                        builder.append(String.format("%02x", (int) c)); // lowercase!
                         continue;
                 }
             }
             switch (c) {
+                // case '\'': // non-canonical
                 case '"':
-                case '\'':
                 case '\\':
                     builder.append('\\').append(c);
                     break;

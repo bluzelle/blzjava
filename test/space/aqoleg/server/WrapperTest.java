@@ -1,65 +1,98 @@
 package space.aqoleg.server;
 
 import org.junit.jupiter.api.Test;
+import space.aqoleg.bluzelle.Bluzelle;
+import space.aqoleg.bluzelle.Connection;
+import space.aqoleg.json.JsonArray;
+import space.aqoleg.json.JsonObject;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static space.aqoleg.bluzelle.BluzelleTest.endpoint;
+import static space.aqoleg.bluzelle.BluzelleTest.mnemonic;
 
 class WrapperTest {
 
     @Test
     void test() {
-        String request = "{";
-        System.out.println(Wrapper.wrap(request));
+        Wrapper wrapper = new Wrapper();
 
-        request = "{method:no}";
-        System.out.println(Wrapper.wrap(request));
+        assertThrows(
+                NullPointerException.class,
+                () -> wrapper.connect(null, endpoint, null, null)
+        );
+        assertThrows(
+                Connection.ConnectionException.class,
+                () -> wrapper.connect(mnemonic, "http://test.com:1111", null, null)
+        );
 
-        request = "{method:version}";
-        System.out.println(Wrapper.wrap(request));
+        assertThrows(
+                NullPointerException.class,
+                () -> wrapper.request(null)
+        );
+        // not connected
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> wrapper.request("{method:deleteAll}")
+        );
+        wrapper.request("{method:connect,args:[\"" + mnemonic + "doo\",\"" + endpoint + "\"]}");
+        // unknown method
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> wrapper.request("{method:nomethod}")
+        );
+        // unknown address
+        assertThrows(
+                Bluzelle.ServerException.class,
+                () -> wrapper.request("{method:delete_all}")
+        );
 
-        request = "{method:deleteAll,args:[]}";
-        assertEquals("ok", Wrapper.wrap(request));
+        wrapper.connect(mnemonic, endpoint, null, null);
 
-        request = "{method:account,args:[]}";
-        System.out.println(Wrapper.wrap(request));
+        String result = wrapper.request("{method:version}");
+        System.out.println("version");
+        System.out.println(result);
+        System.out.println();
 
-        request = "{method:create,args:[key,value]}";
-        assertEquals("ok", Wrapper.wrap(request));
+        wrapper.request("{method:deleteAll,args:[]}");
 
-        request = "{method:create,args:[key,value]}";
-        System.out.println(Wrapper.wrap(request));
+        result = wrapper.request("{method:account,args:[]}");
+        System.out.println("account");
+        System.out.println(result);
+        System.out.println();
 
-        request = "{method:create,args:[key1,value,{max_fee:10}]}";
-        System.out.println(Wrapper.wrap(request));
+        String s = " !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        JsonObject json = new JsonObject().put("method", "create");
+        json.put("args", new JsonArray().put("key").put(s));
+        wrapper.request(json.toString());
+        assertThrows(
+                Bluzelle.ServerException.class,
+                () -> wrapper.request("{method:create,args:[key,value]}")
+        );
+        assertThrows(
+                Bluzelle.ServerException.class,
+                () -> wrapper.request("{method:create,args:[key,value],{max_fee:10}]}")
+        );
+        assertEquals(s, wrapper.request("{method:read,args:[key]}"));
+        assertEquals(s, wrapper.request("{method:tx_read,args:[key]}"));
+        wrapper.request("{method:update,args:[key,new value,{gas_price:1000}]}");
+        assertEquals("false", wrapper.request("{method:has,args:[nokey]}"));
+        assertEquals("true", wrapper.request("{method:tx_has,args:[key]}"));
+        wrapper.request("{method:rename,args:[key,key2]}");
+        assertNull(wrapper.request("{method:read,args:[key]}"));
+        wrapper.request("{method:create,args:[key1,value,{gas_price:1000},{minutes:1}]}");
+        wrapper.request("{method:multiUpdate,args:[[{key:key1,value:value11},{key:key2,value:value22}]]}");
 
-        request = "{method:read,args:[key]}";
-        assertEquals("value", Wrapper.wrap(request));
+        result = wrapper.request("{method:txKeyValues,args:[]}");
+        assertEquals(
+                "[{\"key\":\"key1\",\"value\":\"value11\"},{\"key\":\"key2\",\"value\":\"value22\"}]",
+                result
+        );
 
-        request = "{method:update,args:[key,new value,{gas_price:1000}]}";
-        assertEquals("ok", Wrapper.wrap(request));
+        result = wrapper.request("{method:getNShortestLeases,args:[2]}");
+        System.out.println("get 2 shortest leases");
+        System.out.println(result);
+        System.out.println();
 
-        request = "{method:has,args:[nokey]}";
-        assertEquals("false", Wrapper.wrap(request));
-
-        request = "{method:tx_has,args:[key]}";
-        assertEquals("true", Wrapper.wrap(request));
-
-        request = "{method:rename,args:[key,key2]}";
-        assertEquals("ok", Wrapper.wrap(request));
-
-        request = "{method:create,args:[key1,value,{gas_price:1000},{minutes:1}]}";
-        assertEquals("ok", Wrapper.wrap(request));
-
-        request = "{method:multiUpdate,args:[[{key:key1,value:value11},{key:key2,value:value22}]]}";
-        assertEquals("ok", Wrapper.wrap(request));
-
-        request = "{method:txKeyValues,args:[]}";
-        System.out.println(Wrapper.wrap(request));
-
-        request = "{method:getNShortestLeases,args:[2]}";
-        System.out.println(Wrapper.wrap(request));
-
-        request = "{method:deleteAll,args:[]}";
-        assertEquals("ok", Wrapper.wrap(request));
+        wrapper.request("{method:deleteAll,args:[]}");
     }
 }

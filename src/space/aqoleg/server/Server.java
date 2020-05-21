@@ -1,3 +1,7 @@
+// http server for bluzelle client using thin wrapper
+// usage:
+//    Server.main();
+//    Server.main(portNumber);
 package space.aqoleg.server;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -11,6 +15,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 
 public class Server implements HttpHandler {
+    private Wrapper wrapper = new Wrapper();
 
     public static void main(String[] args) {
         int port = 5000;
@@ -19,32 +24,23 @@ public class Server implements HttpHandler {
         } catch (Exception ignored) {
         }
 
-        HttpServer server;
-        try {
-            server = HttpServer.create(new InetSocketAddress(port), 0);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        server.createContext("/", new Server());
-        server.setExecutor(null);
-        server.start();
-        System.out.println("Server started.\nListening for connections on port " + port + " ...\n");
+        new Server().init(port);
     }
 
     @Override
     public void handle(HttpExchange http) {
-        String input;
+        String request;
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(http.getRequestBody()));
             StringBuilder builder = new StringBuilder();
             do {
-                input = reader.readLine();
-                if (input == null) {
+                request = reader.readLine();
+                if (request == null) {
                     reader.close();
-                    input = builder.toString();
+                    request = builder.toString();
                     break;
                 }
-                builder.append(input);
+                builder.append(request);
             } while (true);
         } catch (IOException e) {
             e.printStackTrace();
@@ -52,16 +48,22 @@ public class Server implements HttpHandler {
             return;
         }
 
+        boolean error = false;
         String result;
-        if (input.isEmpty()) {
-            result = "bluzelle version " + Wrapper.wrap("{method:version}");
-        } else {
-            result = Wrapper.wrap(input);
+        try {
+            if (request.isEmpty()) {
+                result = "bluzelle version " + wrapper.request("{method:version}");
+            } else {
+                result = wrapper.request(request);
+            }
+        } catch (Exception e) {
+            error = true;
+            result = e.toString();
         }
 
         try {
-            byte[] response = result.getBytes("utf-8");
-            http.sendResponseHeaders(200, response.length);
+            byte[] response = result == null ? new byte[]{} : result.getBytes("utf-8");
+            http.sendResponseHeaders(error ? 400 : 200, response.length);
             OutputStream stream = http.getResponseBody();
             stream.write(response);
             stream.flush();
@@ -70,5 +72,41 @@ public class Server implements HttpHandler {
             e.printStackTrace();
             http.close();
         }
+    }
+
+    private void init(int port) {
+        System.out.println("blzjava 1.2.1");
+
+        String mnemonic = System.getenv("MNEMONIC");
+        String endpoint = System.getenv("ENDPOINT");
+        String uuid = System.getenv("UUID");
+        String chainId = System.getenv("CHAIN_ID");
+        System.out.println("\"MNEMONIC\" " + mnemonic);
+        System.out.println("\"ENDPOINT\" " + endpoint);
+        System.out.println("\"UUID\" " + uuid);
+        System.out.println("\"CHAIN_ID\" " + chainId);
+        if (mnemonic != null) {
+            try {
+                wrapper.connect(mnemonic, endpoint, uuid, chainId);
+                System.out.println("connected");
+            } catch (Exception e) {
+                System.out.println("not connected " + e.getMessage());
+            }
+        }
+
+        HttpServer server;
+        try {
+            server = HttpServer.create(new InetSocketAddress(port), 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        server.createContext("/", this);
+        server.setExecutor(null);
+        server.start();
+
+        System.out.println("server started");
+        System.out.println("listening for connections on port " + port + " ...");
     }
 }

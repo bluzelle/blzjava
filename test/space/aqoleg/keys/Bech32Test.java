@@ -3,11 +3,15 @@ package space.aqoleg.keys;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class Bech32Test {
 
     @Test
     void test() {
+        assertThrows(NullPointerException.class, () -> Bech32.encode(null, new byte[]{2}));
+        assertThrows(NullPointerException.class, () -> Bech32.encode("prefix", null));
+
         check("a12uel5l", "a", "");
         check(
                 "an83characterlonghumanreadablepartthatcontainsthenumber1andtheexcludedcharactersbio1tt5tgs",
@@ -32,6 +36,10 @@ class Bech32Test {
                 "11qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
                         "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq978ear",
                 Bech32.encode("1", new byte[102])
+        );
+        assertEquals(
+                "foo1vehk7cnpwgry9h96",
+                Bech32.encode("foo", "foobar".getBytes())
         );
     }
 

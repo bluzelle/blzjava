@@ -1,3 +1,11 @@
+// some utils
+// usage:
+//    String bluzelleAddress = Utils.getAddress(hdKeyPair);
+//    byte[] sha256hash = Utils.sha256hash(messageBytes);
+//    String memo = Utils.randomString();
+//    String base64 = Utils.base64encode(messageBytes);
+//    String urlEncoded = Utils.urlEncode(string);
+//    String encoded = Utils.hexToString(hexString);
 package space.aqoleg.bluzelle;
 
 import space.aqoleg.keys.Bech32;
@@ -7,7 +15,8 @@ import space.aqoleg.keys.Ripemd160;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-class Utils {
+@SuppressWarnings("WeakerAccess")
+public class Utils {
     private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     private static final String hex = "0123456789ABCDEF";
     private static final MessageDigest sha256;
@@ -16,6 +25,7 @@ class Utils {
         try {
             sha256 = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }
@@ -25,7 +35,6 @@ class Utils {
      * @return String address
      * @throws NullPointerException if keyPair == null
      */
-    @SuppressWarnings("WeakerAccess")
     public static String getAddress(HdKeyPair keyPair) {
         byte[] hash = Ripemd160.getHash(sha256hash(keyPair.publicKeyToByteArray()));
         return Bech32.encode("bluzelle", hash);
@@ -36,7 +45,6 @@ class Utils {
      * @return 32-bytes hash
      * @throws NullPointerException if message == null
      */
-    @SuppressWarnings("WeakerAccess")
     public static byte[] sha256hash(byte[] message) {
         return sha256.digest(message);
     }
@@ -44,7 +52,6 @@ class Utils {
     /**
      * @return random string with length 32 contains uppercase and lowercase letters and numbers
      */
-    @SuppressWarnings("WeakerAccess")
     public static String randomString() {
         StringBuilder out = new StringBuilder();
         for (int i = 0; i < 32; i++) {
@@ -58,7 +65,6 @@ class Utils {
      * @return bytes encoded in base64 String
      * @throws NullPointerException if bytes == null
      */
-    @SuppressWarnings("WeakerAccess")
     public static String base64encode(byte[] bytes) {
         StringBuilder builder = new StringBuilder();
         int bytesPos = 0;
@@ -102,7 +108,6 @@ class Utils {
      * @return url encoded string
      * @throws NullPointerException if string == null
      */
-    @SuppressWarnings("WeakerAccess")
     public static String urlEncode(String string) {
         StringBuilder builder = new StringBuilder();
 
@@ -179,7 +184,6 @@ class Utils {
      * @throws NullPointerException     if hex == null
      * @throws IllegalArgumentException if hex contain non-hex symbols
      */
-    @SuppressWarnings("WeakerAccess")
     public static String hexToString(String hex) {
         int length = hex.length();
         int pos = 0;

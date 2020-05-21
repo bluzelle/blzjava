@@ -13,6 +13,8 @@ class UtilsTest {
 
     @Test
     void getAddressTest() {
+        assertThrows(NullPointerException.class, () -> getAddress(null));
+
         String mnemonic = "around buzz diagram captain obtain detail salon mango muffin brother morning jeans" +
                 " display attend knife carry green dwarf vendor hungry fan route pumpkin car";
         HdKeyPair master = HdKeyPair.createMaster(Mnemonic.createSeed(mnemonic, "mnemonic"));
@@ -28,6 +30,8 @@ class UtilsTest {
 
     @Test
     void sha256hashTest() {
+        assertThrows(NullPointerException.class, () -> sha256hash(null));
+
         areEquals(
                 "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
                 sha256hash("abc".getBytes())
@@ -47,12 +51,17 @@ class UtilsTest {
         assertEquals(32, string.length());
         assertNotEquals(string, randomString());
         assertNotEquals(randomString(), randomString());
+        System.out.println("random string");
         System.out.println(string);
+        System.out.println();
+        System.out.println("another random string");
         System.out.println(randomString());
     }
 
     @Test
     void base64EncodeTest() {
+        assertThrows(NullPointerException.class, () -> base64encode(null));
+
         assertEquals("", base64encode("".getBytes()));
         assertEquals("Zg==", base64encode("f".getBytes()));
         assertEquals("Zm8=", base64encode("fo".getBytes()));
@@ -65,6 +74,8 @@ class UtilsTest {
 
     @Test
     void urlEncodeTest() {
+        assertThrows(NullPointerException.class, () -> urlEncode(null));
+
         assertEquals(
                 "%7B%7D%3E%3C%23%3F%25%22%5B%5D%5E%60abcfzAhvYZ0129%20%20",
                 urlEncode("{}><#?%\"[]^`abcfzAhvYZ0129  ")
@@ -90,6 +101,11 @@ class UtilsTest {
                         "9%D0%A2%D0%A0%D0%93~%D1%8E%D1%8E.%20%20%20%5Cw%E2%8C%B3%E2%8C%B3%E6%9D%A6",
                 urlEncode("38-9а83*?*!№*?everР*Ё`ульмук0384о9ТРГ~юю.   \\w\u2333\u2333\u6766")
         );
+
+        String s = " !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+        String out = "%20!%22%23$%25&'()*+,-./0123456789:;%3C=%3E%3F@ABCDEFGHIJKLMNOPQRSTUVWXYZ%5B%5C%5D%5E_%60abc"
+                + "defghijklmnopqrstuvwxyz%7B%7C%7D~";
+        assertEquals(out, urlEncode(s));
     }
 
     @Test
@@ -97,6 +113,7 @@ class UtilsTest {
         assertThrows(NullPointerException.class, () -> hexToString(null));
         assertThrows(IllegalArgumentException.class, () -> hexToString("0xdq"));
         assertThrows(IllegalArgumentException.class, () -> hexToString("0xr4"));
+
         assertEquals("", hexToString(""));
         assertEquals("..DOOM..", hexToString("2E2E444F4F4D2E2E"));
         assertEquals("..DOOM..", hexToString("0x2E2E444F4F4D2E2E"));

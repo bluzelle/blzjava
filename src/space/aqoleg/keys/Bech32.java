@@ -17,7 +17,7 @@ public class Bech32 {
      */
     public static String encode(String prefix, byte[] data) {
         // 5-bits bytes
-        data = convertToWords(data);
+        data = getWords(data);
 
         // add one after prefix
         StringBuilder result = new StringBuilder(prefix);
@@ -43,9 +43,9 @@ public class Bech32 {
         for (int i = 0; i < 6; i++) {
             checksum = polymod(checksum, (byte) 0);
         }
-        checksum ^= 1;
 
         // add checksum to result
+        checksum ^= 1;
         for (int i = 25; i >= 0; i -= 5) {
             int word = (checksum >> i) & 0b11111;
             result.append(alphabet.charAt(word));
@@ -55,7 +55,7 @@ public class Bech32 {
     }
 
     // convert 8-bit bytes to 5-bit bytes
-    private static byte[] convertToWords(byte[] bytes) {
+    private static byte[] getWords(byte[] bytes) {
         int buffer = 0;
         int bitsInBuffer = 0;
         ByteArrayOutputStream result = new ByteArrayOutputStream();
@@ -78,7 +78,7 @@ public class Bech32 {
     }
 
     // checksum = polymod(checksum, aByte) for each aByte in byte[]
-    private static int polymod(int checksum, byte value) {
+    private static int polymod(int checksum, byte aByte) {
         int b = checksum >> 25;
 
         checksum = ((checksum & 0x1ffffff) << 5);
@@ -87,6 +87,6 @@ public class Bech32 {
                 checksum ^= generator[i];
             }
         }
-        return checksum ^ value;
+        return checksum ^ aByte;
     }
 }

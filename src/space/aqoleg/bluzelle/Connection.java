@@ -16,6 +16,9 @@ public class Connection {
      * @throws NullPointerException if endpoint == null
      */
     public Connection(String endpoint) {
+        if (endpoint == null) {
+            throw new NullPointerException("null endpoint");
+        }
         this.endpoint = endpoint;
     }
 
@@ -34,8 +37,8 @@ public class Connection {
             connection.setReadTimeout(10000);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String input;
             StringBuilder builder = new StringBuilder();
+            String input;
             do {
                 input = reader.readLine();
                 if (input == null) {
@@ -68,7 +71,7 @@ public class Connection {
             connection.setReadTimeout(10000);
             connection.setDoOutput(true);
             connection.setRequestMethod(delete ? "DELETE" : "POST");
-            connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
+            connection.setRequestProperty("Content-type", "application/json");
 
             OutputStream stream = connection.getOutputStream();
             stream.write(data.toString().getBytes("utf-8"));
@@ -76,8 +79,8 @@ public class Connection {
             stream.close();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            String input;
             StringBuilder builder = new StringBuilder();
+            String input;
             do {
                 input = reader.readLine();
                 if (input == null) {

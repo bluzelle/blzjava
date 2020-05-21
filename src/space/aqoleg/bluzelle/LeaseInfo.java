@@ -1,3 +1,11 @@
+// object containing parameters related to the minimum time a key should be maintained in the database
+// usage:
+//    LeaseInfo leaseInfo = new LeaseInfo(days, hours, minutes, seconds);
+//    int days = leaseInfo.days;
+//    int hours = leaseInfo.hours;
+//    int minutes = leaseInfo.minutes;
+//    int seconds = leaseInfo.seconds;
+//    int blocks = leaseInfo.blocks;
 package space.aqoleg.bluzelle;
 
 @SuppressWarnings("WeakerAccess")
@@ -10,8 +18,6 @@ public class LeaseInfo {
     public final int blocks;
 
     /**
-     * object containing parameters related to the minimum time a key should be maintained in the database
-     *
      * @param days    number of days
      * @param hours   number of hours
      * @param minutes number of minute

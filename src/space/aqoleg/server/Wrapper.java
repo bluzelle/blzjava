@@ -1,3 +1,16 @@
+// thin wrapper for the bluzelle client
+// usage:
+//    Wrapper wrapper = new Wrapper();
+//    wrapper.connect(mnemonicString, endpointString, uuidString, chainIdString);
+//    String result = wrapper.request(requestString);
+// requests examples:
+//    {"method":"connect","args":["mnemonic words","localhost:5000","uuid","bluzelle"]}
+//    {"method":"connect","args":["mnemonic words"]}
+//    {"method":"create","args":["key","value"]}
+//    {method:create,args:[key,value,{gas_price:10,max_gas:10,max_fee:10}]}
+//    {"method":"create","args":["key","value",{"gas_price":10},{"days":10,"hours":10,"minutes":10,"seconds":10}]}
+//    {"method":"deleteAll"}
+//    {"method":"delete_all","args":[{"max_gas":10000}]}
 package space.aqoleg.server;
 
 import space.aqoleg.bluzelle.Bluzelle;
@@ -14,49 +27,47 @@ import java.util.Map;
 @SuppressWarnings("WeakerAccess")
 public class Wrapper {
     private static final GasInfo gasInfo = new GasInfo(1000, 0, 0);
-    private static Bluzelle bluzelle;
+    private Bluzelle bluzelle;
 
-    private Wrapper() {
+    /**
+     * creates and configures connection
+     *
+     * @param mnemonic mnemonic of the private key for account
+     * @param endpoint hostname and port of rest server or null for default "http://localhost:1317"
+     * @param chainId  chain id of account or null for default "bluzelle"
+     * @param uuid     uuid or null for the same as address
+     * @throws NullPointerException           if mnemonic == null
+     * @throws Connection.ConnectionException if can not connect to the node
+     */
+    public void connect(String mnemonic, String endpoint, String uuid, String chainId) {
+        bluzelle = Bluzelle.connect(mnemonic, endpoint, uuid, chainId);
     }
 
     /**
      * @param request String with request
-     *                for example {"method":"create","args":["myKey","myValue",{"gas_price":10},{"days":10}]}
-     * @return result as a String or as a json string or String with error message
+     * @return String result or null
+     * @throws UnsupportedOperationException  if bluzelle is not connected or method is unknown
+     * @throws Connection.ConnectionException if can not connect to the node
+     * @throws Bluzelle.ServerException       if server returns error
      */
-    public static String wrap(String request) {
-        if (bluzelle == null) {
-            initialize();
-        }
-        try {
-            return proceed(request);
-        } catch (Connection.ConnectionException | Bluzelle.ServerException e) {
-            return e.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return e.toString();
-        }
-    }
-
-    private static void initialize() {
-        String mnemonic = System.getenv("MNEMONIC");
-        if (mnemonic == null) {
-            mnemonic = "around buzz diagram captain obtain detail salon mango muffin brother morning jeans" +
-                    " display attend knife carry green dwarf vendor hungry fan route pumpkin car";
-        }
-        String endpoint = System.getenv("ENDPOINT");
-        if (endpoint == null) {
-            endpoint = "http://testnet.public.bluzelle.com:1317";
-        }
-        String uuid = System.getenv("UUID");
-        String chainId = System.getenv("CHAIN_ID");
-        bluzelle = Bluzelle.connect(mnemonic, endpoint, uuid, chainId);
-    }
-
-    private static String proceed(String request) {
+    public String request(String request) {
         JsonObject json = JsonObject.parse(request);
+        String method = json.getString("method");
         JsonArray args = json.getArray("args");
-        switch (json.getString("method")) {
+
+        if (method.equals("connect")) {
+            connect(
+                    args.getString(0),
+                    (args.length() > 1) ? args.getString(1) : null,
+                    (args.length() > 2) ? args.getString(2) : null,
+                    (args.length() > 3) ? args.getString(3) : null
+            );
+            return null;
+        } else if (bluzelle == null) {
+            throw new UnsupportedOperationException("bluzelle is not connected");
+        }
+
+        switch (method) {
             case "version":
                 return bluzelle.version();
             case "account":
@@ -68,13 +79,12 @@ public class Wrapper {
                         getGasInfo(args, 2),
                         getLeaseInfo(args, 3)
                 );
-                return "ok";
+                return null;
             case "read":
-                boolean prove = false;
-                if (args.length() > 1) {
-                    prove = args.getString(1).equals("true");
-                }
-                return bluzelle.read(args.getString(0), prove);
+                return bluzelle.read(
+                        args.getString(0),
+                        (args.length() > 1) && args.getBoolean(1)
+                );
             case "txRead":
             case "tx_read":
                 return bluzelle.txRead(args.getString(0), getGasInfo(args, 1));
@@ -85,10 +95,10 @@ public class Wrapper {
                         getGasInfo(args, 2),
                         getLeaseInfo(args, 3)
                 );
-                return "ok";
+                return null;
             case "delete":
                 bluzelle.delete(args.getString(0), getGasInfo(args, 1));
-                return "ok";
+                return null;
             case "has":
                 return bluzelle.has(args.getString(0)) ? "true" : "false";
             case "txHas":
@@ -101,7 +111,7 @@ public class Wrapper {
                 return listToJson(bluzelle.txKeys(getGasInfo(args, 0)));
             case "rename":
                 bluzelle.rename(args.getString(0), args.getString(1), getGasInfo(args, 2));
-                return "ok";
+                return null;
             case "count":
                 return String.valueOf(bluzelle.count());
             case "txCount":
@@ -110,7 +120,7 @@ public class Wrapper {
             case "deleteAll":
             case "delete_all":
                 bluzelle.deleteAll(getGasInfo(args, 0));
-                return "ok";
+                return null;
             case "keyValues":
             case "key_values":
                 return mapToJson(bluzelle.keyValues());
@@ -120,7 +130,7 @@ public class Wrapper {
             case "multiUpdate":
             case "multi_update":
                 bluzelle.multiUpdate(jsonToMap(args.getArray(0)), getGasInfo(args, 1));
-                return "ok";
+                return null;
             case "getLease":
             case "get_lease":
                 return String.valueOf(bluzelle.getLease(args.getString(0)));
@@ -130,19 +140,19 @@ public class Wrapper {
             case "renewLease":
             case "renew_lease":
                 bluzelle.renewLease(args.getString(0), getGasInfo(args, 1), getLeaseInfo(args, 2));
-                return "ok";
+                return null;
             case "renewLeaseAll":
             case "renew_lease_all":
                 bluzelle.renewLeaseAll(getGasInfo(args, 0), getLeaseInfo(args, 1));
-                return "ok";
+                return null;
             case "getNShortestLeases":
             case "get_n_shortest_leases":
-                return mapToLeases(bluzelle.getNShortestLeases(args.getInt(0)));
+                return mapToLeases(bluzelle.getNShortestLeases(args.getInteger(0)));
             case "txGetNShortestLeases":
             case "tx_get_n_shortest_leases":
-                return mapToLeases(bluzelle.txGetNShortestLeases(args.getInt(0), getGasInfo(args, 1)));
+                return mapToLeases(bluzelle.txGetNShortestLeases(args.getInteger(0), getGasInfo(args, 1)));
             default:
-                throw new IllegalArgumentException("method is unaccepted");
+                throw new UnsupportedOperationException("unknown method \"" + method + "\"");
         }
     }
 
@@ -151,22 +161,14 @@ public class Wrapper {
             return gasInfo;
         }
         JsonObject json = array.getObject(index);
-        int gasPrice = 0;
-        int maxGas = 0;
-        int maxFee = 0;
-        try {
-            gasPrice = json.getInt("gas_price");
-        } catch (Exception ignored) {
-        }
-        try {
-            maxGas = json.getInt("max_gas");
-        } catch (Exception ignored) {
-        }
-        try {
-            maxFee = json.getInt("max_fee");
-        } catch (Exception ignored) {
-        }
-        return new GasInfo(gasPrice, maxGas, maxFee);
+        Integer gasPrice = json.getInteger("gas_price");
+        Integer maxGas = json.getInteger("max_gas");
+        Integer maxFee = json.getInteger("max_fee");
+        return new GasInfo(
+                gasPrice == null ? 0 : gasPrice,
+                maxGas == null ? 0 : maxGas,
+                maxFee == null ? 0 : maxFee
+        );
     }
 
     private static LeaseInfo getLeaseInfo(JsonArray array, int index) {
@@ -174,27 +176,16 @@ public class Wrapper {
             return null;
         }
         JsonObject json = array.getObject(index);
-        int days = 0;
-        int hours = 0;
-        int minutes = 0;
-        int seconds = 0;
-        try {
-            days = json.getInt("days");
-        } catch (Exception ignored) {
-        }
-        try {
-            hours = json.getInt("hours");
-        } catch (Exception ignored) {
-        }
-        try {
-            minutes = json.getInt("minutes");
-        } catch (Exception ignored) {
-        }
-        try {
-            seconds = json.getInt("seconds");
-        } catch (Exception ignored) {
-        }
-        return new LeaseInfo(days, hours, minutes, seconds);
+        Integer days = json.getInteger("days");
+        Integer hours = json.getInteger("hours");
+        Integer minutes = json.getInteger("minutes");
+        Integer seconds = json.getInteger("seconds");
+        return new LeaseInfo(
+                days == null ? 0 : days,
+                hours == null ? 0 : hours,
+                minutes == null ? 0 : minutes,
+                seconds == null ? 0 : seconds
+        );
     }
 
     private static String listToJson(ArrayList<String> list) {
@@ -207,12 +198,12 @@ public class Wrapper {
 
     private static String mapToJson(HashMap<String, String> map) {
         JsonArray array = new JsonArray();
-        map.forEach((key, value) -> {
+        for (Map.Entry<String, String> entry : map.entrySet()) {
             JsonObject object = new JsonObject();
-            object.put("key", key);
-            object.put("value", value);
+            object.put("key", entry.getKey());
+            object.put("value", entry.getValue());
             array.put(object);
-        });
+        }
         return array.toString();
     }
 
@@ -227,14 +218,14 @@ public class Wrapper {
         return map;
     }
 
-    private static String mapToLeases(Map<String, Integer> map) {
+    private static String mapToLeases(HashMap<String, Integer> map) {
         JsonArray array = new JsonArray();
-        map.forEach((key, value) -> {
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
             JsonObject object = new JsonObject();
-            object.put("key", key);
-            object.put("lease", value);
+            object.put("key", entry.getKey());
+            object.put("lease", entry.getValue());
             array.put(object);
-        });
+        }
         return array.toString();
     }
 }

@@ -1,15 +1,18 @@
+// json array []
 // usage:
 //    JsonArray jsonArray = new JsonArray();
+//    jsonArray.put(null);
 //    jsonArray.put(jsonObject);
 //    jsonArray.put(jsonArray);
-//    jsonArray.put(valueString);
-//    jsonArray.put(null);
-//    jsonArray.put(5); // any other value will be converted to String
+//    jsonArray.put(valueInt);
+//    jsonArray.put(valueBool);
+//    jsonArray.put(valueString); // any other value will be converted to String
 //    int length = jsonArray.length();
 //    JsonObject jsonObject = jsonArray.getObject(index);
 //    JsonArray jsonArray = jsonArray.getArray(index);
+//    Integer integer = jsonArray.getInteger(index);
+//    Boolean boolean = jsonArray.getBoolean(index);
 //    String string = jsonArray.getString(index);
-//    int i = jsonArray.getInt(index);
 //    String jsonString = jsonArray.toString();
 package space.aqoleg.json;
 
@@ -83,6 +86,41 @@ public class JsonArray {
 
     /**
      * @param index number of the value
+     * @return Integer with this number or null
+     * @throws IndexOutOfBoundsException if index is incorrect
+     * @throws ClassCastException        if value is not an Integer
+     */
+    public Integer getInteger(int index) {
+        Object object = list.get(index);
+        if (object == null) {
+            return null;
+        } else if (object instanceof Integer) {
+            return (Integer) object;
+        } else {
+            throw new ClassCastException("not an Integer " + object.toString());
+        }
+    }
+
+    /**
+     * @param index number of the value
+     * @return Boolean with this number or null
+     * @throws IndexOutOfBoundsException if index is incorrect
+     * @throws ClassCastException        if value is not a Boolean
+     */
+    @SuppressWarnings("WeakerAccess")
+    public Boolean getBoolean(int index) {
+        Object object = list.get(index);
+        if (object == null) {
+            return null;
+        } else if (object instanceof Boolean) {
+            return (Boolean) object;
+        } else {
+            throw new ClassCastException("not a Boolean " + object.toString());
+        }
+    }
+
+    /**
+     * @param index number of the value
      * @return String with this number or null
      * @throws IndexOutOfBoundsException if index is incorrect
      * @throws ClassCastException        if value is not a String
@@ -99,33 +137,17 @@ public class JsonArray {
     }
 
     /**
-     * @param index number of the value
-     * @return integer with this number
-     * @throws IndexOutOfBoundsException if index is incorrect
-     * @throws ClassCastException        if value is not an integer
-     */
-    @SuppressWarnings("WeakerAccess")
-    public int getInt(int index) {
-        Object object = list.get(index);
-        if (object instanceof String) {
-            try {
-                return Integer.parseInt((String) object);
-            } catch (NumberFormatException e) {
-                throw new ClassCastException("not an integer " + object.toString());
-            }
-        } else {
-            throw new ClassCastException("not an integer " + object.toString());
-        }
-    }
-
-    /**
      * put object in this JsonArray
      *
-     * @param value null, JsonObject, JsonArray; if any other object, use toString()
+     * @param value null, JsonObject, JsonArray, int, bool; if any other object, uses toString()
      * @return this
      */
     public JsonArray put(Object value) {
-        if (value != null && !(value instanceof JsonObject) && !(value instanceof JsonArray)) {
+        if (value != null &&
+                !(value instanceof JsonObject) &&
+                !(value instanceof JsonArray) &&
+                !(value instanceof Integer) &&
+                !(value instanceof Boolean)) {
             value = value.toString();
         }
         list.add(value);

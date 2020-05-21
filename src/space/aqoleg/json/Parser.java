@@ -44,7 +44,7 @@ class Parser {
         return key;
     }
 
-    // returns null, String, JsonObject or JsonArray
+    // returns null, JsonObject, JsonArray, Boolean, Integer or String
     Object nextValue() {
         char c = nextChar();
         switch (c) {
@@ -58,10 +58,20 @@ class Parser {
             default:
                 moveBack();
                 String value = parseUnquotedString();
-                if (value.equals("null")) {
-                    return null;
+                switch (value) {
+                    case "null":
+                        return null;
+                    case "true":
+                        return Boolean.TRUE;
+                    case "false":
+                        return Boolean.FALSE;
+                    default:
+                        try {
+                            return Integer.parseInt(value);
+                        } catch (NumberFormatException ignored) {
+                            return value;
+                        }
                 }
-                return value;
         }
     }
 

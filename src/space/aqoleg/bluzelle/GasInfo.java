@@ -1,3 +1,9 @@
+// object containing parameters related to gas consumption
+// usage:
+//    GasInfo gasInfo = new GasInfo(gasPrice, maxGas, maxFee);
+//    int gasPrice = gasInfo.gasPrice;
+//    int maxGas = gasInfo.maxGas;
+//    int maxFee = gasInfo.maxFee;
 package space.aqoleg.bluzelle;
 
 @SuppressWarnings("WeakerAccess")
@@ -7,8 +13,6 @@ public class GasInfo {
     public final int maxFee;
 
     /**
-     * object containing parameters related to gas consumption
-     *
      * @param gasPrice maximum price to pay for gas, ubnt
      * @param maxGas   maximum amount of gas to consume
      * @param maxFee   maximum amount to charge, ubnt

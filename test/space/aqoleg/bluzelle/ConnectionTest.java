@@ -3,31 +3,38 @@ package space.aqoleg.bluzelle;
 import org.junit.jupiter.api.Test;
 import space.aqoleg.json.JsonObject;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ConnectionTest {
 
     @Test
     void getTest() {
-        assertThrows(
-                Connection.ConnectionException.class,
-                () -> new Connection("net.public").get("")
-        );
+        assertThrows(NullPointerException.class, () -> new Connection(null));
+
+        boolean notFound = true;
+        try {
+            new Connection("net.public").get("");
+        } catch (Connection.ConnectionException e) {
+            notFound = e.notFound;
+        }
+        assertFalse(notFound);
 
         Connection connection = new Connection("http://testnet.public.bluzelle.com:1317");
         assertThrows(
                 Connection.ConnectionException.class,
                 () -> connection.get("")
         );
-        boolean notFound = false;
+        notFound = false;
         try {
             connection.get("");
         } catch (Connection.ConnectionException e) {
             notFound = e.notFound;
         }
         assertTrue(notFound);
+
+        System.out.println("/node info");
         System.out.println(connection.get("/node_info"));
+        System.out.println();
     }
 
     @Test
@@ -42,6 +49,9 @@ class ConnectionTest {
                 Connection.ConnectionException.class,
                 () -> connection.post("", false, new JsonObject())
         );
+
+        System.out.println("/crud/count/bluzelle1upsfjftremwgxz3gfy0wf3xgvwpymqx754ssu9");
         System.out.println(connection.get("/crud/count/bluzelle1upsfjftremwgxz3gfy0wf3xgvwpymqx754ssu9"));
+        System.out.println();
     }
 }

@@ -1,4 +1,7 @@
 // cryptographic hash function
+// usage:
+//    byte[] hash = Ripemd160.getHash(messageBytes);
+//    byte[] hash = Ripemd160.getHash(messageBytes, messageStart, messageLength);
 package space.aqoleg.keys;
 
 public class Ripemd160 {
