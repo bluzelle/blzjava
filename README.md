@@ -8,7 +8,7 @@ Get the package from github:
 ```
 git clone https://github.com/aqoleg/blzjava
 ```
-Or [download](https://github.com/aqoleg/blzjava/releases/download/1.0.1/blzjava.jar) jar file and add classpath.
+Or [download](https://github.com/aqoleg/blzjava/releases/download/1.2.1/blzjava.jar) jar file and add classpath.
 
 Use:
 ```java

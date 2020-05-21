@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <LinearLayout android:orientation="vertical" android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" android:layout_margin="8dp">
+        <EditText android:id="@+id/mnemonic" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:inputType="textMultiLine" android:text="@string/defaultMnemonic" android:hint="@string/mnemonic" />
+        <EditText android:id="@+id/endpoint" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:inputType="textMultiLine" android:text="@string/defaultEndpoint" android:hint="@string/endpoint" />
+        <EditText android:id="@+id/uuid" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:inputType="textMultiLine" android:hint="@string/uuid" />
+        <EditText android:id="@+id/chainId" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:inputType="textMultiLine" android:hint="@string/chainId" />
+    </LinearLayout>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="36dp">
+        <TextView android:id="@+id/login" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:gravity="center" android:background="@color/colorMain" android:text="@string/login"
+            android:textColor="@android:color/white" />
+        <TextView android:id="@+id/connect" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:gravity="center" android:visibility="gone" android:text="@string/connect" />
+    </FrameLayout>
+</LinearLayout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:minWidth="280dp">
+    <TextView android:layout_width="match_parent" android:layout_height="30dp" android:gravity="center"
+        android:textSize="16sp" android:text="@string/gas" />
+    <EditText android:id="@+id/gasPrice" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="number|numberDecimal" android:hint="@string/gasPrice" />
+    <EditText android:id="@+id/maxGas" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="number|numberDecimal" android:hint="@string/maxGas" />
+    <EditText android:id="@+id/maxFee" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="number|numberDecimal" android:imeOptions="actionDone" android:hint="@string/maxFee" />
+    <TextView android:id="@+id/set" android:layout_width="match_parent" android:layout_height="36dp"
+        android:gravity="center" android:background="@color/colorMain" android:text="@string/set"
+        android:textSize="16sp" android:textColor="@android:color/white" />
+</LinearLayout>

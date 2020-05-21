@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/gas" android:showAsAction="always" android:title="@string/gas" />
+    <item android:id="@+id/lease" android:showAsAction="always" android:title="@string/lease" />
+    <item android:id="@+id/logout" android:showAsAction="always" android:title="@string/logout"
+        tools:ignore="AlwaysShowAction" />
+</menu>

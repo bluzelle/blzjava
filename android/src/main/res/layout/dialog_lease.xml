@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:minWidth="280dp">
+    <TextView android:layout_width="match_parent" android:layout_height="30dp" android:gravity="center"
+        android:textSize="16sp" android:text="@string/lease" />
+    <EditText android:id="@+id/days" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="number|numberDecimal" android:hint="@string/days" />
+    <EditText android:id="@+id/hours" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="number|numberDecimal" android:hint="@string/hours" />
+    <EditText android:id="@+id/minutes" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="number|numberDecimal" android:hint="@string/minutes" />
+    <EditText android:id="@+id/seconds" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:inputType="number|numberDecimal" android:imeOptions="actionDone" android:hint="@string/seconds" />
+    <TextView android:id="@+id/set" android:layout_width="match_parent" android:layout_height="36dp"
+        android:gravity="center" android:background="@color/colorMain" android:text="@string/set"
+        android:textSize="16sp" android:textColor="@android:color/white" />
+</LinearLayout>

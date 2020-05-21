@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">Bluzelle</string>
+
+    <string name="logout">logout</string>
+    <string name="gas">gas</string>
+    <string name="lease">lease</string>
+
+    <string name="mnemonic">mnemonic</string>
+    <string name="endpoint">endpoint</string>
+    <string name="uuid">uuid</string>
+    <string name="chainId">chain id</string>
+    <string name="connect">connecting…</string>
+    <string name="defaultMnemonic">around buzz diagram captain obtain detail salon mango muffin brother morning jeans
+        display attend knife carry green dwarf vendor hungry fan route pumpkin car
+    </string>
+    <string name="defaultEndpoint">http://testnet.public.bluzelle.com:1317</string>
+    <string name="login">login</string>
+    <string name="loading">loading…</string>
+
+    <string name="ready">ready</string>
+    <string name="key">key</string>
+    <string name="value">value</string>
+    <string name="create">create</string>
+    <string name="read">read</string>
+    <string name="update">update</string>
+    <string name="delete">delete</string>
+    <string name="enterKey">enter key</string>
+    <string name="enterValue">enter value</string>
+    <string name="notFound">not found</string>
+
+    <string name="set">set</string>
+    <string name="gasPrice">gas price</string>
+    <string name="maxGas">max gas</string>
+    <string name="maxFee">max fee</string>
+    <string name="days">days</string>
+    <string name="hours">hours</string>
+    <string name="minutes">minutes</string>
+    <string name="seconds">seconds</string>
+</resources>
