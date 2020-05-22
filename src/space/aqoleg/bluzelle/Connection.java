@@ -33,7 +33,7 @@ public class Connection {
         try {
             URL url = new URL(endpoint + path);
             URLConnection connection = url.openConnection();
-            connection.setConnectTimeout(10000);
+            connection.setConnectTimeout(5000);
             connection.setReadTimeout(10000);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -67,7 +67,7 @@ public class Connection {
         try {
             URL url = new URL(endpoint + path);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(10000);
+            connection.setConnectTimeout(5000);
             connection.setReadTimeout(10000);
             connection.setDoOutput(true);
             connection.setRequestMethod(delete ? "DELETE" : "POST");

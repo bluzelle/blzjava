@@ -114,12 +114,15 @@ public class Bluzelle {
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
      * @throws NullPointerException           if key == null or value == null or gasInfo == null
+     * @throws IllegalArgumentException       if key contains '/'
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public void create(String key, String value, GasInfo gasInfo, LeaseInfo leaseInfo) {
         if (key == null) {
             throw new NullPointerException("null key");
+        } else if (key.contains("/")) {
+            throw new IllegalArgumentException("Key cannot contain a slash");
         }
         if (value == null) {
             throw new NullPointerException("null value");
@@ -298,6 +301,7 @@ public class Bluzelle {
      * @param newKey  the new name for the key
      * @param gasInfo object containing gas parameters
      * @throws NullPointerException           if key == null or newKey == null or gasInfo == null
+     * @throws IllegalArgumentException       if key contains '/'
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
@@ -307,6 +311,8 @@ public class Bluzelle {
         }
         if (newKey == null) {
             throw new NullPointerException("null newKey");
+        } else if (newKey.contains("/")) {
+            throw new IllegalArgumentException("Key cannot contain a slash");
         }
         JsonObject data = new JsonObject();
         data.put("Key", key);
@@ -480,12 +486,12 @@ public class Bluzelle {
      *
      * @param n the number of keys to retrieve the lease information for
      * @return HashMap(key, lease seconds)
-     * @throws IllegalArgumentException       if n <= 0
+     * @throws IllegalArgumentException       if n < 0
      * @throws Connection.ConnectionException if can not connect to the node
      */
     public HashMap<String, Integer> getNShortestLeases(int n) {
-        if (n <= 0) {
-            throw new IllegalArgumentException("non-positive n");
+        if (n < 0) {
+            throw new IllegalArgumentException("Invalid value specified");
         }
         String response = connection.get("/crud/getnshortestleases/" + uuid + "/" + n);
         JsonArray json = JsonObject.parse(response).getObject("result").getArray("keyleases");
@@ -505,13 +511,13 @@ public class Bluzelle {
      * @param gasInfo object containing gas parameters
      * @return HashMap(key, lease seconds)
      * @throws NullPointerException           if gasInfo == null
-     * @throws IllegalArgumentException       if n <= 0
+     * @throws IllegalArgumentException       if n < 0
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public HashMap<String, Integer> txGetNShortestLeases(int n, GasInfo gasInfo) {
-        if (n <= 0) {
-            throw new IllegalArgumentException("non-positive n");
+        if (n < 0) {
+            throw new IllegalArgumentException("Invalid value specified");
         }
         JsonObject data = new JsonObject().put("N", String.valueOf(n));
         String response = sendTx("/crud/getnshortestleases", false, data, gasInfo);
@@ -550,7 +556,7 @@ public class Bluzelle {
 
         data = JsonObject.parse(response);
         if (data.getInteger("code") != null) {
-            throw new ServerException(data.getString("raw_log"));
+            throw new ServerException(extractMessage(data));
         }
 
         return data.getString("data");
@@ -602,6 +608,27 @@ public class Bluzelle {
         out.put("sequence", String.valueOf(sequence));
 
         return out;
+    }
+
+    private String extractMessage(JsonObject data) {
+        String log = data.getString("raw_log");
+        if (log == null) {
+            return null;
+        }
+        int startPos = log.indexOf(": ");
+        if (startPos < 0) {
+            return log;
+        }
+        // "insufficient fee: insufficient fees; got: 10ubnt required: 2000000ubnt"
+        if (log.substring(0, startPos).equals("insufficient fee")) {
+            return log.substring(startPos + 2);
+        }
+        // "unauthorized: Key already exists: failed to execute message; message index: 0"
+        int endPos = log.indexOf(":", startPos + 1);
+        if (endPos < 0) {
+            return log.substring(startPos + 2);
+        }
+        return log.substring(startPos + 2, log.indexOf(":", startPos + 1));
     }
 
     public class ServerException extends RuntimeException {

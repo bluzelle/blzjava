@@ -47,6 +47,7 @@ public class Wrapper {
      * @param request String with request
      * @return String result or null
      * @throws UnsupportedOperationException  if bluzelle is not connected or method is unknown
+     * @throws IllegalArgumentException       if arguments are incorrect
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws Bluzelle.ServerException       if server returns error
      */
@@ -74,43 +75,43 @@ public class Wrapper {
                 return bluzelle.account().toString();
             case "create":
                 bluzelle.create(
-                        args.getString(0),
-                        args.getString(1),
+                        getString(args, 0, 0),
+                        getString(args, 1, 2),
                         getGasInfo(args, 2),
                         getLeaseInfo(args, 3)
                 );
                 return null;
             case "read":
                 return bluzelle.read(
-                        args.getString(0),
+                        getString(args, 0, 0),
                         (args.length() > 1) && args.getBoolean(1)
                 );
             case "txRead":
             case "tx_read":
-                return bluzelle.txRead(args.getString(0), getGasInfo(args, 1));
+                return bluzelle.txRead(getString(args, 0, 0), getGasInfo(args, 1));
             case "update":
                 bluzelle.update(
-                        args.getString(0),
-                        args.getString(1),
+                        getString(args, 0, 0),
+                        getString(args, 1, 2),
                         getGasInfo(args, 2),
                         getLeaseInfo(args, 3)
                 );
                 return null;
             case "delete":
-                bluzelle.delete(args.getString(0), getGasInfo(args, 1));
+                bluzelle.delete(getString(args, 0, 0), getGasInfo(args, 1));
                 return null;
             case "has":
-                return bluzelle.has(args.getString(0)) ? "true" : "false";
+                return bluzelle.has(getString(args, 0, 0)) ? "true" : "false";
             case "txHas":
             case "tx_has":
-                return bluzelle.txHas(args.getString(0), getGasInfo(args, 1)) ? "true" : "false";
+                return bluzelle.txHas(getString(args, 0, 0), getGasInfo(args, 1)) ? "true" : "false";
             case "keys":
                 return listToJson(bluzelle.keys());
             case "txKeys":
             case "tx_keys":
                 return listToJson(bluzelle.txKeys(getGasInfo(args, 0)));
             case "rename":
-                bluzelle.rename(args.getString(0), args.getString(1), getGasInfo(args, 2));
+                bluzelle.rename(getString(args, 0, 0), getString(args, 1, 1), getGasInfo(args, 2));
                 return null;
             case "count":
                 return String.valueOf(bluzelle.count());
@@ -129,17 +130,18 @@ public class Wrapper {
                 return mapToJson(bluzelle.txKeyValues(getGasInfo(args, 0)));
             case "multiUpdate":
             case "multi_update":
+            case "multiupdate":
                 bluzelle.multiUpdate(jsonToMap(args.getArray(0)), getGasInfo(args, 1));
                 return null;
             case "getLease":
             case "get_lease":
-                return String.valueOf(bluzelle.getLease(args.getString(0)));
+                return String.valueOf(bluzelle.getLease(getString(args, 0, 0)));
             case "txGetLease":
             case "tx_get_lease":
-                return String.valueOf(bluzelle.txGetLease(args.getString(0), getGasInfo(args, 1)));
+                return String.valueOf(bluzelle.txGetLease(getString(args, 0, 0), getGasInfo(args, 1)));
             case "renewLease":
             case "renew_lease":
-                bluzelle.renewLease(args.getString(0), getGasInfo(args, 1), getLeaseInfo(args, 2));
+                bluzelle.renewLease(getString(args, 0, 0), getGasInfo(args, 1), getLeaseInfo(args, 2));
                 return null;
             case "renewLeaseAll":
             case "renew_lease_all":
@@ -153,6 +155,22 @@ public class Wrapper {
                 return mapToLeases(bluzelle.txGetNShortestLeases(args.getInteger(0), getGasInfo(args, 1)));
             default:
                 throw new UnsupportedOperationException("unknown method \"" + method + "\"");
+        }
+    }
+
+    private String getString(JsonArray array, int index, int errorMessage) {
+        try {
+            return array.getString(index);
+        } catch (ClassCastException e) {
+            String message;
+            if (errorMessage == 0) {
+                message = "Key must be a string";
+            } else if (errorMessage == 1) {
+                message = "New key must be a string";
+            } else {
+                message = "Value must be a string";
+            }
+            throw new IllegalArgumentException(message);
         }
     }
 
@@ -210,10 +228,21 @@ public class Wrapper {
     private static HashMap<String, String> jsonToMap(JsonArray json) {
         HashMap<String, String> map = new HashMap<>();
         JsonObject object;
+        String key, value;
         int length = json.length();
         for (int i = 0; i < length; i++) {
             object = json.getObject(i);
-            map.put(object.getString("key"), object.getString("value"));
+            try {
+                key = object.getString("key");
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException("All keys must be strings");
+            }
+            try {
+                value = object.getString("value");
+            } catch (ClassCastException e) {
+                throw new IllegalArgumentException("All values must be strings");
+            }
+            map.put(key, value);
         }
         return map;
     }

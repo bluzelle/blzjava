@@ -13,7 +13,22 @@ import static space.aqoleg.bluzelle.BluzelleTest.endpoint;
 import static space.aqoleg.bluzelle.BluzelleTest.mnemonic;
 
 class ServerTest {
-    private int port = 4000;
+    private int port = 4100;
+
+    @Test
+    void exceptions() {
+        Server.main(new String[]{String.valueOf(port)});
+        System.out.println();
+
+        post("{method:connect,args:[\"" + mnemonic + "\",\"" + endpoint + "\"]}");
+        post("{method:create,args:[10,myValue,{gas_price:10},{days:10}]}");
+        post("{method:create,args:[key,10,{gas_price:10},{days:10}]}");
+        post("{method:create,args:[key,myValue,{gas_price:10},{days:-10}]}");
+        post("{method:create,args:[key//,myValue]}");
+        post("{method:rename,args:[Key,100,{gas_price:100}]}");
+        post("{method:getNShortestLeases,args:[-12]}");
+        post("{method:delete,args:[nonexisting]}");
+    }
 
     @Test
     void test() {
@@ -47,8 +62,8 @@ class ServerTest {
 
             URL url = new URL("http://localhost:" + port);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(1000);
-            connection.setReadTimeout(20000);
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(10000);
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
 

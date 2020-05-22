@@ -58,7 +58,7 @@ public class Server implements HttpHandler {
             }
         } catch (Exception e) {
             error = true;
-            result = e.toString();
+            result = e.getMessage();
         }
 
         try {
@@ -75,7 +75,7 @@ public class Server implements HttpHandler {
     }
 
     private void init(int port) {
-        System.out.println("blzjava 1.2.1");
+        System.out.println("blzjava 1.3.0");
 
         String mnemonic = System.getenv("MNEMONIC");
         String endpoint = System.getenv("ENDPOINT");

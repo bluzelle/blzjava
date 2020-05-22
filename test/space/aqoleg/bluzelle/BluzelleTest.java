@@ -38,6 +38,11 @@ public class BluzelleTest {
         );
 
         assertThrows(
+                IllegalArgumentException.class,
+                () -> bluzelle.create("slash/", "v", gasInfo, leaseInfo)
+        );
+
+        assertThrows(
                 Bluzelle.ServerException.class,
                 () -> bluzelle.delete("nonexistingkey", gasInfo)
         );

@@ -31,7 +31,7 @@ public class LeaseInfo {
         this.seconds = seconds;
         blocks = (seconds + (minutes + (hours + days * 24) * 60) * 60) / blockTimeSeconds;
         if (blocks < 0) {
-            throw new IllegalArgumentException("negative lease");
+            throw new IllegalArgumentException("Invalid lease time");
         }
     }
 }
