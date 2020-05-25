@@ -13,12 +13,12 @@ Run.
 
     $ java -jar server.jar 5000
 
-Oprn other terminal.
+Open other terminal.
 Create connection.
 
     $ curl --data '{method:connect,args:["around buzz diagram captain obtain detail salon mango muffin brother morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car","http://testnet.public.bluzelle.com:1317"]}' localhost:5000
 
-Use any method described in [API docs](src/com/bluzelle).
+Use any method described in [API docs](../src/com/bluzelle).
 
     curl --data '{method:create,args:[key,value,{gas_price:90},{seconds:90}]}' localhost:5000
     curl --data '{method:read,args:[key]}' localhost:5000
@@ -30,7 +30,7 @@ Use any method described in [API docs](src/com/bluzelle).
 
 Get the package from github.
 
-    $ git clone https://github.com/aqoleg/blzjava
+    $ git clone https://github.com/aqoleg/blzjava.git
 
 Create build directory.
 
@@ -62,7 +62,7 @@ Create file Threads.java.
 
     $ cat > Threads.java
 
-Copy-paste the code in the terminal, press ctrl+z.
+Copy-paste the code from file "Threads.java" in the terminal, press enter, then ctrl+z.
 
 Compile.
 

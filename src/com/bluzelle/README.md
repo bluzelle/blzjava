@@ -12,7 +12,7 @@ Some API functions take `gasInfo` as a parameter. This is an object containing p
 ```java
 GasInfo gasInfo = new GasInfo(gasPrice, maxGas, maxFee);
 ```
-* gasPrice - maximum price to pay for gas in ubnt, intefer
+* gasPrice - maximum price to pay for gas in ubnt, integer
 * maxGas - maximum amount of gas to consume for this call, integer
 * maxFee - maximum amount to charge for this call in ubnt, integer
 
