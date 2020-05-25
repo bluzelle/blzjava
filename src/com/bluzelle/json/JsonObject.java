@@ -15,7 +15,7 @@
 //    String string = jsonObject.getString(keyString);
 //    String jsonString = jsonObject.toString();
 //    String sanitizedString = jsonObject.toSanitizeString();
-package space.aqoleg.json;
+package com.bluzelle.json;
 
 import java.util.Map;
 import java.util.TreeMap;

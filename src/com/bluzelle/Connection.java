@@ -1,6 +1,6 @@
-package space.aqoleg.bluzelle;
+package com.bluzelle;
 
-import space.aqoleg.json.JsonObject;
+import com.bluzelle.json.JsonObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -34,7 +34,6 @@ public class Connection {
             URL url = new URL(endpoint + path);
             URLConnection connection = url.openConnection();
             connection.setConnectTimeout(5000);
-            connection.setReadTimeout(10000);
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             StringBuilder builder = new StringBuilder();
@@ -68,7 +67,6 @@ public class Connection {
             URL url = new URL(endpoint + path);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(5000);
-            connection.setReadTimeout(10000);
             connection.setDoOutput(true);
             connection.setRequestMethod(delete ? "DELETE" : "POST");
             connection.setRequestProperty("Content-type", "application/json");

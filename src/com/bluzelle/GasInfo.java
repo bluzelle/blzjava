@@ -4,7 +4,7 @@
 //    int gasPrice = gasInfo.gasPrice;
 //    int maxGas = gasInfo.maxGas;
 //    int maxFee = gasInfo.maxFee;
-package space.aqoleg.bluzelle;
+package com.bluzelle;
 
 @SuppressWarnings("WeakerAccess")
 public class GasInfo {

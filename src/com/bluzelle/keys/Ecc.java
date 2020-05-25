@@ -6,7 +6,7 @@
 //    BigInteger y = point.y;
 //    byte[] signature = Ecc.ecc.sign(messageBytes, privateKeyBigInteger);
 //    bool verified = Ecc.ecc.verify(messageBytes, publicKeyPoint, signatureBytes);
-package space.aqoleg.keys;
+package com.bluzelle.keys;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -124,11 +124,10 @@ public class Ecc {
         return r.compareTo(p.x.mod(n)) == 0;
     }
 
-    class Point {
+    @SuppressWarnings("WeakerAccess")
+    public class Point {
         // point on the elliptic curve, immutable
-        @SuppressWarnings("WeakerAccess")
         public final BigInteger x; // -1 for the point at infinity
-        @SuppressWarnings("WeakerAccess")
         public final BigInteger y;
 
         // creates point at infinity

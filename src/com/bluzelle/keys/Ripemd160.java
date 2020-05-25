@@ -2,7 +2,7 @@
 // usage:
 //    byte[] hash = Ripemd160.getHash(messageBytes);
 //    byte[] hash = Ripemd160.getHash(messageBytes, messageStart, messageLength);
-package space.aqoleg.keys;
+package com.bluzelle.keys;
 
 public class Ripemd160 {
     private static final int kLeft[] = {0x00000000, 0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xA953FD4E};

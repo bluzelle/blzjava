@@ -1,19 +1,26 @@
-<a href="https://bluzelle.com/"><img src='https://raw.githubusercontent.com/bluzelle/api/master/source/images/Bluzelle%20-%20Logo%20-%20Big%20-%20Colour.png' alt="Bluzelle" style="width: 100%"/></a>
+<a href="https://bluzelle.com/">
+    <img src='https://raw.githubusercontent.com/bluzelle/api/master/source/images/Bluzelle%20-%20Logo%20-%20Big%20-%20Colour.png' alt="Bluzelle" style="width: 100%"/>
+</a>
 
 
 # API documentation
 
-* Some API functions take `gasInfo` as a parameter. This is an object containing parameters related to gas consumption.
+#### Gas info
+
+Some API functions take `gasInfo` as a parameter. This is an object containing parameters related to gas consumption.
 
 ```java
 GasInfo gasInfo = new GasInfo(gasPrice, maxGas, maxFee);
 ```
-- gasPrice - integer, maximum price to pay for gas in ubnt
-- maxGas - integer, maximum amount of gas to consume for this call
-- maxFee - integer, maximum amount to charge for this call in ubnt
+* gasPrice - maximum price to pay for gas in ubnt, intefer
+* maxGas - maximum amount of gas to consume for this call, integer
+* maxFee - maximum amount to charge for this call in ubnt, integer
+
 All values should be non-negative. The `maxGas` value will always be honored if present, otherwise a default value will be used. If both `maxFee` and `gasPrice` are positive, `gasPrice` will be ignored and calculated based on the provided `maxFee`.
 
-* Some API functions take `leaseInfo` as a parameter. This is an object containing parameters related to the minimum time a key should be maintained in the database.
+#### Lease info
+
+Some API functions take `leaseInfo` as a parameter. This is an object containing parameters related to the minimum time a key should be maintained in the database.
 
 ```java
 LeaseInfo leaseInfo = new LeaseInfo(days, hours, minutes, seconds);
@@ -36,7 +43,7 @@ Bluzelle bluzelle = Bluzelle.connect(
 | :--- | :--- |
 | **mnemonic** | The mnemonic of the private key for your Bluzelle account. String. |
 | **endpoint** | The hostname and port of your rest server. String or null for default "http://localhost:1317" |
-| **uuid** | Bluzelle uses `UUID`'s to identify distinct databases on a single swarm. We recommend using [Version 4 of the universally unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_%28random%29). String or null for default the same as address. |
+| **uuid** | Bluzelle uses `UUID`'s to identify distinct databases on a single swarm. We recommend using [version 4 of the universally unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_%28random%29). String or null for default the same as address. |
 | **chainId** | The chain id of your Bluzelle accoun. String or null for default "bluzelle". |
 
 Returns instance of Bluzelle for calling other functions.
@@ -127,7 +134,7 @@ bluzelle.update(key, value, gasInfo, leaseInfo);
 | key | The name of the key to update. String. |
 | value | The value to set the key. String. |
 | gasInfo | Object containing gas parameters (see above). |
-| leaseInfo | Object containing minimum time for key to remain in database (see above) or null. |
+| leaseInfo | Object containing positive or negative amount of time to alter the lease by or null. |
 
 Returns nothing.
 

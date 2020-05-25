@@ -8,7 +8,7 @@
 // public key bytes:
 //    1 byte, even - 0x02, odd - 0x03
 //    byte[32], x
-package space.aqoleg.keys;
+package com.bluzelle.keys;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

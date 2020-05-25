@@ -6,11 +6,11 @@
 //    String base64 = Utils.base64encode(messageBytes);
 //    String urlEncoded = Utils.urlEncode(string);
 //    String encoded = Utils.hexToString(hexString);
-package space.aqoleg.bluzelle;
+package com.bluzelle;
 
-import space.aqoleg.keys.Bech32;
-import space.aqoleg.keys.HdKeyPair;
-import space.aqoleg.keys.Ripemd160;
+import com.bluzelle.keys.Bech32;
+import com.bluzelle.keys.HdKeyPair;
+import com.bluzelle.keys.Ripemd160;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

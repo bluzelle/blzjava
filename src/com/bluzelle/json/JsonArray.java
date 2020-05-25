@@ -14,7 +14,7 @@
 //    Boolean boolean = jsonArray.getBoolean(index);
 //    String string = jsonArray.getString(index);
 //    String jsonString = jsonArray.toString();
-package space.aqoleg.json;
+package com.bluzelle.json;
 
 import java.util.ArrayList;
 

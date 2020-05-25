@@ -1,4 +1,4 @@
-package space.aqoleg.json;
+package com.bluzelle.json;
 
 class Writer {
 

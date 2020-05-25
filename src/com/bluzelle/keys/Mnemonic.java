@@ -1,7 +1,7 @@
 // makes seed from the mnemonic, see bip39
 // usage:
 //    byte[] seed = Mnemonic.createSeed(mnemonicString, passphraseString);
-package space.aqoleg.keys;
+package com.bluzelle.keys;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

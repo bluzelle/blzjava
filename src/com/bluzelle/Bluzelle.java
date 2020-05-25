@@ -25,20 +25,20 @@
 //    bluzelle.renewLeaseAll(gasInfo, leaseInfo);
 //    HashMap<String, Integer> leases = bluzelle.getNShortestLeases(n);
 //    HashMap<String, Integer> leases = bluzelle.txGetNShortestLeases(n, gasInfo);
-package space.aqoleg.bluzelle;
+package com.bluzelle;
 
-import space.aqoleg.json.JsonArray;
-import space.aqoleg.json.JsonObject;
-import space.aqoleg.keys.Ecc;
-import space.aqoleg.keys.HdKeyPair;
-import space.aqoleg.keys.Mnemonic;
+import com.bluzelle.json.JsonArray;
+import com.bluzelle.json.JsonObject;
+import com.bluzelle.keys.Ecc;
+import com.bluzelle.keys.HdKeyPair;
+import com.bluzelle.keys.Mnemonic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static space.aqoleg.bluzelle.LeaseInfo.blockTimeSeconds;
-import static space.aqoleg.bluzelle.Utils.*;
+import static com.bluzelle.LeaseInfo.blockTimeSeconds;
+import static com.bluzelle.Utils.*;
 
 public class Bluzelle {
     private final Connection connection;
@@ -114,7 +114,7 @@ public class Bluzelle {
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
      * @throws NullPointerException           if key == null or value == null or gasInfo == null
-     * @throws IllegalArgumentException       if key contains '/'
+     * @throws IllegalArgumentException       if key contains '/' or lease is negative
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
@@ -130,7 +130,11 @@ public class Bluzelle {
         int blocks = 0;
         if (leaseInfo != null) {
             blocks = leaseInfo.blocks;
+            if (blocks < 0) {
+                throw new IllegalArgumentException("Invalid lease time");
+            }
         }
+
         JsonObject data = new JsonObject();
         data.put("Key", key);
         data.put("Value", value);
@@ -174,6 +178,7 @@ public class Bluzelle {
         if (key == null) {
             throw new NullPointerException("null key");
         }
+
         JsonObject data = new JsonObject().put("Key", key);
         String response = sendTx("/crud/read", false, data, gasInfo);
         return JsonObject.parse(hexToString(response)).getString("value");
@@ -185,7 +190,7 @@ public class Bluzelle {
      * @param key       the name of the key to create
      * @param value     value to set the key
      * @param gasInfo   object containing gas parameters
-     * @param leaseInfo minimum time for key to remain in database or null
+     * @param leaseInfo positive or negative amount of time to alter the lease by or null
      * @throws NullPointerException           if key == null or value == null or gasInfo == null
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
@@ -197,6 +202,7 @@ public class Bluzelle {
         if (value == null) {
             throw new NullPointerException("null value");
         }
+
         JsonObject data = new JsonObject();
         data.put("Key", key);
         data.put("Value", value);
@@ -217,6 +223,7 @@ public class Bluzelle {
         if (key == null) {
             throw new NullPointerException("null key");
         }
+
         JsonObject data = new JsonObject().put("Key", key);
         sendTx("/crud/delete", true, data, gasInfo);
     }
@@ -248,6 +255,7 @@ public class Bluzelle {
         if (key == null) {
             throw new NullPointerException("null key");
         }
+
         JsonObject data = new JsonObject().put("Key", key);
         String response = sendTx("/crud/has", false, data, gasInfo);
         return JsonObject.parse(hexToString(response)).getBoolean("has");
@@ -261,8 +269,9 @@ public class Bluzelle {
      */
     public ArrayList<String> keys() {
         String response = connection.get("/crud/keys/" + uuid);
-        ArrayList<String> list = new ArrayList<>();
         JsonArray keys = JsonObject.parse(response).getObject("result").getArray("keys");
+
+        ArrayList<String> list = new ArrayList<>();
         if (keys != null) {
             int length = keys.length();
             for (int i = 0; i < length; i++) {
@@ -283,8 +292,9 @@ public class Bluzelle {
      */
     public ArrayList<String> txKeys(GasInfo gasInfo) {
         String response = sendTx("/crud/keys", false, new JsonObject(), gasInfo);
-        ArrayList<String> list = new ArrayList<>();
         JsonArray keys = JsonObject.parse(hexToString(response)).getArray("keys");
+
+        ArrayList<String> list = new ArrayList<>();
         if (keys != null) {
             int length = keys.length();
             for (int i = 0; i < length; i++) {
@@ -301,7 +311,7 @@ public class Bluzelle {
      * @param newKey  the new name for the key
      * @param gasInfo object containing gas parameters
      * @throws NullPointerException           if key == null or newKey == null or gasInfo == null
-     * @throws IllegalArgumentException       if key contains '/'
+     * @throws IllegalArgumentException       if newKey contains '/'
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
@@ -314,6 +324,7 @@ public class Bluzelle {
         } else if (newKey.contains("/")) {
             throw new IllegalArgumentException("Key cannot contain a slash");
         }
+
         JsonObject data = new JsonObject();
         data.put("Key", key);
         data.put("NewKey", newKey);
@@ -361,6 +372,7 @@ public class Bluzelle {
     public HashMap<String, String> keyValues() {
         String response = connection.get("/crud/keyvalues/" + uuid);
         JsonArray keyValues = JsonObject.parse(response).getObject("result").getArray("keyvalues");
+
         HashMap<String, String> map = new HashMap<>();
         JsonObject object;
         int length = keyValues.length();
@@ -383,6 +395,7 @@ public class Bluzelle {
     public HashMap<String, String> txKeyValues(GasInfo gasInfo) {
         String response = sendTx("/crud/keyvalues", false, new JsonObject(), gasInfo);
         JsonArray keyValues = JsonObject.parse(hexToString(response)).getArray("keyvalues");
+
         HashMap<String, String> map = new HashMap<>();
         JsonObject object;
         int length = keyValues.length();
@@ -411,6 +424,7 @@ public class Bluzelle {
             object.put("value", entry.getValue());
             json.put(object);
         }
+
         JsonObject data = new JsonObject().put("KeyValues", json);
         sendTx("/crud/multiupdate", false, data, gasInfo);
     }
@@ -442,6 +456,7 @@ public class Bluzelle {
         if (key == null) {
             throw new NullPointerException("null key");
         }
+
         JsonObject data = new JsonObject().put("Key", key);
         String response = sendTx("/crud/getlease", false, data, gasInfo);
         return Integer.parseInt(JsonObject.parse(hexToString(response)).getString("lease")) * blockTimeSeconds;
@@ -454,6 +469,7 @@ public class Bluzelle {
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
      * @throws NullPointerException           if key == null or gasInfo == null
+     * @throws IllegalArgumentException       if lease is negative
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
@@ -461,9 +477,17 @@ public class Bluzelle {
         if (key == null) {
             throw new NullPointerException("null key");
         }
+        int blocks = 0;
+        if (leaseInfo != null) {
+            blocks = leaseInfo.blocks;
+            if (blocks < 0) {
+                throw new IllegalArgumentException("Invalid lease time");
+            }
+        }
+
         JsonObject data = new JsonObject();
         data.put("Key", key);
-        data.put("Lease", leaseInfo == null ? "0" : String.valueOf(leaseInfo.blocks));
+        data.put("Lease", String.valueOf(blocks));
         sendTx("/crud/renewlease", false, data, gasInfo);
     }
 
@@ -473,11 +497,20 @@ public class Bluzelle {
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
      * @throws NullPointerException           if gasInfo == null
+     * @throws IllegalArgumentException       if lease is negative
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public void renewLeaseAll(GasInfo gasInfo, LeaseInfo leaseInfo) {
-        JsonObject data = new JsonObject().put("Lease", leaseInfo == null ? "0" : String.valueOf(leaseInfo.blocks));
+        int blocks = 0;
+        if (leaseInfo != null) {
+            blocks = leaseInfo.blocks;
+            if (blocks < 0) {
+                throw new IllegalArgumentException("Invalid lease time");
+            }
+        }
+
+        JsonObject data = new JsonObject().put("Lease", String.valueOf(blocks));
         sendTx("/crud/renewleaseall", false, data, gasInfo);
     }
 
@@ -493,10 +526,12 @@ public class Bluzelle {
         if (n < 0) {
             throw new IllegalArgumentException("Invalid value specified");
         }
+
         String response = connection.get("/crud/getnshortestleases/" + uuid + "/" + n);
         JsonArray json = JsonObject.parse(response).getObject("result").getArray("keyleases");
-        int length = json.length();
+
         HashMap<String, Integer> map = new HashMap<>();
+        int length = json.length();
         for (int i = 0; i < length; i++) {
             JsonObject object = json.getObject(i);
             map.put(object.getString("key"), Integer.parseInt(object.getString("lease")) * blockTimeSeconds);
@@ -519,11 +554,13 @@ public class Bluzelle {
         if (n < 0) {
             throw new IllegalArgumentException("Invalid value specified");
         }
+
         JsonObject data = new JsonObject().put("N", String.valueOf(n));
         String response = sendTx("/crud/getnshortestleases", false, data, gasInfo);
         JsonArray json = JsonObject.parse(hexToString(response)).getArray("keyleases");
-        int length = json.length();
+
         HashMap<String, Integer> map = new HashMap<>();
+        int length = json.length();
         for (int i = 0; i < length; i++) {
             JsonObject object = json.getObject(i);
             map.put(object.getString("key"), Integer.parseInt(object.getString("lease")) * blockTimeSeconds);
