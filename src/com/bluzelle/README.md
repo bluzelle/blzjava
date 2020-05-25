@@ -267,6 +267,8 @@ bluzelle.deleteAll(gasInfo);
 | :--- | :--- |
 | gasInfo | Object containing gas parameters (see above). |
 
+Returns nothing.
+
 
 ### keyValues\(\)
 
@@ -386,7 +388,7 @@ HashMap<String, Integer> leases = bluzelle.getNShortestLeases(n);
 | :--- | :--- |
 | n | The number of keys to retrieve the lease information for. Integer. |
 
-Returns HashMap containing key/lease pairs as String/Integer.
+Returns HashMap containing key/lease pairs as String/Integer (seconds).
 
 
 ### txGetNShortestLeases\(n, gasInfo\)
@@ -402,4 +404,4 @@ HashMap<String, Integer> leases = bluzelle.txGetNShortestLeases(n, gasInfo);
 | n | The number of keys to retrieve the lease information for. Integer. |
 | gasInfo | Object containing gas parameters (see above). |
 
-Returns HashMap containing key/lease pairs as String/Integer.
+Returns HashMap containing key/lease pairs as String/Integer (seconds).
