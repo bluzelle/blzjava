@@ -1,7 +1,7 @@
-package space.aqoleg.bluzelle;
+package com.bluzelle;
 
+import com.bluzelle.json.JsonObject;
 import org.junit.jupiter.api.Test;
-import space.aqoleg.json.JsonObject;
 
 import static org.junit.jupiter.api.Assertions.*;
 

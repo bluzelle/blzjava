@@ -1,13 +1,13 @@
-package space.aqoleg.bluzelle;
+package com.bluzelle;
 
+import com.bluzelle.keys.HdKeyPair;
+import com.bluzelle.keys.Mnemonic;
 import org.junit.jupiter.api.Test;
-import space.aqoleg.keys.HdKeyPair;
-import space.aqoleg.keys.Mnemonic;
 
 import java.util.Arrays;
 
+import static com.bluzelle.Utils.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static space.aqoleg.bluzelle.Utils.*;
 
 class UtilsTest {
 

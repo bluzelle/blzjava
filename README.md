@@ -7,7 +7,7 @@
 * [API docs](src/com/bluzelle)
 * [Examples](examples)
 * Android [examples](android)
-* [Tests](test)
+* [Tests](test/com/bluzelle)
 
 
 # Quickstart

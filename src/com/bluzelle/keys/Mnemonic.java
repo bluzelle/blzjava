@@ -9,16 +9,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 public class Mnemonic {
-    private static final Mac mac;
-
-    static {
-        try {
-            mac = Mac.getInstance("HmacSHA512");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * @param mnemonic   words in utf-8
@@ -40,6 +30,13 @@ public class Mnemonic {
         // u1 = prf(password, salt || 0x00000001)
         // un = prf(password, un-1)
 
+        Mac mac;
+        try {
+            mac = Mac.getInstance("HmacSHA512");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
         try {
             mac.init(new SecretKeySpec(mnemonic.getBytes(), "HmacSHA512"));
         } catch (InvalidKeyException e) {

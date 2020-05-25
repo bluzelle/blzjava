@@ -2,6 +2,6 @@
 
 # Bluzelle android
 
-[download](https://github.com/aqoleg/blzjava/releases/download/1.2.1/bluzelle.apk)
+[download](https://github.com/aqoleg/blzjava/releases/download/0.4.0/bluzelle.apk)
 
 <img src="docs/login.png" width="240" heigh="427">  <img src="docs/2.png" width="240" heigh="427">

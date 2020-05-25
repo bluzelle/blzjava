@@ -1,4 +1,4 @@
-package space.aqoleg.bluzelle;
+package com.bluzelle;
 
 import org.junit.jupiter.api.Test;
 
@@ -7,16 +7,16 @@ import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class BluzelleTest {
-    public static final String mnemonic = "around buzz diagram captain obtain detail salon mango muffin brother" +
+class BluzelleTest {
+    private static final String mnemonic = "around buzz diagram captain obtain detail salon mango muffin brother" +
             " morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car";
-    public static final String endpoint = "http://testnet.public.bluzelle.com:1317";
+    private static final String endpoint = "http://testnet.public.bluzelle.com:1317";
     private GasInfo gasInfo = new GasInfo(1000, 0, 0);
     private LeaseInfo leaseInfo = new LeaseInfo(0, 1, 0, 0);
 
     @Test
     void test1() {
-        Bluzelle bluzelle = Bluzelle.connect(mnemonic, endpoint, null, null);
+        Bluzelle bluzelle = Bluzelle.connect(mnemonic, endpoint, "uuid", null);
         System.out.println("version");
         System.out.println(bluzelle.version());
         System.out.println();
@@ -58,7 +58,7 @@ public class BluzelleTest {
 
     @Test
     void test2() {
-        Bluzelle bluzelle = Bluzelle.connect(mnemonic, endpoint, null, null);
+        Bluzelle bluzelle = Bluzelle.connect(mnemonic, endpoint, "9", null);
         String s = " !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
         String key = "key";
         bluzelle.create(key, s, gasInfo, leaseInfo);
@@ -66,24 +66,31 @@ public class BluzelleTest {
         assertTrue(bluzelle.txHas(key, gasInfo));
         assertEquals(s, bluzelle.read(key, true));
         bluzelle.delete(key, gasInfo);
+
+        assertEquals("[]", bluzelle.keys().toString());
+        assertEquals("[]", bluzelle.txKeys(gasInfo).toString());
+        assertEquals("{}", bluzelle.keyValues().toString());
+        assertEquals("{}", bluzelle.txKeyValues(gasInfo).toString());
+        assertEquals("{}", bluzelle.getNShortestLeases(10).toString());
+        assertEquals("{}", bluzelle.txGetNShortestLeases(10, gasInfo).toString());
     }
 
     @Test
     void test3() {
-        Bluzelle bluzelle = Bluzelle.connect(mnemonic, endpoint, null, null);
+        Bluzelle bluzelle = Bluzelle.connect(mnemonic, endpoint, "1", null);
         if (bluzelle.has("key Д\" =? k")) {
             bluzelle.delete("key Д\" =? k", gasInfo);
         }
-        bluzelle.create("key Д\" =? k", "value немаловероятно", gasInfo, leaseInfo);
-        assertEquals("value немаловероятно", bluzelle.read("key Д\" =? k", false));
+        bluzelle.create("key Д\" =? k", "value нЬ", gasInfo, leaseInfo);
+        assertEquals("value нЬ", bluzelle.read("key Д\" =? k", false));
         assertNull(bluzelle.read("nokey", true));
-        assertEquals("value немаловероятно", bluzelle.txRead("key Д\" =? k", gasInfo));
+        assertEquals("value нЬ", bluzelle.txRead("key Д\" =? k", gasInfo));
         bluzelle.delete("key Д\" =? k", gasInfo);
     }
 
     @Test
     void test4() {
-        Bluzelle bluzelle = Bluzelle.connect(mnemonic, endpoint, null, null);
+        Bluzelle bluzelle = Bluzelle.connect(mnemonic, endpoint, "--", null);
         bluzelle.deleteAll(gasInfo);
         bluzelle.create("newkeytest1", "value 1221 1 1 1", gasInfo, null);
         bluzelle.create("newkeytest2", "33", gasInfo, null);

@@ -19,16 +19,6 @@ import java.security.NoSuchAlgorithmException;
 public class Utils {
     private static final String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     private static final String hex = "0123456789ABCDEF";
-    private static final MessageDigest sha256;
-
-    static {
-        try {
-            sha256 = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * @param keyPair HdKeyPair keypair from which will be created address
@@ -46,6 +36,13 @@ public class Utils {
      * @throws NullPointerException if message == null
      */
     public static byte[] sha256hash(byte[] message) {
+        MessageDigest sha256;
+        try {
+            sha256 = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
         return sha256.digest(message);
     }
 

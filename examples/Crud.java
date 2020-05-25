@@ -43,7 +43,7 @@ public class Crud {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: java Crud -option args...");
+        System.out.println("Usage: -option args...");
         System.out.println("where option is one of:");
         System.out.println("-c <key> <value>    create specified key-value pair");
         System.out.println("-r <key>            read value of the specified key");

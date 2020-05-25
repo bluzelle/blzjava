@@ -26,6 +26,23 @@ Some API functions take `leaseInfo` as a parameter. This is an object containing
 LeaseInfo leaseInfo = new LeaseInfo(days, hours, minutes, seconds);
 ```
 
+#### Handle exceptions
+
+All functions can throws exceptions.
+
+```java
+try {
+    bluzelle.delete("key", new GasInfo(10, 0, 0));
+} catch (Connection.ConnectionException e) {
+    // cannot establish connection
+    System.out.println(e.getMessage());
+} catch (Bluzelle.ServerException e) {
+    // server returns error
+    System.out.println(e.getMessage());
+}
+```
+
+
 ## connect\(mnemonic, endpoint, uuid, chainId\)
 
 Configures the Bluzelle connection. This may be called multiple times to create multiple clients.

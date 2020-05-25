@@ -1,4 +1,4 @@
-package space.aqoleg.keys;
+package com.bluzelle.keys;
 
 import org.junit.jupiter.api.Test;
 

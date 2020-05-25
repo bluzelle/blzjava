@@ -3,6 +3,29 @@
 </a>
 
 
+## Server.jar
+
+Download server.jar from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
+
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.0/server.jar
+
+Run.
+
+    $ java -jar server.jar 5000
+
+Oprn other terminal.
+Create connection.
+
+    $ curl --data '{method:connect,args:["around buzz diagram captain obtain detail salon mango muffin brother morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car","http://testnet.public.bluzelle.com:1317"]}' localhost:5000
+
+Use any method described in [API docs](src/com/bluzelle).
+
+    curl --data '{method:create,args:[key,value,{gas_price:90},{seconds:90}]}' localhost:5000
+    curl --data '{method:read,args:[key]}' localhost:5000
+    curl --data '{method:deleteAll}' localhost:5000
+    curl --data '{method:has,args:{key}}' localhost:5000
+
+
 ## Compile from the source code
 
 Get the package from github.
@@ -27,3 +50,24 @@ Run
     $ java Crud -u newKey 'updated value'
     $ java Crud -r newKey
     $ java Crud -d newKey
+
+
+## Use library
+
+Download bluzelle.jar from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
+
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.0/bluzelle.jar
+
+Create file Threads.java.
+
+    $ cat > Threads.java
+
+Copy-paste the code in the terminal, press ctrl+z.
+
+Compile.
+
+    $ javac -cp ./bluzelle.jar Threads.java
+
+Run.
+
+    $ java -cp .:./bluzelle.jar Threads
