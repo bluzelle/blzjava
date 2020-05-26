@@ -6,7 +6,7 @@
 
 * [API docs](src/com/bluzelle)
 * [Examples](examples)
-* Android [examples](android)
+* Android [example](android)
 * [Tests](test/com/bluzelle)
 
 

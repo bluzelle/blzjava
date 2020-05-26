@@ -1,4 +1,4 @@
-package space.aqoleg.bluzelle;
+package com.bluzelle;
 
 import android.app.Activity;
 import android.os.Bundle;

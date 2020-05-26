@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
-    package="space.aqoleg.bluzelle">
+    package="com.bluzelle">
     <uses-permission android:name="android.permission.INTERNET" />
     <application android:label="@string/label" android:icon="@mipmap/icon" android:allowBackup="false"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="space.aqoleg.bluzelle.ActivityMain" android:theme="@style/Theme">
+        <activity android:name=".ActivityMain" android:theme="@style/Theme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

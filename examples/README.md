@@ -23,7 +23,7 @@ Use any method described in [API docs](../src/com/bluzelle).
     curl --data '{method:create,args:[key,value,{gas_price:90},{seconds:90}]}' localhost:5000
     curl --data '{method:read,args:[key]}' localhost:5000
     curl --data '{method:deleteAll}' localhost:5000
-    curl --data '{method:has,args:{key}}' localhost:5000
+    curl --data '{method:has,args:[key]}' localhost:5000
 
 
 ## Compile from the source code
@@ -44,12 +44,12 @@ Move to the build directory.
 
     $ cd blzjava/build/
 
-Run
+Run.
 
-    $ java Crud -c newKey 'some value'
-    $ java Crud -u newKey 'updated value'
-    $ java Crud -r newKey
-    $ java Crud -d newKey
+    $ java Crud -c 'newKey' 'some value'
+    $ java Crud -u 'newKey' 'updated value'
+    $ java Crud -r 'newKey'
+    $ java Crud -d 'newKey'
 
 
 ## Use library
