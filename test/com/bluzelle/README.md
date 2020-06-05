@@ -13,17 +13,17 @@ Get the package from github.
 
     $ git clone https://github.com/aqoleg/blzjava.git
 
-Create build directory.
+Create output directory.
 
-    $ mkdir blzjava/build
+    $ mkdir blzjava/out
 
 Compile.
 
     $ find blzjava/test -name "*.java" > blzjava/test/tests.txt
-    $ javac -d blzjava/build/ -cp junit-platform-console-standalone-1.6.2.jar:blzjava/src/ @blzjava/test/tests.txt
+    $ javac -d blzjava/out/ -cp junit-platform-console-standalone-1.6.2.jar:blzjava/src/ @blzjava/test/tests.txt
 
 Run.
 
-    $ java -jar junit-platform-console-standalone-1.6.2.jar -cp blzjava/build -p com.bluzelle
+    $ java -jar junit-platform-console-standalone-1.6.2.jar -cp blzjava/out/ -p com.bluzelle
 
 Wait several minutes until the tests are complete and read the result.
