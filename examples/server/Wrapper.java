@@ -26,7 +26,7 @@ import java.util.Map;
 
 @SuppressWarnings("WeakerAccess")
 public class Wrapper {
-    private static final GasInfo gasInfo = new GasInfo(1000, 0, 0);
+    private static final GasInfo gasInfo = new GasInfo(10, 0, 0);
     private Bluzelle bluzelle;
 
     /**
@@ -82,12 +82,10 @@ public class Wrapper {
                 );
                 return null;
             case "read":
-                String value = bluzelle.read(
-                        getString(args, 0, 0),
-                        (args.length() > 1) && args.getBoolean(1)
-                );
+                boolean prove = (args.length() > 1) && args.getBoolean(1);
+                String value = bluzelle.read(getString(args, 0, 0), prove);
                 if (value == null) {
-                    throw new IllegalArgumentException("key not found");
+                    throw new IllegalArgumentException(prove ? "could not read key" : "key not found");
                 }
                 return value;
             case "txread":

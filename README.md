@@ -4,7 +4,7 @@
 
 **blzjava** is a Java/Android library that can be used to access the Bluzelle database service.
 
-* [API docs](src/com/bluzelle)
+* [Build and API docs](src/com/bluzelle)
 * [Examples](examples)
 * Android [example](android)
 * [Tests](test/com/bluzelle)
@@ -24,7 +24,7 @@ If JDK is not installed, install it.
 
 Download bluzelle.jar from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
 
-    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.0/bluzelle.jar
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.1/bluzelle.jar
 
 Create file "Quickstart.java".
 ```java
@@ -40,7 +40,7 @@ public class Quickstart {
                 null
         );
 
-        GasInfo gasInfo = new GasInfo(100, 0, 0);
+        GasInfo gasInfo = new GasInfo(10, 0, 0);
         LeaseInfo leaseInfo = new LeaseInfo(1, 0, 0, 0);
 
         bluzelle.create("key", "value", gasInfo, leaseInfo);
@@ -61,3 +61,5 @@ Compile.
 Run.
 
     $ java -cp .:./bluzelle.jar Quickstart
+
+

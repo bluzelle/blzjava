@@ -5,9 +5,28 @@
 
 ## Server.jar
 
-Download server.jar from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
+Build from the source code.
+Get the package from github.
 
-    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.0/server.jar
+    $ git clone https://github.com/aqoleg/blzjava.git
+
+Create output directory.
+
+    $ mkdir blzjava/out
+
+Compile.
+
+    $ javac -cp blzjava/src/:blzjava/examples/ -d blzjava/out/ blzjava/examples/server/Server.java
+
+Create file server.jar.
+
+    $ cd blzjava/out/
+    $ jar cfe ../../server.jar server.Server ./
+    $ cd ../../
+
+The same file can be downloaded from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
+
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.1/server.jar
 
 Run.
 
@@ -20,49 +39,63 @@ Create connection.
 
 Use any method described in [API docs](../src/com/bluzelle).
 
-    curl --data '{method:create,args:[key,value,{gas_price:90},{seconds:90}]}' localhost:5000
+    curl --data '{method:create,args:[key,value,{gas_price:10},{seconds:90}]}' localhost:5000
     curl --data '{method:read,args:[key]}' localhost:5000
     curl --data '{method:deleteAll}' localhost:5000
     curl --data '{method:has,args:[key]}' localhost:5000
 
 
-## Compile from the source code
+
+## CRUD
 
 Get the package from github.
 
     $ git clone https://github.com/aqoleg/blzjava.git
 
-Create build directory.
+Create output directory.
 
-    $ mkdir blzjava/build
+    $ mkdir blzjava/out
 
 Compile.
 
-    $ javac -sourcepath blzjava/src/ -d blzjava/build/ blzjava/examples/Crud.java
+    $ javac -cp blzjava/src/ -d blzjava/out/ blzjava/examples/Crud.java
 
-Move to the build directory.
+Move to the output directory.
 
-    $ cd blzjava/build/
+    $ cd blzjava/out/
 
-Run.
+Run. Read help.
+
+    $ java Crud
+
+Create new key.
 
     $ java Crud -c 'newKey' 'some value'
-    $ java Crud -u 'newKey' 'updated value'
+
+Read value of the key.
+
     $ java Crud -r 'newKey'
+
+Update existing key.
+
+    $ java Crud -u 'newKey' 'updated value'
+
+Delete existing key.
+
     $ java Crud -d 'newKey'
 
 
-## Use library
+
+## One more example
 
 Download bluzelle.jar from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
 
-    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.0/bluzelle.jar
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.1/bluzelle.jar
 
-Create file Threads.java.
+Copy file Threads.java or get file from the package.
 
-    $ cat > Threads.java
-
-Copy-paste the code from file "Threads.java" in the terminal, press enter, then ctrl+z.
+    $ git clone https://github.com/aqoleg/blzjava.git
+    $ mv blzjava/examples/Threads.java Threads.java
 
 Compile.
 
@@ -71,3 +104,5 @@ Compile.
 Run.
 
     $ java -cp .:./bluzelle.jar Threads
+
+This will create multiple key-value pairs and simultaneously read all the keys every 2 seconds.

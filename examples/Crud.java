@@ -52,7 +52,7 @@ public class Crud {
     }
 
     private static void create(String key, String value) {
-        connect().create(key, value, new GasInfo(100, 0, 0), null);
+        connect().create(key, value, new GasInfo(10, 0, 0), null);
         System.out.println("created");
     }
 
@@ -61,12 +61,12 @@ public class Crud {
     }
 
     private static void update(String key, String value) {
-        connect().update(key, value, new GasInfo(100, 0, 0), null);
+        connect().update(key, value, new GasInfo(10, 0, 0), null);
         System.out.println("updated");
     }
 
     private static void delete(String key) {
-        connect().delete(key, new GasInfo(100, 0, 0));
+        connect().delete(key, new GasInfo(10, 0, 0));
         System.out.println("deleted");
     }
 

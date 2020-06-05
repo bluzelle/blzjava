@@ -66,7 +66,8 @@ public class Server implements HttpHandler {
 
         try {
             if (result == null) {
-                http.sendResponseHeaders(200, -1);
+                http.sendResponseHeaders(200, 0);
+                http.getResponseBody().close();
             } else {
                 byte[] response = result.getBytes("utf-8");
                 http.sendResponseHeaders(error ? 400 : 200, response.length);
@@ -82,7 +83,7 @@ public class Server implements HttpHandler {
     }
 
     private void init(int port) {
-        System.out.println("blzjava 0.4.0");
+        System.out.println("blzjava 0.4.1");
 
         String mnemonic = System.getenv("MNEMONIC");
         String endpoint = System.getenv("ENDPOINT");

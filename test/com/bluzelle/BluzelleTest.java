@@ -11,7 +11,7 @@ class BluzelleTest {
     private static final String mnemonic = "around buzz diagram captain obtain detail salon mango muffin brother" +
             " morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car";
     private static final String endpoint = "http://testnet.public.bluzelle.com:1317";
-    private GasInfo gasInfo = new GasInfo(1000, 0, 0);
+    private GasInfo gasInfo = new GasInfo(10, 0, 0);
     private LeaseInfo leaseInfo = new LeaseInfo(0, 1, 0, 0);
 
     @Test

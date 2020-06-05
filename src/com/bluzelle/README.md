@@ -3,6 +3,29 @@
 </a>
 
 
+# Build
+
+Build from the source code.
+Get the package from github.
+
+    $ git clone https://github.com/aqoleg/blzjava.git
+
+Create output directory.
+
+    $ mkdir blzjava/out
+
+Compile.
+
+    $ javac -cp blzjava/src/ -d blzjava/out/ blzjava/src/com/bluzelle/Bluzelle.java
+
+Create file bluzelle.jar.
+
+    $ cd blzjava/out/
+    $ jar cf ../../bluzelle.jar ./
+    $ cd ../../
+
+
+
 # API documentation
 
 #### Gas info
@@ -28,7 +51,7 @@ LeaseInfo leaseInfo = new LeaseInfo(days, hours, minutes, seconds);
 
 #### Handle exceptions
 
-All functions can throws exceptions.
+All functions can throw exceptions.
 
 ```java
 try {

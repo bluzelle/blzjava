@@ -7,8 +7,8 @@ public class Threads {
     private final String mnemonic = "around buzz diagram captain obtain detail salon mango muffin brother" +
             " morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car";
     private final String endpoint = "http://testnet.public.bluzelle.com:1317";
-    private final String[] keys = {"one", "one", "two", "three", "four", "five", "six", "seven", "eight", "100500"};
-    private GasInfo gasInfo = new GasInfo(100, 0, 0);
+    private final String[] keys = {"one", "two", "three", "four", "five", "six", "seven", "eight", "100500"};
+    private GasInfo gasInfo = new GasInfo(10, 0, 0);
     private LeaseInfo leaseInfo = new LeaseInfo(0, 0, 10, 0);
 
     public static void main(String[] args) {
