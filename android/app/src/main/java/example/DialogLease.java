@@ -1,4 +1,4 @@
-package com.bluzelle;
+package example;
 
 import android.app.DialogFragment;
 import android.os.Bundle;
@@ -8,23 +8,25 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import com.bluzelle.LeaseInfo;
 
-public class DialogGas extends DialogFragment implements View.OnClickListener, TextView.OnEditorActionListener {
+public class DialogLease extends DialogFragment implements View.OnClickListener, TextView.OnEditorActionListener {
 
-    static DialogGas newInstance() {
-        DialogGas dialog = new DialogGas();
+    static DialogLease newInstance() {
+        DialogLease dialog = new DialogLease();
         dialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         return dialog;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_gas, container, false);
+        View view = inflater.inflate(R.layout.dialog_lease, container, false);
         view.findViewById(R.id.set).setOnClickListener(this);
-        ((TextView) view.findViewById(R.id.gasPrice)).setText(String.valueOf(Data.gasInfo.gasPrice));
-        ((TextView) view.findViewById(R.id.maxGas)).setText(String.valueOf(Data.gasInfo.maxGas));
-        ((TextView) view.findViewById(R.id.maxFee)).setText(String.valueOf(Data.gasInfo.maxFee));
-        ((EditText) view.findViewById(R.id.maxFee)).setOnEditorActionListener(this);
+        ((TextView) view.findViewById(R.id.days)).setText(String.valueOf(Data.leaseInfo.days));
+        ((TextView) view.findViewById(R.id.hours)).setText(String.valueOf(Data.leaseInfo.hours));
+        ((TextView) view.findViewById(R.id.minutes)).setText(String.valueOf(Data.leaseInfo.minutes));
+        ((TextView) view.findViewById(R.id.seconds)).setText(String.valueOf(Data.leaseInfo.seconds));
+        ((EditText) view.findViewById(R.id.seconds)).setOnEditorActionListener(this);
         return view;
     }
 
@@ -33,23 +35,24 @@ public class DialogGas extends DialogFragment implements View.OnClickListener, T
         if (view.getId() != R.id.set) {
             return;
         }
-        setGas();
+        setLease();
     }
 
     @Override
     public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-        if (textView.getId() != R.id.maxFee) {
+        if (textView.getId() != R.id.seconds) {
             return true;
         }
-        setGas();
+        setLease();
         return false;
     }
 
-    private void setGas() {
-        Data.gasInfo = new GasInfo(
-                get(R.id.gasPrice),
-                get(R.id.maxGas),
-                get(R.id.maxFee)
+    private void setLease() {
+        Data.leaseInfo = new LeaseInfo(
+                get(R.id.days),
+                get(R.id.hours),
+                get(R.id.minutes),
+                get(R.id.seconds)
         );
         dismiss();
     }

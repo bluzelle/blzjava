@@ -1,4 +1,4 @@
-package com.bluzelle;
+package example;
 
 import android.app.Activity;
 import android.os.Bundle;

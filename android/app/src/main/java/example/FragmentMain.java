@@ -1,4 +1,4 @@
-package com.bluzelle;
+package example;
 
 import android.app.Fragment;
 import android.os.AsyncTask;

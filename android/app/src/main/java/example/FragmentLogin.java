@@ -1,4 +1,4 @@
-package com.bluzelle;
+package example;
 
 import android.app.Fragment;
 import android.os.AsyncTask;
@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
+import com.bluzelle.Bluzelle;
 
 public class FragmentLogin extends Fragment implements View.OnClickListener {
 
