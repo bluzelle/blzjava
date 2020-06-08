@@ -56,6 +56,9 @@ public class Server implements HttpHandler {
         } catch (Exception e) {
             error = true;
             result = e.getMessage();
+            if (result == null) {
+                result = e.toString();
+            }
             if (result.contains("FileNotFoundException")) {
                 result = "key not found";
             }
