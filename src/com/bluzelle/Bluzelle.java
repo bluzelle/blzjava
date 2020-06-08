@@ -114,13 +114,15 @@ public class Bluzelle {
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
      * @throws NullPointerException           if key == null or value == null or gasInfo == null
-     * @throws IllegalArgumentException       if key contains '/' or lease is negative
+     * @throws IllegalArgumentException       if key is empty or contains '/', or lease is negative
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public void create(String key, String value, GasInfo gasInfo, LeaseInfo leaseInfo) {
         if (key == null) {
             throw new NullPointerException("null key");
+        } else if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
         } else if (key.contains("/")) {
             throw new IllegalArgumentException("Key cannot contain a slash");
         }
@@ -149,9 +151,13 @@ public class Bluzelle {
      * @param prove a proof of the value is required from the network
      * @return String value of the key or null
      * @throws NullPointerException           if key == null
+     * @throws IllegalArgumentException       if key is empty
      * @throws Connection.ConnectionException if can not connect to the node
      */
     public String read(String key, boolean prove) {
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
+        }
         String path = "/crud/" + (prove ? "pread/" : "read/") + uuid + "/" + urlEncode(key);
         try {
             String response = connection.get(path);
@@ -171,12 +177,15 @@ public class Bluzelle {
      * @param gasInfo object containing gas parameters
      * @return String value of the key
      * @throws NullPointerException           if key == null or gasInfo == null
+     * @throws IllegalArgumentException       if key is empty
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public String txRead(String key, GasInfo gasInfo) {
         if (key == null) {
             throw new NullPointerException("null key");
+        } else if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
         }
 
         JsonObject data = new JsonObject().put("Key", key);
@@ -192,12 +201,15 @@ public class Bluzelle {
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo positive or negative amount of time to alter the lease by or null
      * @throws NullPointerException           if key == null or value == null or gasInfo == null
+     * @throws IllegalArgumentException       if key is empty
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public void update(String key, String value, GasInfo gasInfo, LeaseInfo leaseInfo) {
         if (key == null) {
             throw new NullPointerException("null key");
+        } else if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
         }
         if (value == null) {
             throw new NullPointerException("null value");
@@ -216,12 +228,15 @@ public class Bluzelle {
      * @param key     the name of the key to delete
      * @param gasInfo object containing gas parameters
      * @throws NullPointerException           if key == null or gasInfo == null
+     * @throws IllegalArgumentException       if key is empty
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public void delete(String key, GasInfo gasInfo) {
         if (key == null) {
             throw new NullPointerException("null key");
+        } else if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
         }
 
         JsonObject data = new JsonObject().put("Key", key);
@@ -234,9 +249,13 @@ public class Bluzelle {
      * @param key the name of the key to query
      * @return value representing whether the key is in the database
      * @throws NullPointerException           if key == null
+     * @throws IllegalArgumentException       if key is empty
      * @throws Connection.ConnectionException if can not connect to the node
      */
     public boolean has(String key) {
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
+        }
         String response = connection.get("/crud/has/" + uuid + "/" + urlEncode(key));
         return JsonObject.parse(response).getObject("result").getBoolean("has");
     }
@@ -248,12 +267,15 @@ public class Bluzelle {
      * @param gasInfo object containing gas parameters
      * @return value representing whether the key is in the database
      * @throws NullPointerException           if key == null or gasInfo == null
+     * @throws IllegalArgumentException       if key is empty
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public boolean txHas(String key, GasInfo gasInfo) {
         if (key == null) {
             throw new NullPointerException("null key");
+        } else if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
         }
 
         JsonObject data = new JsonObject().put("Key", key);
@@ -311,16 +333,20 @@ public class Bluzelle {
      * @param newKey  the new name for the key
      * @param gasInfo object containing gas parameters
      * @throws NullPointerException           if key == null or newKey == null or gasInfo == null
-     * @throws IllegalArgumentException       if newKey contains '/'
+     * @throws IllegalArgumentException       if key is empty or newKey is empty or newKey contains '/'
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public void rename(String key, String newKey, GasInfo gasInfo) {
         if (key == null) {
             throw new NullPointerException("null key");
+        } else if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
         }
         if (newKey == null) {
             throw new NullPointerException("null newKey");
+        } else if (newKey.isEmpty()) {
+            throw new IllegalArgumentException("Ne key cannot be empty");
         } else if (newKey.contains("/")) {
             throw new IllegalArgumentException("Key cannot contain a slash");
         }
@@ -435,9 +461,13 @@ public class Bluzelle {
      * @param key the key to retrieve the lease information for
      * @return minimum length of time remaining for the key's lease, in seconds
      * @throws NullPointerException           if key == null
+     * @throws IllegalArgumentException       if key is empty
      * @throws Connection.ConnectionException if can not connect to the node
      */
     public int getLease(String key) {
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
+        }
         String response = connection.get("/crud/getlease/" + uuid + "/" + urlEncode(key));
         return Integer.parseInt(JsonObject.parse(response).getObject("result").getString("lease")) * blockTimeSeconds;
     }
@@ -449,12 +479,15 @@ public class Bluzelle {
      * @param gasInfo object containing gas parameters
      * @return minimum length of time remaining for the key's lease, in seconds
      * @throws NullPointerException           if key == null
+     * @throws IllegalArgumentException       if key is empty
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public int txGetLease(String key, GasInfo gasInfo) {
         if (key == null) {
             throw new NullPointerException("null key");
+        } else if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
         }
 
         JsonObject data = new JsonObject().put("Key", key);
@@ -469,13 +502,15 @@ public class Bluzelle {
      * @param gasInfo   object containing gas parameters
      * @param leaseInfo minimum time for key to remain in database or null
      * @throws NullPointerException           if key == null or gasInfo == null
-     * @throws IllegalArgumentException       if lease is negative
+     * @throws IllegalArgumentException       if key is empty or lease is negative
      * @throws Connection.ConnectionException if can not connect to the node
      * @throws ServerException                if server returns error
      */
     public void renewLease(String key, GasInfo gasInfo, LeaseInfo leaseInfo) {
         if (key == null) {
             throw new NullPointerException("null key");
+        } else if (key.isEmpty()) {
+            throw new IllegalArgumentException("Key cannot be empty");
         }
         int blocks = 0;
         if (leaseInfo != null) {
