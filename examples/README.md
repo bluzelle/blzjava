@@ -85,6 +85,17 @@ Delete existing key.
     $ java Crud -d 'newKey'
 
 
+## GUI
+
+Compile as described before or download.
+
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.1/gui.jar
+
+Run and use GUI.
+
+    $ java -jar gui.jar
+
+
 
 ## One more example
 
