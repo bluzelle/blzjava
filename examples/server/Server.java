@@ -1,7 +1,4 @@
 // http server for bluzelle client using thin wrapper
-// usage:
-//    Server.main();
-//    Server.main(portNumber);
 package server;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -66,16 +63,14 @@ public class Server implements HttpHandler {
 
         try {
             if (result == null) {
-                http.sendResponseHeaders(200, 0);
-                http.getResponseBody().close();
-            } else {
-                byte[] response = result.getBytes("utf-8");
-                http.sendResponseHeaders(error ? 400 : 200, response.length);
-                OutputStream stream = http.getResponseBody();
-                stream.write(response);
-                stream.flush();
-                stream.close();
+                result = "null";
             }
+            byte[] response = result.getBytes("utf-8");
+            http.sendResponseHeaders(error ? 400 : 200, response.length);
+            OutputStream stream = http.getResponseBody();
+            stream.write(response);
+            stream.flush();
+            stream.close();
         } catch (IOException e) {
             e.printStackTrace();
             http.close();
@@ -83,7 +78,7 @@ public class Server implements HttpHandler {
     }
 
     private void init(int port) {
-        System.out.println("blzjava 0.4.1");
+        System.out.println("blzjava 0.4.2");
 
         String mnemonic = System.getenv("MNEMONIC");
         String endpoint = System.getenv("ENDPOINT");
