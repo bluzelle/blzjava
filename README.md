@@ -4,8 +4,8 @@
 
 **blzjava** is a Java/Android library that can be used to access the Bluzelle database service.
 
-* Build and API [docs](src/com/bluzelle) from the source code
-* [javaDocs](javaDocs)
+* Build and API [docs](src/com/bluzelle)
+* Java [docs](https://aqoleg.github.io/blzjava)
 * [Examples](examples)
 * Android [example](android)
 * [Tests](test/com/bluzelle)
