@@ -3,34 +3,19 @@ package com.bluzelle;
 import com.bluzelle.json.JsonObject;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ConnectionTest {
 
     @Test
     void getTest() {
         assertThrows(NullPointerException.class, () -> new Connection(null));
-
-        boolean notFound = true;
-        try {
-            new Connection("net.public").get("");
-        } catch (Connection.ConnectionException e) {
-            notFound = e.notFound;
-        }
-        assertFalse(notFound);
-
+        assertThrows(Connection.ConnectionException.class, () -> new Connection("net.public").get(""));
         Connection connection = new Connection("http://testnet.public.bluzelle.com:1317");
         assertThrows(
-                Connection.ConnectionException.class,
+                Connection.KeyNotFoundException.class,
                 () -> connection.get("")
         );
-        notFound = false;
-        try {
-            connection.get("");
-        } catch (Connection.ConnectionException e) {
-            notFound = e.notFound;
-        }
-        assertTrue(notFound);
 
         System.out.println("/node info");
         System.out.println(connection.get("/node_info"));

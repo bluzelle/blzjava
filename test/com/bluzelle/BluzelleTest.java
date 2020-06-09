@@ -83,7 +83,10 @@ class BluzelleTest {
         }
         bluzelle.create("key Д\" =? k", "value нЬ", gasInfo, leaseInfo);
         assertEquals("value нЬ", bluzelle.read("key Д\" =? k", false));
-        assertNull(bluzelle.read("nokey", true));
+        assertThrows(
+                Connection.KeyNotFoundException.class,
+                () -> bluzelle.read("nokey", true)
+        );
         assertEquals("value нЬ", bluzelle.txRead("key Д\" =? k", gasInfo));
         bluzelle.delete("key Д\" =? k", gasInfo);
     }
@@ -96,7 +99,10 @@ class BluzelleTest {
         bluzelle.create("newkeytest2", "33", gasInfo, null);
         bluzelle.create("newkeytest3", "value", gasInfo, null);
         bluzelle.create("newkeytest4", "new value test 4", gasInfo, null);
-        assertNull(bluzelle.read("nonexistingkey", true));
+        assertThrows(
+                Connection.KeyNotFoundException.class,
+                () -> bluzelle.read("nonexistingkey", true)
+        );
         assertEquals("value 1221 1 1 1", bluzelle.read("newkeytest1", false));
         assertEquals("value", bluzelle.read("newkeytest3", true));
         bluzelle.rename("newkeytest4", "Mkey", gasInfo);
