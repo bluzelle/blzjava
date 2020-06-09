@@ -5,7 +5,6 @@
 
 # Build
 
-Build from the source code.
 Get the package from github.
 
     $ git clone https://github.com/aqoleg/blzjava.git
@@ -161,40 +160,6 @@ String value = bluzelle.txRead(key, gasInfo);
 Returns String value of the key.
 
 
-### update\(key, value, gasInfo, leaseInfo\)
-
-Update a field in the database.
-
-```java
-bluzelle.update(key, value, gasInfo, leaseInfo);
-```
-
-| Argument | Description |
-| :--- | :--- |
-| key | The name of the key to update. String. |
-| value | The value to set the key. String. |
-| gasInfo | Object containing gas parameters (see above). |
-| leaseInfo | Object containing positive or negative amount of time to alter the lease by or null. |
-
-Returns nothing.
-
-
-### delete\(key, gasInfo\)
-
-Delete a field from the database.
-
-```java
-bluzelle.delete(key, gasInfo);
-```
-
-| Argument | Description |
-| :--- | :--- |
-| key | The name of the key to delete. String. |
-| gasInfo | Object containing gas parameters (see above). |
-
-Returns nothing.
-
-
 ### has\(key\)
 
 Query to see if a key is in the database. This function bypasses the consensus and cryptography mechanisms in favor of speed.
@@ -226,49 +191,6 @@ boolean has = bluzelle.txHas(key, gasInfo);
 Returns a boolean, representing whether the key is in the database.
 
 
-### keys\(\)
-
-Retrieve a list of all keys. This function bypasses the consensus and cryptography mechanisms in favor of speed.
-
-```java
-ArrayList<String> keys = bluzelle.keys();
-```
-
-Returns an ArrayList of keys as String.
-
-
-### txKeys\(gasInfo\)
-
-Retrieve a list of all keys via a transaction (i.e. uses consensus).
-
-```java
-ArrayList<String> keys = bluzelle.txKeys(gasInfo);
-```
-
-| Argument | Description |
-| :--- | :--- |
-| gasInfo | Object containing gas parameters (see above). |
-
-Returns an ArrayList of keys as String.
-
-
-### rename\(key, newKey, gasInfo\)
-
-Change the name of an existing key.
-
-```java
-bluzelle.rename(key, newKey, gasInfo);
-```
-
-| Argument | Description |
-| :--- | :--- |
-| key | The name of the key to rename. String. |
-| newKey | The new name for the key. String. |
-| gasInfo | Object containing gas parameters (see above). |
-
-Returns nothing.
-
-
 ### count\(\)
 
 Retrieve the number of keys in the current database/uuid. This function bypasses the consensus and cryptography mechanisms in favor of speed.
@@ -295,19 +217,30 @@ int count = bluzelle.txCount(gasInfo);
 Returns an integer value.
 
 
-### deleteAll\(gasInfo\)
+### keys\(\)
 
-Remove all keys in the current database/uuid.
+Retrieve a list of all keys. This function bypasses the consensus and cryptography mechanisms in favor of speed.
 
 ```java
-bluzelle.deleteAll(gasInfo);
+ArrayList<String> keys = bluzelle.keys();
+```
+
+Returns an ArrayList of keys as String.
+
+
+### txKeys\(gasInfo\)
+
+Retrieve a list of all keys via a transaction (i.e. uses consensus).
+
+```java
+ArrayList<String> keys = bluzelle.txKeys(gasInfo);
 ```
 
 | Argument | Description |
 | :--- | :--- |
 | gasInfo | Object containing gas parameters (see above). |
 
-Returns nothing.
+Returns an ArrayList of keys as String.
 
 
 ### keyValues\(\)
@@ -334,22 +267,6 @@ HashMap<String, String> keyValues = bluzelle.txKeyValues(gasInfo);
 | gasInfo | Object containing gas parameters (see above). |
 
 Returns a HashMap containing key/value pairs as Strings.
-
-
-### multiUpdate\(keyValues, gasInfo\)
-
-Update multiple fields in the database.
-
-```java
-bluzelle.multiUpdate(keyValues, gasInfo);
-```
-
-| Argument | Description |
-| :--- | :--- |
-| keyValues | HashMap containing key/value pairs as Strings. |
-| gasInfo | Object containing gas parameters (see above). |
-
-Returns nothing.
 
 
 ### getLease\(key\)
@@ -381,6 +298,88 @@ int lease = bluzelle.txGetLease(key, gasInfo);
 | gasInfo | Object containing gas parameters (see above). |
 
 Returns the minimum length of time remaining for the key's lease, integer, in seconds.
+
+
+### getNShortestLeases\(n\)
+
+Retrieve a list of the n keys in the database with the shortest leases.  This function bypasses the consensus and cryptography mechanisms in favor of speed.
+
+```java
+HashMap<String, Integer> leases = bluzelle.getNShortestLeases(n);
+```
+
+| Argument | Description |
+| :--- | :--- |
+| n | The number of keys to retrieve the lease information for. Integer. |
+
+Returns HashMap containing key/lease pairs as String/Integer (seconds).
+
+
+### txGetNShortestLeases\(n, gasInfo\)
+
+Retrieve a list of the n keys in the database with the shortest leases, using a transaction.
+
+```java
+HashMap<String, Integer> leases = bluzelle.txGetNShortestLeases(n, gasInfo);
+```
+
+| Argument | Description |
+| :--- | :--- |
+| n | The number of keys to retrieve the lease information for. Integer. |
+| gasInfo | Object containing gas parameters (see above). |
+
+Returns HashMap containing key/lease pairs as String/Integer (seconds).
+
+
+### update\(key, value, gasInfo, leaseInfo\)
+
+Update a field in the database.
+
+```java
+bluzelle.update(key, value, gasInfo, leaseInfo);
+```
+
+| Argument | Description |
+| :--- | :--- |
+| key | The name of the key to update. String. |
+| value | The value to set the key. String. |
+| gasInfo | Object containing gas parameters (see above). |
+| leaseInfo | Object containing positive or negative amount of time to alter the lease by or null. |
+
+Returns nothing.
+
+
+### rename\(key, newKey, gasInfo\)
+
+Change the name of an existing key.
+
+```java
+bluzelle.rename(key, newKey, gasInfo);
+```
+
+| Argument | Description |
+| :--- | :--- |
+| key | The name of the key to rename. String. |
+| newKey | The new name for the key. String. |
+| gasInfo | Object containing gas parameters (see above). |
+
+Returns nothing.
+
+
+### multiUpdate\(keyValues, gasInfo\)
+
+Update multiple fields in the database.
+
+```java
+bluzelle.multiUpdate(keyValues, gasInfo);
+```
+
+| Argument | Description |
+| :--- | :--- |
+| keyValues | HashMap containing key/value pairs as Strings. |
+| gasInfo | Object containing gas parameters (see above). |
+
+Returns nothing.
 
 
 ### renewLease\(key, gasInfo, leaseInfo\)
@@ -416,32 +415,34 @@ bluzelle.renewLeaseAll(gasInfo, leaseInfo);
 Returns nothing.
 
 
-### getNShortestLeases\(n\)
+### delete\(key, gasInfo\)
 
-Retrieve a list of the n keys in the database with the shortest leases.  This function bypasses the consensus and cryptography mechanisms in favor of speed.
+Delete a field from the database.
 
 ```java
-HashMap<String, Integer> leases = bluzelle.getNShortestLeases(n);
+bluzelle.delete(key, gasInfo);
 ```
 
 | Argument | Description |
 | :--- | :--- |
-| n | The number of keys to retrieve the lease information for. Integer. |
-
-Returns HashMap containing key/lease pairs as String/Integer (seconds).
-
-
-### txGetNShortestLeases\(n, gasInfo\)
-
-Retrieve a list of the n keys in the database with the shortest leases, using a transaction.
-
-```java
-HashMap<String, Integer> leases = bluzelle.txGetNShortestLeases(n, gasInfo);
-```
-
-| Argument | Description |
-| :--- | :--- |
-| n | The number of keys to retrieve the lease information for. Integer. |
+| key | The name of the key to delete. String. |
 | gasInfo | Object containing gas parameters (see above). |
 
-Returns HashMap containing key/lease pairs as String/Integer (seconds).
+Returns nothing.
+
+
+### deleteAll\(gasInfo\)
+
+Remove all keys in the current database/uuid.
+
+```java
+bluzelle.deleteAll(gasInfo);
+```
+
+| Argument | Description |
+| :--- | :--- |
+| gasInfo | Object containing gas parameters (see above). |
+
+Returns nothing.
+
+

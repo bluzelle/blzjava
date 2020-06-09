@@ -4,7 +4,8 @@
 
 **blzjava** is a Java/Android library that can be used to access the Bluzelle database service.
 
-* [Build and API docs](src/com/bluzelle)
+* Build and API [docs](src/com/bluzelle) from the source code
+* [javaDocs](javaDocs)
 * [Examples](examples)
 * Android [example](android)
 * [Tests](test/com/bluzelle)
@@ -12,12 +13,12 @@
 
 # Quickstart
 
-Make sure that JDK is installed.
+Make sure that Java is installed and has a version at least 8 (JDK 1.8).
 
     $ java -version
     $ javac -version
 
-If JDK is not installed, install it.
+If Java is not installed, install it.
 
     $ sudo apt-get update
     $ sudo apt-get install default-jdk

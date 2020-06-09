@@ -87,7 +87,28 @@ Delete existing key.
 
 ## GUI
 
-Compile as described before or download.
+<img src="docs/gui.png" width="509" heigh="365">
+
+Build from the source code.
+Get the package from github.
+
+    $ git clone https://github.com/aqoleg/blzjava.git
+
+Create output directory.
+
+    $ mkdir blzjava/out
+
+Compile.
+
+    $ javac -cp blzjava/src/:blzjava/examples/ -d blzjava/out/ blzjava/examples/Gui.java
+
+Create file gui.jar.
+
+    $ cd blzjava/out/
+    $ jar cfe ../../gui.jar Gui ./
+    $ cd ../../
+
+The same file can be downloaded from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
 
     $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.1/gui.jar
 
@@ -117,3 +138,5 @@ Run.
     $ java -cp .:./bluzelle.jar Threads
 
 This will create multiple key-value pairs and simultaneously read all the keys every 2 seconds.
+
+
