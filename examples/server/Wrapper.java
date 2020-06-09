@@ -5,7 +5,7 @@
 //    String result = wrapper.request(requestString);
 // requests examples:
 //    {"method":"connect","args":["mnemonic words","localhost:5000","uuid","bluzelle"]}
-//    {"method":"connect","args":["mnemonic words"]}
+//    {'method':connect,'args':['mnemonic words']}
 //    {"method":"create","args":["key","value"]}
 //    {method:create,args:[key,value,{gas_price:10,max_gas:10,max_fee:10}]}
 //    {"method":"create","args":["key","value",{"gas_price":10},{"days":10,"hours":10,"minutes":10,"seconds":10}]}
@@ -33,9 +33,12 @@ public class Wrapper {
      * creates and configures connection
      *
      * @param mnemonic mnemonic of the private key for account
-     * @param endpoint hostname and port of rest server or null for default "http://localhost:1317"
-     * @param uuid     uuid or null for the same as address
-     * @param chainId  chain id of account or null for default "bluzelle"
+     * @param endpoint hostname and port of rest server
+     *                 if null or empty uses default "http://localhost:1317"
+     * @param uuid     uuid
+     *                 if null or empty uses uuid the same as address
+     * @param chainId  chain id of account
+     *                 if null or empty uses default "bluzelle"
      * @throws NullPointerException           if mnemonic == null
      * @throws Connection.ConnectionException if can not connect to the node
      */
@@ -44,12 +47,13 @@ public class Wrapper {
     }
 
     /**
-     * @param request String with request
+     * @param request String with request {"method'}
      * @return String result or null
-     * @throws UnsupportedOperationException  if bluzelle is not connected or method is unknown
-     * @throws IllegalArgumentException       if arguments are incorrect
-     * @throws Connection.ConnectionException if can not connect to the node
-     * @throws Bluzelle.ServerException       if server returns error
+     * @throws UnsupportedOperationException   if bluzelle is not connected or method is unknown
+     * @throws IllegalArgumentException        if request is incorrect
+     * @throws Connection.KeyNotFoundException if key does not exist
+     * @throws Connection.ConnectionException  if can not connect to the node
+     * @throws Bluzelle.ServerException        if server returns error
      */
     public String request(String request) {
         JsonObject json = JsonObject.parse(request);
@@ -83,14 +87,50 @@ public class Wrapper {
                 return null;
             case "read":
                 boolean prove = (args.length() > 1) && args.getBoolean(1);
-                String value = bluzelle.read(getString(args, 0, 0), prove);
-                if (value == null) {
-                    throw new IllegalArgumentException(prove ? "could not read key" : "key not found");
+                try {
+                    return bluzelle.read(getString(args, 0, 0), prove);
+                } catch (Connection.KeyNotFoundException e) {
+                    if (prove) {
+                        throw new IllegalArgumentException("could not read key");
+                    }
+                    throw e;
                 }
-                return value;
             case "txread":
             case "tx_read":
                 return bluzelle.txRead(getString(args, 0, 0), getGasInfo(args, 1));
+            case "has":
+                return bluzelle.has(getString(args, 0, 0)) ? "true" : "false";
+            case "txhas":
+            case "tx_has":
+                return bluzelle.txHas(getString(args, 0, 0), getGasInfo(args, 1)) ? "true" : "false";
+            case "count":
+                return String.valueOf(bluzelle.count());
+            case "txcount":
+            case "tx_count":
+                return String.valueOf(bluzelle.txCount(getGasInfo(args, 0)));
+            case "keys":
+                return listToJsonString(bluzelle.keys());
+            case "txkeys":
+            case "tx_keys":
+                return listToJsonString(bluzelle.txKeys(getGasInfo(args, 0)));
+            case "keyvalues":
+            case "key_values":
+                return mapToJsonString(bluzelle.keyValues());
+            case "txkeyvalues":
+            case "tx_key_values":
+                return mapToJsonString(bluzelle.txKeyValues(getGasInfo(args, 0)));
+            case "getlease":
+            case "get_lease":
+                return String.valueOf(bluzelle.getLease(getString(args, 0, 0)));
+            case "txgetlease":
+            case "tx_get_lease":
+                return String.valueOf(bluzelle.txGetLease(getString(args, 0, 0), getGasInfo(args, 1)));
+            case "getnshortestleases":
+            case "get_n_shortest_leases":
+                return mapToLeases(bluzelle.getNShortestLeases(args.getInteger(0)));
+            case "txgetnshortestleases":
+            case "tx_get_n_shortest_leases":
+                return mapToLeases(bluzelle.txGetNShortestLeases(args.getInteger(0), getGasInfo(args, 1)));
             case "update":
                 bluzelle.update(
                         getString(args, 0, 0),
@@ -99,47 +139,13 @@ public class Wrapper {
                         getLeaseInfo(args, 3)
                 );
                 return null;
-            case "delete":
-                bluzelle.delete(getString(args, 0, 0), getGasInfo(args, 1));
-                return null;
-            case "has":
-                return bluzelle.has(getString(args, 0, 0)) ? "true" : "false";
-            case "txhas":
-            case "tx_has":
-                return bluzelle.txHas(getString(args, 0, 0), getGasInfo(args, 1)) ? "true" : "false";
-            case "keys":
-                return listToJson(bluzelle.keys());
-            case "txkeys":
-            case "tx_keys":
-                return listToJson(bluzelle.txKeys(getGasInfo(args, 0)));
             case "rename":
                 bluzelle.rename(getString(args, 0, 0), getString(args, 1, 1), getGasInfo(args, 2));
                 return null;
-            case "count":
-                return String.valueOf(bluzelle.count());
-            case "txcount":
-            case "tx_count":
-                return String.valueOf(bluzelle.txCount(getGasInfo(args, 0)));
-            case "deleteall":
-            case "delete_all":
-                bluzelle.deleteAll(getGasInfo(args, 0));
-                return null;
-            case "keyvalues":
-            case "key_values":
-                return mapToJson(bluzelle.keyValues());
-            case "txkeyvalues":
-            case "tx_key_values":
-                return mapToJson(bluzelle.txKeyValues(getGasInfo(args, 0)));
             case "multiupdate":
             case "multi_update":
                 bluzelle.multiUpdate(jsonToMap(args.getArray(0)), getGasInfo(args, 1));
                 return null;
-            case "getlease":
-            case "get_lease":
-                return String.valueOf(bluzelle.getLease(getString(args, 0, 0)));
-            case "txgetlease":
-            case "tx_get_lease":
-                return String.valueOf(bluzelle.txGetLease(getString(args, 0, 0), getGasInfo(args, 1)));
             case "renewlease":
             case "renew_lease":
                 bluzelle.renewLease(getString(args, 0, 0), getGasInfo(args, 1), getLeaseInfo(args, 2));
@@ -148,12 +154,13 @@ public class Wrapper {
             case "renew_lease_all":
                 bluzelle.renewLeaseAll(getGasInfo(args, 0), getLeaseInfo(args, 1));
                 return null;
-            case "getnshortestleases":
-            case "get_n_shortest_leases":
-                return mapToLeases(bluzelle.getNShortestLeases(args.getInteger(0)));
-            case "txgetnshortestleases":
-            case "tx_get_n_shortest_leases":
-                return mapToLeases(bluzelle.txGetNShortestLeases(args.getInteger(0), getGasInfo(args, 1)));
+            case "delete":
+                bluzelle.delete(getString(args, 0, 0), getGasInfo(args, 1));
+                return null;
+            case "deleteall":
+            case "delete_all":
+                bluzelle.deleteAll(getGasInfo(args, 0));
+                return null;
             default:
                 throw new UnsupportedOperationException("unknown method \"" + method + "\"");
         }
@@ -207,7 +214,7 @@ public class Wrapper {
         );
     }
 
-    private static String listToJson(ArrayList<String> list) {
+    private static String listToJsonString(ArrayList<String> list) {
         JsonArray array = new JsonArray();
         for (String s : list) {
             array.put(s);
@@ -215,12 +222,23 @@ public class Wrapper {
         return array.toString();
     }
 
-    private static String mapToJson(HashMap<String, String> map) {
+    private static String mapToJsonString(HashMap<String, String> map) {
         JsonArray array = new JsonArray();
         for (Map.Entry<String, String> entry : map.entrySet()) {
             JsonObject object = new JsonObject();
             object.put("key", entry.getKey());
             object.put("value", entry.getValue());
+            array.put(object);
+        }
+        return array.toString();
+    }
+
+    private static String mapToLeases(HashMap<String, Integer> map) {
+        JsonArray array = new JsonArray();
+        for (Map.Entry<String, Integer> entry : map.entrySet()) {
+            JsonObject object = new JsonObject();
+            object.put("key", entry.getKey());
+            object.put("lease", entry.getValue());
             array.put(object);
         }
         return array.toString();
@@ -246,16 +264,5 @@ public class Wrapper {
             map.put(key, value);
         }
         return map;
-    }
-
-    private static String mapToLeases(HashMap<String, Integer> map) {
-        JsonArray array = new JsonArray();
-        for (Map.Entry<String, Integer> entry : map.entrySet()) {
-            JsonObject object = new JsonObject();
-            object.put("key", entry.getKey());
-            object.put("lease", entry.getValue());
-            array.put(object);
-        }
-        return array.toString();
     }
 }

@@ -4,6 +4,7 @@ import com.bluzelle.LeaseInfo;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.ExecutionException;
 
 public class Gui {
     private static final String defaultMnemonic = "around buzz diagram captain obtain detail salon mango muffin" +
@@ -26,227 +27,335 @@ public class Gui {
     }
 
     private void createAndShow() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel leftPanel = new JPanel(new GridBagLayout());
+        JPanel rightPanel = new JPanel(new GridBagLayout());
 
-        panel.add(new JLabel("Gas info"));
-        panel.add(new JLabel("gas price"));
-        panel.add(gasPriceField);
-        panel.add(new JLabel("max gas"));
-        panel.add(maxGasField);
-        panel.add(new JLabel("max fee"));
-        panel.add(maxFeeFiled);
+        leftPanel.add(new JLabel("Gas info"), getHeaderConstraints());
+        leftPanel.add(new JLabel("gas price"), getLabelConstraints());
+        leftPanel.add(gasPriceField, getInputConstraints());
+        leftPanel.add(new JLabel("max gas"), getLabelConstraints());
+        leftPanel.add(maxGasField, getInputConstraints());
+        leftPanel.add(new JLabel("max fee"), getLabelConstraints());
+        leftPanel.add(maxFeeFiled, getInputConstraints());
 
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Lease info"));
-        panel.add(new JLabel("days"));
-        panel.add(daysField);
-        panel.add(new JLabel("hours"));
-        panel.add(hoursField);
-        panel.add(new JLabel("minutes"));
-        panel.add(minutesFiled);
-        panel.add(new JLabel("seconds"));
-        panel.add(secondsFiled);
+        leftPanel.add(new JLabel("Lease info"), getHeaderConstraints());
+        leftPanel.add(new JLabel("days"), getLabelConstraints());
+        leftPanel.add(daysField, getInputConstraints());
+        leftPanel.add(new JLabel("hours"), getLabelConstraints());
+        leftPanel.add(hoursField, getInputConstraints());
+        leftPanel.add(new JLabel("minutes"), getLabelConstraints());
+        leftPanel.add(minutesFiled, getInputConstraints());
+        leftPanel.add(new JLabel("seconds"), getLabelConstraints());
+        leftPanel.add(secondsFiled, getInputConstraints());
 
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Connect"));
-        panel.add(new JLabel("mnemonic"));
-        final JTextField mnemonicField = new JTextField(defaultMnemonic);
-        panel.add(mnemonicField);
-        panel.add(new JLabel("endpoint"));
-        final JTextField endpointField = new JTextField(defaultEndpoint);
-        panel.add(endpointField);
-        panel.add(new JLabel("uuid"));
-        final JTextField uuidFiled = new JTextField();
-        panel.add(uuidFiled);
-        panel.add(new JLabel("chain id"));
-        final JTextField chainIdField = new JTextField();
-        panel.add(chainIdField);
+        leftPanel.add(new JLabel("Connect"), getHeaderConstraints());
+        leftPanel.add(new JLabel("mnemonic"), getLabelConstraints());
+        final JTextArea mnemonicField = new JTextArea(defaultMnemonic);
+        mnemonicField.setLineWrap(true);
+        mnemonicField.setWrapStyleWord(true);
+        leftPanel.add(mnemonicField, getInputConstraints());
+        leftPanel.add(new JLabel("endpoint"), getLabelConstraints());
+        final JTextArea endpointField = new JTextArea(defaultEndpoint);
+        endpointField.setLineWrap(true);
+        endpointField.setWrapStyleWord(true);
+        leftPanel.add(endpointField, getInputConstraints());
+        leftPanel.add(new JLabel("uuid"), getLabelConstraints());
+        final JTextArea uuidFiled = new JTextArea();
+        uuidFiled.setLineWrap(true);
+        uuidFiled.setWrapStyleWord(true);
+        leftPanel.add(uuidFiled, getInputConstraints());
+        leftPanel.add(new JLabel("chain id"), getLabelConstraints());
+        final JTextArea chainIdField = new JTextArea();
+        chainIdField.setLineWrap(true);
+        chainIdField.setWrapStyleWord(true);
+        leftPanel.add(chainIdField, getInputConstraints());
         final JButton connectButton = new JButton("connect");
-        panel.add(connectButton);
+        leftPanel.add(connectButton, getButtonConstraints());
         final JLabel connectLabel = new JLabel("not connected");
-        panel.add(connectLabel);
-        connectButton.addActionListener(actionEvent -> connect(mnemonicField, endpointField, uuidFiled, chainIdField, connectLabel));
+        leftPanel.add(connectLabel, getLabelConstraints());
+        connectButton.addActionListener(
+                actionEvent -> connect(mnemonicField, endpointField, uuidFiled, chainIdField, connectLabel)
+        );
 
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Create"));
-        panel.add(new JLabel("key"));
+        rightPanel.add(new JLabel("Create"), getHeaderConstraints());
+        rightPanel.add(new JLabel("key"), getLabelConstraints());
         final JTextField createKeyField = new JTextField();
-        panel.add(createKeyField);
-        panel.add(new JLabel("value"));
+        rightPanel.add(createKeyField, getInputConstraints());
+        rightPanel.add(new JLabel("value"), getLabelConstraints());
         final JTextField createValueFiled = new JTextField();
-        panel.add(createValueFiled);
+        rightPanel.add(createValueFiled, getInputConstraints());
         final JButton createButton = new JButton("create");
-        panel.add(createButton);
+        rightPanel.add(createButton, getButtonConstraints());
         final JLabel createLabel = new JLabel();
-        panel.add(createLabel);
+        rightPanel.add(createLabel, getLabelConstraints());
         createButton.addActionListener(actionEvent -> create(createKeyField, createValueFiled, createLabel));
 
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Has"));
-        panel.add(new JLabel("key"));
-        final JTextField hasKeyField = new JTextField();
-        panel.add(hasKeyField);
-        final JButton hasButton = new JButton("has");
-        panel.add(hasButton);
-        final JButton txHasButton = new JButton("tx has");
-        panel.add(txHasButton);
-        final JLabel hasLabel = new JLabel();
-        panel.add(hasLabel);
-        hasButton.addActionListener(actionEvent -> has(hasKeyField, false, hasLabel));
-        txHasButton.addActionListener(actionEvent -> has(hasKeyField, true, hasLabel));
-
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Read"));
-        panel.add(new JLabel("key"));
+        rightPanel.add(new JLabel("Read"), getHeaderConstraints());
+        rightPanel.add(new JLabel("key"), getLabelConstraints());
         final JTextField readKeyField = new JTextField();
-        panel.add(readKeyField);
+        rightPanel.add(readKeyField, getInputConstraints());
+        final JPanel readButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         final JButton readButton = new JButton("read");
-        panel.add(readButton);
+        readButtons.add(readButton);
+        readButtons.add(Box.createRigidArea(new Dimension(16, 0)));
         final JButton txReadButton = new JButton("tx read");
-        panel.add(txReadButton);
+        readButtons.add(txReadButton);
+        rightPanel.add(readButtons, getButtonConstraints());
         final JLabel readLabel = new JLabel();
-        panel.add(readLabel);
+        rightPanel.add(readLabel, getLabelConstraints());
         readButton.addActionListener(actionEvent -> read(readKeyField, false, readLabel));
         txReadButton.addActionListener(actionEvent -> read(readKeyField, true, readLabel));
 
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Get lease"));
-        panel.add(new JLabel("key"));
+        rightPanel.add(new JLabel("Has"), getHeaderConstraints());
+        rightPanel.add(new JLabel("key"), getLabelConstraints());
+        final JTextField hasKeyField = new JTextField();
+        rightPanel.add(hasKeyField, getInputConstraints());
+        final JPanel hasButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        final JButton hasButton = new JButton("has");
+        hasButtons.add(hasButton);
+        hasButtons.add(Box.createRigidArea(new Dimension(16, 0)));
+        final JButton txHasButton = new JButton("tx has");
+        hasButtons.add(txHasButton);
+        rightPanel.add(hasButtons, getButtonConstraints());
+        final JLabel hasLabel = new JLabel();
+        rightPanel.add(hasLabel, getLabelConstraints());
+        hasButton.addActionListener(actionEvent -> has(hasKeyField, false, hasLabel));
+        txHasButton.addActionListener(actionEvent -> has(hasKeyField, true, hasLabel));
+
+        rightPanel.add(new JLabel("All keys"), getHeaderConstraints());
+        final JPanel keysButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        final JButton keysButton = new JButton("keys");
+        keysButtons.add(keysButton);
+        keysButtons.add(Box.createRigidArea(new Dimension(16, 0)));
+        final JButton txKeysButton = new JButton("tx keys");
+        keysButtons.add(txKeysButton);
+        rightPanel.add(keysButtons, getButtonConstraints());
+        final JLabel keysLabel = new JLabel();
+        rightPanel.add(keysLabel, getLabelConstraints());
+        keysButton.addActionListener(actionEvent -> keys(false, keysLabel));
+        txKeysButton.addActionListener(actionEvent -> keys(true, keysLabel));
+
+        rightPanel.add(new JLabel("Get lease"), getHeaderConstraints());
+        rightPanel.add(new JLabel("key"), getLabelConstraints());
         final JTextField getLeaseKeyField = new JTextField();
-        panel.add(getLeaseKeyField);
+        rightPanel.add(getLeaseKeyField, getInputConstraints());
+        final JPanel getLeaseButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         final JButton getLeaseButton = new JButton("get");
-        panel.add(getLeaseButton);
+        getLeaseButtons.add(getLeaseButton);
+        getLeaseButtons.add(Box.createRigidArea(new Dimension(16, 0)));
         final JButton txGetLeaseButton = new JButton("tx get");
-        panel.add(txGetLeaseButton);
+        getLeaseButtons.add(txGetLeaseButton);
+        rightPanel.add(getLeaseButtons, getButtonConstraints());
         final JLabel getLeaseLabel = new JLabel();
-        panel.add(getLeaseLabel);
+        rightPanel.add(getLeaseLabel, getLabelConstraints());
         getLeaseButton.addActionListener(actionEvent -> getLease(getLeaseKeyField, false, getLeaseLabel));
         txGetLeaseButton.addActionListener(actionEvent -> getLease(getLeaseKeyField, true, getLeaseLabel));
 
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Rename"));
-        panel.add(new JLabel("key"));
-        final JTextField renameKeyField = new JTextField();
-        panel.add(renameKeyField);
-        panel.add(new JLabel("new key"));
-        final JTextField renameNewKeyFiled = new JTextField();
-        panel.add(renameNewKeyFiled);
-        final JButton renameButton = new JButton("rename");
-        panel.add(renameButton);
-        final JLabel renameLabel = new JLabel();
-        panel.add(renameLabel);
-        renameButton.addActionListener(actionEvent -> rename(renameKeyField, renameNewKeyFiled, renameLabel));
-
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Update"));
-        panel.add(new JLabel("key"));
+        rightPanel.add(new JLabel("Update"), getHeaderConstraints());
+        rightPanel.add(new JLabel("key"), getLabelConstraints());
         final JTextField updateKeyField = new JTextField();
-        panel.add(updateKeyField);
-        panel.add(new JLabel("value"));
+        rightPanel.add(updateKeyField, getInputConstraints());
+        rightPanel.add(new JLabel("value"), getLabelConstraints());
         final JTextField updateValueField = new JTextField();
-        panel.add(updateValueField);
+        rightPanel.add(updateValueField, getInputConstraints());
         final JButton updateButton = new JButton("update");
-        panel.add(updateButton);
+        rightPanel.add(updateButton, getButtonConstraints());
         final JLabel updateLabel = new JLabel();
-        panel.add(updateLabel);
+        rightPanel.add(updateLabel, getLabelConstraints());
         updateButton.addActionListener(actionEvent -> update(updateKeyField, updateValueField, updateLabel));
 
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Renew lease"));
-        panel.add(new JLabel("key"));
+        rightPanel.add(new JLabel("Rename"), getHeaderConstraints());
+        rightPanel.add(new JLabel("key"), getLabelConstraints());
+        final JTextField renameKeyField = new JTextField();
+        rightPanel.add(renameKeyField, getInputConstraints());
+        rightPanel.add(new JLabel("new key"), getLabelConstraints());
+        final JTextField renameNewKeyFiled = new JTextField();
+        rightPanel.add(renameNewKeyFiled, getInputConstraints());
+        final JButton renameButton = new JButton("rename");
+        rightPanel.add(renameButton, getButtonConstraints());
+        final JLabel renameLabel = new JLabel();
+        rightPanel.add(renameLabel, getLabelConstraints());
+        renameButton.addActionListener(actionEvent -> rename(renameKeyField, renameNewKeyFiled, renameLabel));
+
+        rightPanel.add(new JLabel("Renew lease"), getHeaderConstraints());
+        rightPanel.add(new JLabel("key"), getLabelConstraints());
         final JTextField renewLeaseKeyField = new JTextField();
-        panel.add(renewLeaseKeyField);
+        rightPanel.add(renewLeaseKeyField, getInputConstraints());
         final JButton renewLeaseButton = new JButton("renew");
-        panel.add(renewLeaseButton);
+        rightPanel.add(renewLeaseButton, getButtonConstraints());
         final JLabel renewLeaseLabel = new JLabel();
-        panel.add(renewLeaseLabel);
+        rightPanel.add(renewLeaseLabel, getLabelConstraints());
         renewLeaseButton.addActionListener(actionEvent -> renewLease(renewLeaseKeyField, renewLeaseLabel));
 
-        panel.add(Box.createRigidArea(new Dimension(0, 25)));
-        panel.add(new JLabel("Delete"));
-        panel.add(new JLabel("key"));
+        rightPanel.add(new JLabel("Delete"), getHeaderConstraints());
+        rightPanel.add(new JLabel("key"), getLabelConstraints());
         final JTextField deleteKeyField = new JTextField();
-        panel.add(deleteKeyField);
+        rightPanel.add(deleteKeyField, getInputConstraints());
         final JButton deleteButton = new JButton("delete");
-        panel.add(deleteButton);
+        rightPanel.add(deleteButton, getButtonConstraints());
         final JLabel deleteLabel = new JLabel();
-        panel.add(deleteLabel);
+        rightPanel.add(deleteLabel, getLabelConstraints());
         deleteButton.addActionListener(actionEvent -> delete(deleteKeyField, deleteLabel));
 
-        JFrame rootFrame = new JFrame("Bluzelle");
-        rootFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        rootFrame.setContentPane(new JScrollPane(panel));
-        rootFrame.setMinimumSize(new Dimension(400, 400));
-        rootFrame.pack();
-        rootFrame.setLocationRelativeTo(null);
-        rootFrame.setVisible(true);
+        JScrollPane leftScrollPane = new JScrollPane(leftPanel);
+        leftScrollPane.setPreferredSize(new Dimension(300, 700));
+        JScrollPane rightScrollPane = new JScrollPane(rightPanel);
+        rightScrollPane.setPreferredSize(new Dimension(700, 700));
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, leftScrollPane, rightScrollPane);
+        splitPane.setOneTouchExpandable(true);
+
+        JFrame frame = new JFrame("Bluzelle");
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setContentPane(splitPane);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    private GridBagConstraints getHeaderConstraints() {
+        return new GridBagConstraints(
+                0, // gridx
+                GridBagConstraints.RELATIVE, // gridy
+                1, // gridwidth
+                1, // gridheight
+                1, // weightx
+                0, // weighty
+                GridBagConstraints.CENTER, // anchor
+                GridBagConstraints.NONE, // fill
+                new Insets(24, 0, 0, 0), // insets(top, left, bottom, right)
+                0, // ipadx
+                0 // ipady
+        );
+    }
+
+    private GridBagConstraints getLabelConstraints() {
+        return new GridBagConstraints(
+                0, // gridx
+                GridBagConstraints.RELATIVE, // gridy
+                1, // gridwidth
+                1, // gridheight
+                1, // weightx
+                0, // weighty
+                GridBagConstraints.WEST, // anchor
+                GridBagConstraints.HORIZONTAL, // fill
+                new Insets(0, 16, 2, 16), // insets(top, left, bottom, right)
+                0, // ipadx
+                0 // ipady
+        );
+    }
+
+    private GridBagConstraints getInputConstraints() {
+        return new GridBagConstraints(
+                0, // gridx
+                GridBagConstraints.RELATIVE, // gridy
+                1, // gridwidth
+                1, // gridheight
+                1, // weightx
+                0, // weighty
+                GridBagConstraints.CENTER, // anchor
+                GridBagConstraints.HORIZONTAL, // fill
+                new Insets(0, 8, 0, 8), // insets(top, left, bottom, right)
+                0, // ipadx
+                0 // ipady
+        );
+    }
+
+    private GridBagConstraints getButtonConstraints() {
+        return new GridBagConstraints(
+                0, // gridx
+                GridBagConstraints.RELATIVE, // gridy
+                1, // gridwidth
+                1, // gridheight
+                1, // weightx
+                0, // weighty
+                GridBagConstraints.WEST, // anchor
+                GridBagConstraints.NONE, // fill
+                new Insets(8, 8, 2, 8), // insets(top, left, bottom, right)
+                0, // ipadx
+                0 // ipady
+        );
     }
 
     private GasInfo getGasInfo() {
-        int gasPrice = 0;
+        int gasPrice;
         try {
             gasPrice = Integer.parseInt(gasPriceField.getText());
             if (gasPrice < 0) {
-                gasPrice = 0;
                 throw new NumberFormatException();
             }
         } catch (NumberFormatException e) {
-            gasPriceField.setText("0");
+            gasPrice = 0;
         }
-        int maxGas = 0;
+        gasPriceField.setText(String.valueOf(gasPrice));
+
+        int maxGas;
         try {
             maxGas = Integer.parseInt(maxGasField.getText());
             if (maxGas < 0) {
-                maxGas = 0;
                 throw new NumberFormatException();
             }
         } catch (NumberFormatException e) {
-            maxGasField.setText("0");
+            maxGas = 0;
         }
-        int maxFee = 0;
+        maxGasField.setText(String.valueOf(maxGas));
+
+        int maxFee;
         try {
             maxFee = Integer.parseInt(maxFeeFiled.getText());
             if (maxFee < 0) {
-                maxFee = 0;
                 throw new NumberFormatException();
             }
         } catch (NumberFormatException e) {
-            maxFeeFiled.setText("0");
+            maxFee = 0;
         }
+        maxFeeFiled.setText(String.valueOf(maxFee));
+
         return new GasInfo(gasPrice, maxGas, maxFee);
     }
 
     private LeaseInfo getLeaseInfo() {
-        int days = 0;
+        int days;
         try {
             days = Integer.parseInt(daysField.getText());
         } catch (NumberFormatException e) {
-            daysField.setText("0");
+            days = 0;
         }
-        int hours = 0;
+        daysField.setText(String.valueOf(days));
+
+        int hours;
         try {
             hours = Integer.parseInt(hoursField.getText());
         } catch (NumberFormatException e) {
-            hoursField.setText("0");
+            hours = 0;
         }
-        int minutes = 0;
+        hoursField.setText(String.valueOf(hours));
+
+        int minutes;
         try {
             minutes = Integer.parseInt(minutesFiled.getText());
         } catch (NumberFormatException e) {
-            minutesFiled.setText("0");
+            minutes = 0;
         }
-        int seconds = 0;
+        minutesFiled.setText(String.valueOf(minutes));
+
+        int seconds;
         try {
             seconds = Integer.parseInt(secondsFiled.getText());
         } catch (NumberFormatException e) {
-            secondsFiled.setText("0");
+            seconds = 0;
         }
+        secondsFiled.setText(String.valueOf(seconds));
+
         return new LeaseInfo(days, hours, minutes, seconds);
     }
 
-    private void connect(JTextField mnemonicField, JTextField endpointField, JTextField uuidFiled, JTextField chainIdFiled, JLabel connectLabel) {
+    private void connect(
+            JTextArea mnemonicField,
+            JTextArea endpointField,
+            JTextArea uuidFiled,
+            JTextArea chainIdFiled,
+            JLabel label
+    ) {
         String mnemonic = mnemonicField.getText();
         if (mnemonic.isEmpty()) {
             mnemonicField.setText(defaultMnemonic);
@@ -259,30 +368,30 @@ public class Gui {
         }
         String uuid = uuidFiled.getText();
         String chainId = chainIdFiled.getText();
-        connectLabel.setText("connecting...");
+        label.setText("connecting...");
 
-        new SwingWorker<Void, Void>() {
-            private String result;
-
+        new SwingWorker<String, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
+            protected String doInBackground() {
                 try {
-                    bluzelle = Bluzelle.connect(
-                            mnemonic,
-                            endpoint,
-                            uuid.isEmpty() ? null : uuid,
-                            chainId.isEmpty() ? null : chainId
-                    );
-                    result = "connected";
+                    bluzelle = Bluzelle.connect(mnemonic, endpoint, uuid, chainId);
+                    return "connected";
                 } catch (Exception e) {
-                    result = e.getMessage();
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
+                    }
+                    return e.toString();
                 }
-                return null;
             }
 
             @Override
             protected void done() {
-                connectLabel.setText(result);
+                try {
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
+                }
             }
         }.execute();
     }
@@ -298,56 +407,28 @@ public class Gui {
         LeaseInfo leaseInfo = getLeaseInfo();
         label.setText("creating...");
 
-        new SwingWorker<Void, Void>() {
-            private String result;
-
+        new SwingWorker<String, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
+            protected String doInBackground() {
                 try {
                     bluzelle.create(key, value, gasInfo, leaseInfo);
-                    result = "created";
+                    return "created";
                 } catch (Exception e) {
-                    result = e.getMessage();
-                }
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                label.setText(result);
-            }
-        }.execute();
-    }
-
-    private void has(JTextField keyField, boolean tx, JLabel label) {
-        if (bluzelle == null) {
-            label.setText("not connected");
-            return;
-        }
-        String key = keyField.getText();
-        GasInfo gasInfo = getGasInfo();
-        label.setText("reading...");
-
-        new SwingWorker<Void, Void>() {
-            private String result;
-
-            @Override
-            protected Void doInBackground() throws Exception {
-                try {
-                    if (tx) {
-                        result = String.valueOf(bluzelle.txHas(key, gasInfo));
-                    } else {
-                        result = String.valueOf(bluzelle.has(key));
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
                     }
-                } catch (Exception e) {
-                    result = e.getMessage();
+                    return e.toString();
                 }
-                return null;
             }
 
             @Override
             protected void done() {
-                label.setText(result);
+                try {
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
+                }
             }
         }.execute();
     }
@@ -358,32 +439,109 @@ public class Gui {
             return;
         }
         String key = keyField.getText();
-        GasInfo gasInfo = getGasInfo();
+        GasInfo gasInfo = tx ? getGasInfo() : null;
         label.setText("reading...");
 
-        new SwingWorker<Void, Void>() {
-            private String result;
-
+        new SwingWorker<String, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
+            protected String doInBackground() {
                 try {
                     if (tx) {
-                        result = bluzelle.txRead(key, gasInfo);
+                        return bluzelle.txRead(key, gasInfo);
                     } else {
-                        result = bluzelle.read(key, false);
-                        if (result == null) {
-                            result = "null";
-                        }
+                        return bluzelle.read(key, false);
                     }
                 } catch (Exception e) {
-                    result = e.getMessage();
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
+                    }
+                    return e.toString();
                 }
-                return null;
             }
 
             @Override
             protected void done() {
-                label.setText(result);
+                try {
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
+                }
+            }
+        }.execute();
+    }
+
+    private void has(JTextField keyField, boolean tx, JLabel label) {
+        if (bluzelle == null) {
+            label.setText("not connected");
+            return;
+        }
+        String key = keyField.getText();
+        GasInfo gasInfo = tx ? getGasInfo() : null;
+        label.setText("reading...");
+
+        new SwingWorker<String, Void>() {
+            @Override
+            protected String doInBackground() {
+                try {
+                    if (tx) {
+                        return String.valueOf(bluzelle.txHas(key, gasInfo));
+                    } else {
+                        return String.valueOf(bluzelle.has(key));
+                    }
+                } catch (Exception e) {
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
+                    }
+                    return e.toString();
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
+                }
+            }
+        }.execute();
+    }
+
+    private void keys(boolean tx, JLabel label) {
+        if (bluzelle == null) {
+            label.setText("not connected");
+            return;
+        }
+        GasInfo gasInfo = tx ? getGasInfo() : null;
+        label.setText("reading...");
+
+        new SwingWorker<String, Void>() {
+            @Override
+            protected String doInBackground() {
+                try {
+                    if (tx) {
+                        return bluzelle.txKeys(gasInfo).toString();
+                    } else {
+                        return bluzelle.keys().toString();
+                    }
+                } catch (Exception e) {
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
+                    }
+                    return e.toString();
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
+                }
             }
         }.execute();
     }
@@ -394,60 +552,34 @@ public class Gui {
             return;
         }
         String key = keyField.getText();
-        GasInfo gasInfo = getGasInfo();
+        GasInfo gasInfo = tx ? getGasInfo() : null;
         label.setText("reading...");
 
-        new SwingWorker<Void, Void>() {
-            private String result;
-
+        new SwingWorker<String, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
+            protected String doInBackground() {
                 try {
                     if (tx) {
-                        result = String.valueOf(bluzelle.txGetLease(key, gasInfo));
+                        return String.valueOf(bluzelle.txGetLease(key, gasInfo));
                     } else {
-                        result = String.valueOf(bluzelle.getLease(key));
+                        return String.valueOf(bluzelle.getLease(key));
                     }
                 } catch (Exception e) {
-                    result = e.getMessage();
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
+                    }
+                    return e.toString();
                 }
-                return null;
             }
 
             @Override
             protected void done() {
-                label.setText(result);
-            }
-        }.execute();
-    }
-
-    private void rename(JTextField keyField, JTextField newKeyFiled, JLabel label) {
-        if (bluzelle == null) {
-            label.setText("not connected");
-            return;
-        }
-        String key = keyField.getText();
-        String newKey = newKeyFiled.getText();
-        GasInfo gasInfo = getGasInfo();
-        label.setText("updating...");
-
-        new SwingWorker<Void, Void>() {
-            private String result;
-
-            @Override
-            protected Void doInBackground() throws Exception {
                 try {
-                    bluzelle.rename(key, newKey, gasInfo);
-                    result = "updated";
-                } catch (Exception e) {
-                    result = e.getMessage();
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
                 }
-                return null;
-            }
-
-            @Override
-            protected void done() {
-                label.setText(result);
             }
         }.execute();
     }
@@ -463,23 +595,64 @@ public class Gui {
         LeaseInfo leaseInfo = getLeaseInfo();
         label.setText("updating...");
 
-        new SwingWorker<Void, Void>() {
-            private String result;
-
+        new SwingWorker<String, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
+            protected String doInBackground() {
                 try {
                     bluzelle.update(key, value, gasInfo, leaseInfo);
-                    result = "updated";
+                    return "updated";
                 } catch (Exception e) {
-                    result = e.getMessage();
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
+                    }
+                    return e.toString();
                 }
-                return null;
             }
 
             @Override
             protected void done() {
-                label.setText(result);
+                try {
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
+                }
+            }
+        }.execute();
+    }
+
+    private void rename(JTextField keyField, JTextField newKeyFiled, JLabel label) {
+        if (bluzelle == null) {
+            label.setText("not connected");
+            return;
+        }
+        String key = keyField.getText();
+        String newKey = newKeyFiled.getText();
+        GasInfo gasInfo = getGasInfo();
+        label.setText("updating...");
+
+        new SwingWorker<String, Void>() {
+            @Override
+            protected String doInBackground() {
+                try {
+                    bluzelle.rename(key, newKey, gasInfo);
+                    return "updated";
+                } catch (Exception e) {
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
+                    }
+                    return e.toString();
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
+                }
             }
         }.execute();
     }
@@ -494,23 +667,28 @@ public class Gui {
         LeaseInfo leaseInfo = getLeaseInfo();
         label.setText("updating...");
 
-        new SwingWorker<Void, Void>() {
-            private String result;
-
+        new SwingWorker<String, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
+            protected String doInBackground() {
                 try {
                     bluzelle.renewLease(key, gasInfo, leaseInfo);
-                    result = "updated";
+                    return "updated";
                 } catch (Exception e) {
-                    result = e.getMessage();
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
+                    }
+                    return e.toString();
                 }
-                return null;
             }
 
             @Override
             protected void done() {
-                label.setText(result);
+                try {
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
+                }
             }
         }.execute();
     }
@@ -524,23 +702,28 @@ public class Gui {
         GasInfo gasInfo = getGasInfo();
         label.setText("deleting...");
 
-        new SwingWorker<Void, Void>() {
-            private String result;
-
+        new SwingWorker<String, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
+            protected String doInBackground() {
                 try {
                     bluzelle.delete(key, gasInfo);
-                    result = "deleted";
+                    return "deleted";
                 } catch (Exception e) {
-                    result = e.getMessage();
+                    String message = e.getMessage();
+                    if (message != null) {
+                        return message;
+                    }
+                    return e.toString();
                 }
-                return null;
             }
 
             @Override
             protected void done() {
-                label.setText(result);
+                try {
+                    label.setText(get());
+                } catch (InterruptedException | ExecutionException e) {
+                    label.setText(e.toString());
+                }
             }
         }.execute();
     }

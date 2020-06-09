@@ -25,10 +25,10 @@ public class Server implements HttpHandler {
     }
 
     @Override
-    public void handle(HttpExchange http) {
+    public void handle(HttpExchange exchange) {
         String request;
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(http.getRequestBody()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()));
             StringBuilder builder = new StringBuilder();
             do {
                 request = reader.readLine();
@@ -41,7 +41,7 @@ public class Server implements HttpHandler {
             } while (true);
         } catch (IOException e) {
             e.printStackTrace();
-            http.close();
+            exchange.close();
             return;
         }
 
@@ -49,7 +49,7 @@ public class Server implements HttpHandler {
         String result;
         try {
             if (request.isEmpty()) {
-                result = "bluzelle version " + wrapper.request("{method:version}");
+                result = "bluzelle account " + wrapper.request("{method:account}");
             } else {
                 result = wrapper.request(request);
             }
@@ -59,9 +59,6 @@ public class Server implements HttpHandler {
             if (result == null) {
                 result = e.toString();
             }
-            if (result.contains("FileNotFoundException")) {
-                result = "key not found";
-            }
         }
 
         try {
@@ -69,19 +66,19 @@ public class Server implements HttpHandler {
                 result = "null";
             }
             byte[] response = result.getBytes("utf-8");
-            http.sendResponseHeaders(error ? 400 : 200, response.length);
-            OutputStream stream = http.getResponseBody();
+            exchange.sendResponseHeaders(error ? 400 : 200, response.length);
+            OutputStream stream = exchange.getResponseBody();
             stream.write(response);
             stream.flush();
             stream.close();
         } catch (IOException e) {
             e.printStackTrace();
-            http.close();
+            exchange.close();
         }
     }
 
     private void init(int port) {
-        System.out.println("blzjava 0.4.2");
+        System.out.println("blzjava 0.5.0");
 
         String mnemonic = System.getenv("MNEMONIC");
         String endpoint = System.getenv("ENDPOINT");
