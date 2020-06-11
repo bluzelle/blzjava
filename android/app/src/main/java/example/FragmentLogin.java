@@ -38,13 +38,7 @@ public class FragmentLogin extends Fragment implements View.OnClickListener {
             return;
         }
         String uuid = ((EditText) getView().findViewById(R.id.uuid)).getText().toString();
-        if (uuid.isEmpty()) {
-            uuid = null;
-        }
         String chainId = ((EditText) getView().findViewById(R.id.chainId)).getText().toString();
-        if (chainId.isEmpty()) {
-            chainId = null;
-        }
         getView().findViewById(R.id.connect).setVisibility(View.VISIBLE);
         getView().findViewById(R.id.login).setVisibility(View.GONE);
 

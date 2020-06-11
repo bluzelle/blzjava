@@ -14,20 +14,24 @@
     <string name="defaultMnemonic">around buzz diagram captain obtain detail salon mango muffin brother morning jeans
         display attend knife carry green dwarf vendor hungry fan route pumpkin car
     </string>
-    <string name="defaultEndpoint">http://testnet.public.bluzelle.com:1317</string>
+    <string name="defaultEndpoint">http://dev.testnet.public.bluzelle.com:1317</string>
     <string name="login">login</string>
-    <string name="loading">loading…</string>
 
-    <string name="ready">ready</string>
     <string name="key">key</string>
     <string name="value">value</string>
     <string name="create">create</string>
+    <string name="creating">creating…</string>
+    <string name="created">created</string>
     <string name="read">read</string>
+    <string name="reading">reading…</string>
     <string name="update">update</string>
+    <string name="updating">updating…</string>
+    <string name="updated">updated</string>
     <string name="delete">delete</string>
+    <string name="deleting">deleting…</string>
+    <string name="deleted">deleted</string>
     <string name="enterKey">enter key</string>
     <string name="enterValue">enter value</string>
-    <string name="notFound">not found</string>
 
     <string name="set">set</string>
     <string name="gasPrice">gas price</string>

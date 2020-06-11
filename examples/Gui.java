@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 public class Gui {
     private static final String defaultMnemonic = "around buzz diagram captain obtain detail salon mango muffin" +
             " brother morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car";
-    private static final String defaultEndpoint = "http://testnet.public.bluzelle.com:1317";
+    private static final String defaultEndpoint = "http://dev.testnet.public.bluzelle.com:1317";
     private final JTextField gasPriceField = new JTextField("10");
     private final JTextField maxGasField = new JTextField("0");
     private final JTextField maxFeeFiled = new JTextField("0");

@@ -284,7 +284,7 @@ int lease = bluzelle.getLease(key);
 Returns the minimum length of time remaining for the key's lease, integer, in seconds.
 
 
-## txGetLease\(key, gasInfo\)
+### txGetLease\(key, gasInfo\)
 
 Retrieve the minimum time remaining on the lease for a key, using a transaction.
 

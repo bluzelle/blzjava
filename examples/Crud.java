@@ -73,7 +73,7 @@ public class Crud {
     private static Bluzelle connect() {
         String mnemonic = "around buzz diagram captain obtain detail salon mango muffin brother" +
                 " morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car";
-        String endpoint = "http://testnet.public.bluzelle.com:1317";
+        String endpoint = "http://dev.testnet.public.bluzelle.com:1317";
         return Bluzelle.connect(mnemonic, endpoint, null, null);
     }
 }

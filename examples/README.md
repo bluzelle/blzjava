@@ -26,23 +26,32 @@ Create file server.jar.
 
 The same file can be downloaded from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
 
-    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.1/server.jar
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.5.0/server.jar
 
-Run.
+Enter the port number as a last argument. Run.
 
     $ java -jar server.jar 5000
 
 Open other terminal.
 Create connection.
 
-    $ curl --data '{method:connect,args:["around buzz diagram captain obtain detail salon mango muffin brother morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car","http://testnet.public.bluzelle.com:1317"]}' localhost:5000
+    $ curl -d '{method:connect,args:["around buzz diagram captain obtain detail salon mango muffin brother morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car","http://dev.testnet.public.bluzelle.com:1317"]}' localhost:5000
 
-Use any method described in [API docs](../src/com/bluzelle).
+Create new key.
 
-    curl --data '{method:create,args:[key,value,{gas_price:10},{seconds:90}]}' localhost:5000
-    curl --data '{method:read,args:[key]}' localhost:5000
-    curl --data '{method:deleteAll}' localhost:5000
-    curl --data '{method:has,args:[key]}' localhost:5000
+    curl -d '{method:create,args:[key,value,{gas_price:10},{seconds:90}]}' localhost:5000
+
+Read the key.
+
+    curl -d '{method:read,args:[key]}' localhost:5000
+
+Delete all keys.
+
+    curl -d '{method:deleteAll}' localhost:5000
+
+Use any other method described in [API docs](../src/com/bluzelle).
+
+    curl -d '{method:has,args:[key]}' localhost:5000
 
 
 
@@ -85,6 +94,7 @@ Delete existing key.
     $ java Crud -d 'newKey'
 
 
+
 ## GUI
 
 <img src="docs/gui.png" width="509" heigh="365">
@@ -110,7 +120,7 @@ Create file gui.jar.
 
 The same file can be downloaded from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
 
-    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.1/gui.jar
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.5.0/gui.jar
 
 Run and use GUI.
 
@@ -122,7 +132,7 @@ Run and use GUI.
 
 Download bluzelle.jar from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
 
-    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.1/bluzelle.jar
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.5.0/bluzelle.jar
 
 Copy file Threads.java or get file from the package.
 
@@ -138,5 +148,4 @@ Run.
     $ java -cp .:./bluzelle.jar Threads
 
 This will create multiple key-value pairs and simultaneously read all the keys every 2 seconds.
-
 

@@ -1,3 +1,8 @@
+// connect to the endpoint
+// usage:
+//    Connection connection = new Connection(endpointString);
+//    String response = connection.get(pathString);
+//    String response = connection.post(pathString, isDelete, dataJsonObject);
 package com.bluzelle;
 
 import com.bluzelle.json.JsonObject;
@@ -27,7 +32,8 @@ public class Connection {
      *
      * @param path url path
      * @return response String
-     * @throws ConnectionException if can not connect
+     * @throws KeyNotFoundException if key does not exist
+     * @throws ConnectionException  if can not connect
      */
     public String get(String path) {
         try {
@@ -47,7 +53,7 @@ public class Connection {
                 builder.append(input);
             } while (true);
         } catch (FileNotFoundException e) {
-            throw new ConnectionException(e, true);
+            throw new KeyNotFoundException();
         } catch (IOException e) {
             throw new ConnectionException(e);
         }
@@ -93,16 +99,14 @@ public class Connection {
     }
 
     public class ConnectionException extends RuntimeException {
-        final boolean notFound;
-
-        private ConnectionException(Exception e, boolean notFound) {
-            super(e);
-            this.notFound = notFound;
-        }
-
         private ConnectionException(Exception e) {
             super(e);
-            this.notFound = false;
+        }
+    }
+
+    public static class KeyNotFoundException extends RuntimeException {
+        private KeyNotFoundException() {
+            super("key not found");
         }
     }
 }

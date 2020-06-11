@@ -16,6 +16,6 @@ Select menu > build > build apk.
 Activate the option 'unknown origins' in the android device to launch this apk.
 
 
-Download example of the android [app](https://github.com/aqoleg/blzjava/releases/download/0.4.1/bluzelle.apk).
+Download example of the android [app](https://github.com/aqoleg/blzjava/releases/download/0.5.0/bluzelle.apk).
 
 <img src="docs/login.png" width="240" heigh="427">  <img src="docs/1.png" width="240" heigh="427">

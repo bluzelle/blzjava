@@ -25,7 +25,7 @@ If Java is not installed, install it.
 
 Download bluzelle.jar from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
 
-    $ wget https://github.com/aqoleg/blzjava/releases/download/0.4.1/bluzelle.jar
+    $ wget https://github.com/aqoleg/blzjava/releases/download/0.5.0/bluzelle.jar
 
 Create file "Quickstart.java".
 ```java
@@ -36,7 +36,7 @@ public class Quickstart {
     public static void main(String[] args) {
         Bluzelle bluzelle = Bluzelle.connect(
                 "around buzz diagram captain obtain detail salon mango muffin brother morning jeans display attend knife carry green dwarf vendor hungry fan route pumpkin car",
-                "http://testnet.public.bluzelle.com:1317",
+                "http://dev.testnet.public.bluzelle.com:1317",
                 null,
                 null
         );

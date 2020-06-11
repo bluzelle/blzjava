@@ -11,7 +11,7 @@ class ConnectionTest {
     void getTest() {
         assertThrows(NullPointerException.class, () -> new Connection(null));
         assertThrows(Connection.ConnectionException.class, () -> new Connection("net.public").get(""));
-        Connection connection = new Connection("http://testnet.public.bluzelle.com:1317");
+        Connection connection = new Connection("http://dev.testnet.public.bluzelle.com:1317");
         assertThrows(
                 Connection.KeyNotFoundException.class,
                 () -> connection.get("")
@@ -29,7 +29,7 @@ class ConnectionTest {
                 () -> new Connection("net.public").post("", false, new JsonObject())
         );
 
-        Connection connection = new Connection("http://testnet.public.bluzelle.com:1317");
+        Connection connection = new Connection("http://dev.testnet.public.bluzelle.com:1317");
         assertThrows(
                 Connection.ConnectionException.class,
                 () -> connection.post("", false, new JsonObject())

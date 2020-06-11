@@ -11,8 +11,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class FragmentMain extends Fragment implements View.OnClickListener, TextView.OnEditorActionListener {
-    private boolean readBlocked = false;
-    private boolean writeBlocked = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -72,11 +70,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             ((EditText) getView().findViewById(R.id.createValue)).setHint(getString(R.string.enterValue));
             return true;
         }
-        if (writeBlocked) {
-            return true;
-        }
-        writeBlocked = true;
-        ((TextView) getView().findViewById(R.id.createResult)).setText(R.string.loading);
+        ((TextView) getView().findViewById(R.id.createResult)).setText(R.string.creating);
 
         new AsyncTask<String, Void, String>() {
 
@@ -84,7 +78,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             protected String doInBackground(String... s) {
                 try {
                     Data.bluzelle.create(s[0], s[1], Data.gasInfo, Data.leaseInfo);
-                    return getString(R.string.ready);
+                    return getString(R.string.created);
                 } catch (Exception exception) {
                     return exception.getMessage();
                 }
@@ -94,7 +88,6 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
                 ((TextView) getView().findViewById(R.id.createResult)).setText(result);
-                writeBlocked = false;
             }
         }.execute(key, value);
 
@@ -107,11 +100,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             ((EditText) getView().findViewById(R.id.readKey)).setHint(R.string.enterKey);
             return true;
         }
-        if (readBlocked) {
-            return true;
-        }
-        readBlocked = true;
-        ((TextView) getView().findViewById(R.id.readResult)).setText(R.string.loading);
+        ((TextView) getView().findViewById(R.id.readResult)).setText(R.string.reading);
 
         new AsyncTask<String, Void, String>() {
 
@@ -127,11 +116,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             @Override
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
-                if (result == null) {
-                    result = getString(R.string.notFound);
-                }
                 ((TextView) getView().findViewById(R.id.readResult)).setText(result);
-                readBlocked = false;
             }
         }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, key);
 
@@ -149,11 +134,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             ((EditText) getView().findViewById(R.id.updateValue)).setHint(getString(R.string.enterValue));
             return true;
         }
-        if (writeBlocked) {
-            return true;
-        }
-        writeBlocked = true;
-        ((TextView) getView().findViewById(R.id.updateResult)).setText(R.string.loading);
+        ((TextView) getView().findViewById(R.id.updateResult)).setText(R.string.updating);
 
         new AsyncTask<String, Void, String>() {
 
@@ -161,7 +142,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             protected String doInBackground(String... s) {
                 try {
                     Data.bluzelle.update(s[0], s[1], Data.gasInfo, Data.leaseInfo);
-                    return getString(R.string.ready);
+                    return getString(R.string.updated);
                 } catch (Exception exception) {
                     return exception.getMessage();
                 }
@@ -171,7 +152,6 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
                 ((TextView) getView().findViewById(R.id.updateResult)).setText(result);
-                writeBlocked = false;
             }
         }.execute(key, value);
 
@@ -184,11 +164,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             ((EditText) getView().findViewById(R.id.deleteKey)).setHint(R.string.enterKey);
             return true;
         }
-        if (writeBlocked) {
-            return true;
-        }
-        writeBlocked = true;
-        ((TextView) getView().findViewById(R.id.deleteResult)).setText(R.string.loading);
+        ((TextView) getView().findViewById(R.id.deleteResult)).setText(R.string.deleting);
 
         new AsyncTask<String, Void, String>() {
 
@@ -196,7 +172,7 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             protected String doInBackground(String... s) {
                 try {
                     Data.bluzelle.delete(s[0], Data.gasInfo);
-                    return getString(R.string.ready);
+                    return getString(R.string.deleted);
                 } catch (Exception exception) {
                     return exception.getMessage();
                 }
@@ -206,7 +182,6 @@ public class FragmentMain extends Fragment implements View.OnClickListener, Text
             protected void onPostExecute(String result) {
                 super.onPostExecute(result);
                 ((TextView) getView().findViewById(R.id.deleteResult)).setText(result);
-                writeBlocked = false;
             }
         }.execute(key);
 
