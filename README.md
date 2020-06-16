@@ -23,9 +23,9 @@ If Java is not installed, install it.
     $ sudo apt-get update
     $ sudo apt-get install default-jdk
 
-Download bluzelle.jar from [releases](https://github.com/aqoleg/blzjava/releases) or using terminal.
+Download bluzelle.jar from [releases] (https://github.com/bluzelle/blzjava/releases) or using terminal.
 
-    $ wget https://github.com/aqoleg/blzjava/releases/download/0.5.0/bluzelle.jar
+    $ wget https://github.com/bluzelle/blzjava/releases/download/0.0.1/bluzelle.jar
 
 Create file "Quickstart.java".
 ```java
