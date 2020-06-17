@@ -23,7 +23,7 @@ If Java is not installed, install it.
     $ sudo apt-get update
     $ sudo apt-get install default-jdk
 
-Download bluzelle.jar from [releases] (https://github.com/bluzelle/blzjava/releases) or using terminal.
+Download bluzelle.jar from [releases](https://github.com/bluzelle/blzjava/releases) or using terminal.
 
     $ wget https://github.com/bluzelle/blzjava/releases/download/0.0.1/bluzelle.jar
 

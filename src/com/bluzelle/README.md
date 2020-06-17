@@ -7,7 +7,7 @@
 
 Get the package from github.
 
-    $ git clone https://github.com/aqoleg/blzjava.git
+    $ git clone https://github.com/bluzelle/blzjava.git
 
 Create output directory.
 

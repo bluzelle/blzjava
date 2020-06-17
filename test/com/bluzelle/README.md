@@ -11,7 +11,7 @@ Download junit-platform-console-standalone-1.6.2.jar from Maven Central [reposit
 
 Get the package from github.
 
-    $ git clone https://github.com/aqoleg/blzjava.git
+    $ git clone https://github.com/bluzelle/blzjava.git
 
 Create output directory.
 

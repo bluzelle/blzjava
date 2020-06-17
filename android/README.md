@@ -5,7 +5,12 @@
 
 # Bluzelle Android
 
-Install and configure [Android Studio](https://developer.android.com/studio/install).
+<img src="docs/login.png" width="240" heigh="400">    <img src="docs/1.png" width="240" heigh="400">
+
+
+## Install IDE
+
+Follow instructions to install the latest [Android Studio](https://developer.android.com/studio/install).
 
 Create new android project. On the step 'add an activity' select 'add no activity'.
 
@@ -15,7 +20,6 @@ Select menu > build > build apk.
 
 Activate the option 'unknown origins' in the android device to launch this apk.
 
+Download this example of the android [app](https://github.com/aqoleg/blzandroid/releases/download/0.5.0/bluzelle.apk).
 
-Download example of the android [app](https://github.com/aqoleg/blzjava/releases/download/0.5.0/bluzelle.apk).
-
-<img src="docs/login.png" width="240" heigh="400">    <img src="docs/1.png" width="240" heigh="400">
+Activate the option **Settings** > **Security** > **Unknown sources** in the android device to launch this apk.

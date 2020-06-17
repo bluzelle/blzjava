@@ -8,7 +8,7 @@
 Build from the source code.
 Get the package from github.
 
-    $ git clone https://github.com/aqoleg/blzjava.git
+    $ git clone https://github.com/bluzelle/blzjava.git
 
 Create output directory.
 
@@ -59,7 +59,7 @@ Use any other method described in [API docs](../src/com/bluzelle).
 
 Get the package from github.
 
-    $ git clone https://github.com/aqoleg/blzjava.git
+    $ git clone https://github.com/bluzelle/blzjava.git
 
 Create output directory.
 
@@ -102,7 +102,7 @@ Delete existing key.
 Build from the source code.
 Get the package from github.
 
-    $ git clone https://github.com/aqoleg/blzjava.git
+    $ git clone https://github.com/bluzelle/blzjava.git
 
 Create output directory.
 
@@ -136,7 +136,7 @@ Download bluzelle.jar from [releases](https://github.com/aqoleg/blzjava/releases
 
 Copy file Threads.java or get file from the package.
 
-    $ git clone https://github.com/aqoleg/blzjava.git
+    $ git clone https://github.com/bluzelle/blzjava.git
     $ mv blzjava/examples/Threads.java Threads.java
 
 Compile.
